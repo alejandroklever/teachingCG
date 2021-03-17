@@ -23,7 +23,7 @@ namespace Renderer
             // FreeTransformTest(render);
             // DrawRoomTest(render);
             
-            IDrawer drawer = DrawerTools.GetDrawer(DrawerType.Guitar);
+            _drawer = DrawerTools.GetDrawer(DrawerType.Guitar);
             float4x4 transform = _drawer.Draw(render);
             
             render.RenderTarget.Save("test.rbm");
