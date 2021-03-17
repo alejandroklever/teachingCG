@@ -1,12 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GMath
 {
     public static partial class Gfx
     {
         #region cross
+
+        static Gfx()
+        {
+        }
+
         public static float3 cross(float3 pto1, float3 pto2)
         {
             return new float3(
@@ -30,9 +33,9 @@ namespace GMath
 
         public static float determinant(float3x3 m)
         {
-            /// 00 01 02
-            /// 10 11 12
-            /// 20 21 22
+            // 00 01 02
+            // 10 11 12
+            // 20 21 22
             float Min00 = m._m11 * m._m22 - m._m12 * m._m21;
             float Min01 = m._m10 * m._m22 - m._m12 * m._m20;
             float Min02 = m._m10 * m._m21 - m._m11 * m._m20;
@@ -42,10 +45,14 @@ namespace GMath
 
         public static float determinant(float4x4 m)
         {
-            float Min00 = m._m11 * m._m22 * m._m33 + m._m12 * m._m23 * m._m31 + m._m13 * m._m21 * m._m32 - m._m11 * m._m23 * m._m32 - m._m12 * m._m21 * m._m33 - m._m13 * m._m22 * m._m31;
-            float Min01 = m._m10 * m._m22 * m._m33 + m._m12 * m._m23 * m._m30 + m._m13 * m._m20 * m._m32 - m._m10 * m._m23 * m._m32 - m._m12 * m._m20 * m._m33 - m._m13 * m._m22 * m._m30;
-            float Min02 = m._m10 * m._m21 * m._m33 + m._m11 * m._m23 * m._m30 + m._m13 * m._m20 * m._m31 - m._m10 * m._m23 * m._m31 - m._m11 * m._m20 * m._m33 - m._m13 * m._m21 * m._m30;
-            float Min03 = m._m10 * m._m21 * m._m32 + m._m11 * m._m22 * m._m30 + m._m12 * m._m20 * m._m31 - m._m10 * m._m22 * m._m31 - m._m11 * m._m20 * m._m32 - m._m12 * m._m21 * m._m30;
+            float Min00 = m._m11 * m._m22 * m._m33 + m._m12 * m._m23 * m._m31 + m._m13 * m._m21 * m._m32 -
+                          m._m11 * m._m23 * m._m32 - m._m12 * m._m21 * m._m33 - m._m13 * m._m22 * m._m31;
+            float Min01 = m._m10 * m._m22 * m._m33 + m._m12 * m._m23 * m._m30 + m._m13 * m._m20 * m._m32 -
+                          m._m10 * m._m23 * m._m32 - m._m12 * m._m20 * m._m33 - m._m13 * m._m22 * m._m30;
+            float Min02 = m._m10 * m._m21 * m._m33 + m._m11 * m._m23 * m._m30 + m._m13 * m._m20 * m._m31 -
+                          m._m10 * m._m23 * m._m31 - m._m11 * m._m20 * m._m33 - m._m13 * m._m21 * m._m30;
+            float Min03 = m._m10 * m._m21 * m._m32 + m._m11 * m._m22 * m._m30 + m._m12 * m._m20 * m._m31 -
+                          m._m10 * m._m22 * m._m31 - m._m11 * m._m20 * m._m32 - m._m12 * m._m21 * m._m30;
 
             return Min00 * m._m00 - Min01 * m._m01 + Min02 * m._m02 - Min03 * m._m03;
         }
@@ -74,9 +81,7 @@ namespace GMath
         /// </summary>
         public static float3 reflect(float3 L, float3 N)
         {
-
             return 2 * dot(L, N) * N - L;
-
         }
 
         #endregion
@@ -114,7 +119,7 @@ namespace GMath
         /// Given a direction, creates two othonormal vectors to it.
         /// From the paper: Building an Orthonormal Basis, Revisited, Tom Duff, et.al.
         /// </summary>
-        public static void createOrthoBasis(float3 N, out float3 T, out float3 B)
+        public static void CreateOrthoBasis(float3 N, out float3 T, out float3 B)
         {
             float sign = copysign(1.0f, N.z);
             float a = -1.0f / (sign + N.z);
@@ -127,18 +132,23 @@ namespace GMath
 
         #region Randoms
 
-        static GRandom __random = new GRandom();
+        private static readonly GRandom __random = new GRandom();
 
         public static float random()
         {
             return __random.random();
         }
 
+        public static float random(float a, float b) => a + (b - a) * random();
+
         public static float2 random2()
         {
             return __random.random2();
         }
 
+        /// <summary>
+        /// Return a random point inside an unit cube
+        /// </summary>
         public static float3 randomInBox()
         {
             float u = random() * 2 - 1, v = random() * 2 - 1;
@@ -152,6 +162,22 @@ namespace GMath
                 case 5: return float3(1, u, v); // posX
             }
             return float3(0, 0, 0); // should never occur... but compiler doesn't know...
+        }
+        
+        /// <summary>
+        /// Return a random point inside a cylinder of height 1f
+        /// </summary>
+        /// <param name="radio">Radio of the cylinder</param>
+        /// <returns></returns>
+        public static float3 randomInCylinder(float radio = 1f)
+        {
+            var H = 1f;
+
+            var theta = random() * two_pi;
+            var r = sqrt(random()) * radio;
+            var h = random() * H;
+
+            return float3(r * cos(theta), random() * h, r * sin(theta));
         }
 
         #endregion

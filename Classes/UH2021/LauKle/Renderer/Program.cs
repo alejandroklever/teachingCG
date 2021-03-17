@@ -1,5 +1,7 @@
 ﻿using System;
 using GMath;
+using Renderer.Scene;
+using Renderer.Scene.Geometry;
 using Rendering;
 using static GMath.Gfx;
 
@@ -7,16 +9,23 @@ namespace Renderer
 {
     internal static class Program
     {
+        private static IDrawer _drawer;
+        private static DrawerType _drawerType = DrawerType.Guitar;
+        
         private static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Render();
         }
 
-        private static void Render(string[] args)
+        private static void Render()
         {
             Raster render = new Raster(1024, 512);
-            FreeTransformTest(render);
-            //DrawRoomTest(render);
+            // FreeTransformTest(render);
+            // DrawRoomTest(render);
+            
+            IDrawer drawer = DrawerTools.GetDrawer(DrawerType.Guitar);
+            float4x4 transform = _drawer.Draw(render);
+            
             render.RenderTarget.Save("test.rbm");
             Console.WriteLine("Done.");
         }

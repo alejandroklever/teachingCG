@@ -94,7 +94,7 @@ namespace GMath
             float z = r2;
 
             float3 t0, t1;
-            createOrthoBasis(D, out t0, out t1);
+            CreateOrthoBasis(D, out t0, out t1);
 
             return t0 * x + t1 * y + D * z;
         }
