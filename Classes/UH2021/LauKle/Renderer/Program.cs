@@ -21,10 +21,10 @@ namespace Renderer
         {
             Raster render = new Raster(1024, 512);
             // FreeTransformTest(render);
-            // DrawRoomTest(render);
+            DrawRoomTest(render);
             
-            _drawer = DrawerTools.GetDrawer(_drawerType);
-            float4x4 transform = _drawer.Draw(render);
+            // _drawer = DrawerTools.GetDrawer(_drawerType);
+            // float4x4 transform = _drawer.Draw(render);
             
             render.RenderTarget.Save("test.rbm");
             Console.WriteLine("Done.");
@@ -35,7 +35,7 @@ namespace Renderer
             float3[] points = new float3[N];
 
             for (int i = 0; i < N; i++)
-                points[i] = randomInBox();
+                points[i] = randomInCylinder();// randomInBox();
 
             return points;
         }

@@ -134,12 +134,11 @@ namespace GMath
 
         private static readonly GRandom __random = new GRandom();
 
-        public static float random()
-        {
-            return __random.random();
-        }
+        public static float random() => __random.random();
 
         public static float random(float a, float b) => a + (b - a) * random();
+
+        public static float random(float a) => a * random();
 
         public static float2 random2()
         {
@@ -171,13 +170,11 @@ namespace GMath
         /// <returns></returns>
         public static float3 randomInCylinder(float radio = 1f)
         {
-            var H = 1f;
-
-            var theta = random() * two_pi;
+            var theta = random(two_pi);
             var r = sqrt(random()) * radio;
-            var h = random() * H;
+            var h = random(0, 2);
 
-            return float3(r * cos(theta), random() * h, r * sin(theta));
+            return float3(r * cos(theta), random(h), r * sin(theta));
         }
 
         #endregion
