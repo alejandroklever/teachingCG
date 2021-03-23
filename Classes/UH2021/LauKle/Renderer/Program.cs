@@ -21,10 +21,10 @@ namespace Renderer
         {
             Raster render = new Raster(1024, 512);
             // FreeTransformTest(render);
-            DrawRoomTest(render);
+            // DrawRoomTest(render);
             
-            // _drawer = DrawerTools.GetDrawer(_drawerType);
-            // float4x4 transform = _drawer.Draw(render);
+            _drawer = DrawerTools.GetDrawer(_drawerType);
+            float4x4 transform = _drawer.Draw(render);
             
             render.RenderTarget.Save("test.rbm");
             Console.WriteLine("Done.");
@@ -35,7 +35,7 @@ namespace Renderer
             float3[] points = new float3[N];
 
             for (int i = 0; i < N; i++)
-                points[i] = randomInCylinder();// randomInBox();
+                points[i] = randomInBox();
 
             return points;
         }
@@ -132,8 +132,8 @@ namespace Renderer
 
         private static void DrawTableTop(Raster raster, float3[] boxPoints, float4x4 transform)
         {
-            float4x4 transformingIntoLeg = mul(Transforms.Scale(2.2f, 0.2f, 2.2f), transform);
-            DrawBox(raster, boxPoints, transformingIntoLeg);
+            float4x4 transformingIntoTop = mul(Transforms.Scale(2.2f, 0.2f, 2.2f), transform);
+            DrawBox(raster, boxPoints, transformingIntoTop);
         }
 
         private static void DrawTableLeg(Raster raster, float3[] boxPoints, float4x4 transform)

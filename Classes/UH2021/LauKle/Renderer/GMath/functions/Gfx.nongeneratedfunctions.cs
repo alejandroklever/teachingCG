@@ -140,6 +140,10 @@ namespace GMath
 
         public static float random(float a) => a * random();
 
+        public static int random(int a) => (int) random(1f * a);
+
+        public static int random(int a, int b) => (int)random((float)a, b);
+
         public static float2 random2()
         {
             return __random.random2();
@@ -151,30 +155,38 @@ namespace GMath
         public static float3 randomInBox()
         {
             float u = random() * 2 - 1, v = random() * 2 - 1;
-            switch ((int)(random() * 6))
+            return random(6) switch
             {
-                case 0: return float3(u, v, -1); // negZ
-                case 1: return float3(u, v, 1); // posZ
-                case 2: return float3(u, -1, v); // negY
-                case 3: return float3(u, 1, v); // posY
-                case 4: return float3(-1, u, v); // negX
-                case 5: return float3(1, u, v); // posX
-            }
-            return float3(0, 0, 0); // should never occur... but compiler doesn't know...
+                0 => float3(u, v, -1), // negZ
+                1 => float3(u, v, 1), // posZ
+                2 => float3(u, -1, v), // negY
+                3 => float3(u, 1, v), // posY
+                4 => float3(-1, u, v), // negX
+                5 => float3(1, u, v), // posX
+                _ => float3(0, 0, 0) // should never occur... but compiler doesn't know...
+            };
         }
         
         /// <summary>
         /// Return a random point inside a cylinder of height 1f
         /// </summary>
-        /// <param name="radio">Radio of the cylinder</param>
+        /// <param name="r">Radio of the cylinder</param>
         /// <returns></returns>
-        public static float3 randomInCylinder(float radio = 1f)
+        public static float3 randomInCylinder(float r = 1f)
         {
+            var (top, bottom) = (-1f, 1f);
             var theta = random(two_pi);
-            var r = sqrt(random()) * radio;
-            var h = random(0, 2);
+            var dr = sqrt(random()) * r;
+            var dh = random(bottom, top);
 
-            return float3(r * cos(theta), random(h), r * sin(theta));
+            return random(3) switch
+            {
+                0 => float3(dr * cos(theta), top, dr * sin(theta)), // Top Base
+                1 => float3(dr * cos(theta), bottom, dr * sin(theta)), // Bottom Base
+                2 => float3(r * cos(theta), dh, r * sin(theta)), // Lateral
+                _ => GMath.float3.zero
+            };
+            
         }
 
         #endregion

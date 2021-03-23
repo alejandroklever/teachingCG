@@ -8,10 +8,7 @@ namespace Rendering
 {
 	static class Transforms
 	{
-		public static float4x4 Identity
-        {
-            get { return float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
-        }
+		public static float4x4 Identity => float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
 		/// matrices
 		/// <summary>

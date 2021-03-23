@@ -22,9 +22,35 @@ namespace Renderer.Scene
             var points = new float3[n];
 
             for (var i = 0; i < n; i++)
-                points[i] = randomInCylinder();// randomInBox();
+                points[i] = randomInCylinder();
 
             return points;
+        }
+        
+        public static float3[] RandomPositionInCylinderSurface(int n)
+        {
+            var points = new float3[n];
+
+            for (var i = 0; i < n; i++)
+                points[i] = randomInCylinder();
+
+            return points;
+        }
+        
+        private static float3[] ApplyTransform(float3[] points, float4x4 matrix)
+        {
+            float3[] result = new float3[points.Length];
+
+            // Transform points with a matrix
+            // Linear transform in homogeneous coordinates
+            for (int i = 0; i < points.Length; i++)
+            {
+                float4 h = float4(points[i], 1);
+                h = mul(h, matrix);
+                result[i] = h.xyz / h.w;
+            }
+
+            return result;
         }
     }
 

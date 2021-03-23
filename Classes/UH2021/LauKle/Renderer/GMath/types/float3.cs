@@ -7,10 +7,10 @@ namespace GMath
 		public float z;
 
 		public float2 xy => new float2(x, y);
-
 		public static float3 zero => new float3(0, 0, 0);
-		
 		public static float3 one => new float3(1, 1, 1);
+		public static float3 up => new float3(0, 1, 0);
+		public static float3 down => new float3(0, -1, 0);
 		
 		public float this[int idx]
 		{
