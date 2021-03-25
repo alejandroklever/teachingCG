@@ -137,4 +137,4 @@ _NCrunch*
 **/.vscode/
 **/__pycache__/
 **/.vs/
-**.sln
+**/.ionide/

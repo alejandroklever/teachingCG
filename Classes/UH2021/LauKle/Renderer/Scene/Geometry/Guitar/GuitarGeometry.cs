@@ -16,7 +16,7 @@ namespace Renderer.Scene.Geometry
         }
 
         private ColorType _colorType = ColorType.White;
-        private float4 color => _colorType switch
+        private float4 Color => _colorType switch
         {
             ColorType.White => float4(1, 1, 1, 1),
             ColorType.Red => float4(.68f, .25f, .25f, 1),
@@ -78,7 +78,7 @@ namespace Renderer.Scene.Geometry
         private void DrawCylinder(Raster render, float3[] cylinderPoints, float4x4 transform)
         {
             var pointsToDraw = ApplyTransform(cylinderPoints, transform);
-            render.DrawPoints(pointsToDraw, color);
+            render.DrawPoints(pointsToDraw, Color);
         }
 
         private void TransformAndDrawFretboard(Raster render, float3[] cylinderPoints, float4x4 transform,
@@ -100,7 +100,7 @@ namespace Renderer.Scene.Geometry
             ), transform);
 
             var pointsToDraw = ApplyTransform(boxPoints, transformingIntoBox);
-            render.DrawPoints(pointsToDraw, color);
+            render.DrawPoints(pointsToDraw, Color);
         }
         
         private float3[] ApplyTransform(float3[] points, float4x4 matrix)
@@ -133,33 +133,32 @@ namespace Renderer.Scene.Geometry
                 desiredTransform = mul(Transforms.Scale(scale.Value), desiredTransform);
 
             
-            Func<float3, float3, float, float4x4> RotateRespectTo = Transforms.RotateRespectTo;
-            Func<float, float3, float4x4> Rotate = Transforms.Rotate;
-            Func<float,  float4x4> RotateX = Transforms.RotateX;
-            Func<float,  float4x4> RotateY = Transforms.RotateY;
-            Func<float,  float4x4> RotateZ = Transforms.RotateZ;
+            Func<float3, float3, float, float4x4> rotateRespectTo = Transforms.RotateRespectTo;
+            Func<float, float3, float4x4> rotate = Transforms.Rotate;
+            Func<float,  float4x4> rotateX = Transforms.RotateX;
+            Func<float,  float4x4> rotateY = Transforms.RotateY;
+            Func<float,  float4x4> rotateZ = Transforms.RotateZ;
             
             if (useGrad)
             {
-                RotateRespectTo = Transforms.RotateRespectTo;
-                Rotate = Transforms.RotateGrad;
-                RotateX = Transforms.RotateXGrad;
-                RotateY = Transforms.RotateYGrad;
-                RotateZ = Transforms.RotateZGrad;
+                rotateRespectTo = Transforms.RotateRespectTo;
+                rotate = Transforms.RotateGrad;
+                rotateX = Transforms.RotateXGrad;
+                rotateY = Transforms.RotateYGrad;
+                rotateZ = Transforms.RotateZGrad;
             }
 
-
             if(rotCenter != null && rotDirection != null && angle != null)
-                desiredTransform = mul(RotateRespectTo(rotCenter.Value, rotDirection.Value, angle.Value), desiredTransform);
+                desiredTransform = mul(rotateRespectTo(rotCenter.Value, rotDirection.Value, angle.Value), desiredTransform);
             
             if (rotDirection != null && angle != null)
-                desiredTransform = mul(Rotate(angle.Value, rotDirection.Value), desiredTransform);
+                desiredTransform = mul(rotate(angle.Value, rotDirection.Value), desiredTransform);
 
             if (eulerRotation != null)
             {
-                desiredTransform = mul(RotateX(eulerRotation.Value.x), desiredTransform);
-                desiredTransform = mul(RotateY(eulerRotation.Value.y), desiredTransform);
-                desiredTransform = mul(RotateZ(eulerRotation.Value.z), desiredTransform);
+                desiredTransform = mul(rotateX(eulerRotation.Value.x), desiredTransform);
+                desiredTransform = mul(rotateY(eulerRotation.Value.y), desiredTransform);
+                desiredTransform = mul(rotateZ(eulerRotation.Value.z), desiredTransform);
             }
             
             return desiredTransform;
