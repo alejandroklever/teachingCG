@@ -4,13 +4,13 @@ public struct int2{
 	public int y;
 	public int this[int idx] {
 		get{
-			if(idx == 0) return this.x;
-			if(idx == 1) return this.y;
+			if(idx == 0) return x;
+			if(idx == 1) return y;
 			return 0; // Silent return ... valid for HLSL
 		}
 		set{
-			if(idx == 0) this.x = value;
-			if(idx == 1) this.y = value;
+			if(idx == 0) x = value;
+			if(idx == 1) y = value;
 		}
 	}
 	public int2(int x,int y){
@@ -33,12 +33,12 @@ public struct int2{
 	public static int2 operator &(int2 a, int2 b) { return new int2(a.x & b.x,a.y & b.y); }
 	public static int2 operator |(int2 a, int2 b) { return new int2(a.x | b.x,a.y | b.y); }
 	public static int2 operator ^(int2 a, int2 b) { return new int2(a.x ^ b.x,a.y ^ b.y); }
-	public static int2 operator ==(int2 a, int2 b) { return new int2((a.x == b.x)?1:0, (a.y == b.y)?1:0); }
-	public static int2 operator !=(int2 a, int2 b) { return new int2((a.x != b.x)?1:0, (a.y != b.y)?1:0); }
-	public static int2 operator <(int2 a, int2 b) { return new int2((a.x < b.x)?1:0, (a.y < b.y)?1:0); }
-	public static int2 operator <=(int2 a, int2 b) { return new int2((a.x <= b.x)?1:0, (a.y <= b.y)?1:0); }
-	public static int2 operator >=(int2 a, int2 b) { return new int2((a.x >= b.x)?1:0, (a.y >= b.y)?1:0); }
-	public static int2 operator >(int2 a, int2 b) { return new int2((a.x > b.x)?1:0, (a.y > b.y)?1:0); }
-	public override string ToString() { return string.Format("({0}, {1})", this.x, this.y); }
+	public static int2 operator ==(int2 a, int2 b) { return new int2(a.x == b.x?1:0, a.y == b.y?1:0); }
+	public static int2 operator !=(int2 a, int2 b) { return new int2(a.x != b.x?1:0, a.y != b.y?1:0); }
+	public static int2 operator <(int2 a, int2 b) { return new int2(a.x < b.x?1:0, a.y < b.y?1:0); }
+	public static int2 operator <=(int2 a, int2 b) { return new int2(a.x <= b.x?1:0, a.y <= b.y?1:0); }
+	public static int2 operator >=(int2 a, int2 b) { return new int2(a.x >= b.x?1:0, a.y >= b.y?1:0); }
+	public static int2 operator >(int2 a, int2 b) { return new int2(a.x > b.x?1:0, a.y > b.y?1:0); }
+	public override string ToString() { return $"({x}, {y})"; }
 }
 }

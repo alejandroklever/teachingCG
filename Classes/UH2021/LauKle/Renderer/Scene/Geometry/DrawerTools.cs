@@ -22,7 +22,7 @@ namespace Renderer.Scene
             var points = new float3[n];
 
             for (var i = 0; i < n; i++)
-                points[i] = randomInCylinder();
+                points[i] = randomInBox();
 
             return points;
         }

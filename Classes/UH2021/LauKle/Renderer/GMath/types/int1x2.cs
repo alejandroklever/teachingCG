@@ -30,12 +30,12 @@ public struct int1x2{
 	public static int1x2 operator &(int1x2 a, int1x2 b) { return new int1x2(a._m00 & b._m00,a._m01 & b._m01); }
 	public static int1x2 operator |(int1x2 a, int1x2 b) { return new int1x2(a._m00 | b._m00,a._m01 | b._m01); }
 	public static int1x2 operator ^(int1x2 a, int1x2 b) { return new int1x2(a._m00 ^ b._m00,a._m01 ^ b._m01); }
-	public static int1x2 operator ==(int1x2 a, int1x2 b) { return new int1x2((a._m00 == b._m00)?1:0, (a._m01 == b._m01)?1:0); }
-	public static int1x2 operator !=(int1x2 a, int1x2 b) { return new int1x2((a._m00 != b._m00)?1:0, (a._m01 != b._m01)?1:0); }
-	public static int1x2 operator <(int1x2 a, int1x2 b) { return new int1x2((a._m00 < b._m00)?1:0, (a._m01 < b._m01)?1:0); }
-	public static int1x2 operator <=(int1x2 a, int1x2 b) { return new int1x2((a._m00 <= b._m00)?1:0, (a._m01 <= b._m01)?1:0); }
-	public static int1x2 operator >=(int1x2 a, int1x2 b) { return new int1x2((a._m00 >= b._m00)?1:0, (a._m01 >= b._m01)?1:0); }
-	public static int1x2 operator >(int1x2 a, int1x2 b) { return new int1x2((a._m00 > b._m00)?1:0, (a._m01 > b._m01)?1:0); }
-	public override string ToString() { return string.Format("(({0}, {1}))", this._m00, this._m01); }
+	public static int1x2 operator ==(int1x2 a, int1x2 b) { return new int1x2(a._m00 == b._m00?1:0, a._m01 == b._m01?1:0); }
+	public static int1x2 operator !=(int1x2 a, int1x2 b) { return new int1x2(a._m00 != b._m00?1:0, a._m01 != b._m01?1:0); }
+	public static int1x2 operator <(int1x2 a, int1x2 b) { return new int1x2(a._m00 < b._m00?1:0, a._m01 < b._m01?1:0); }
+	public static int1x2 operator <=(int1x2 a, int1x2 b) { return new int1x2(a._m00 <= b._m00?1:0, a._m01 <= b._m01?1:0); }
+	public static int1x2 operator >=(int1x2 a, int1x2 b) { return new int1x2(a._m00 >= b._m00?1:0, a._m01 >= b._m01?1:0); }
+	public static int1x2 operator >(int1x2 a, int1x2 b) { return new int1x2(a._m00 > b._m00?1:0, a._m01 > b._m01?1:0); }
+	public override string ToString() { return $"(({_m00}, {_m01}))"; }
 }
 }

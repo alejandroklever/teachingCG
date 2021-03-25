@@ -6,7 +6,7 @@ using static GMath.Gfx;
 
 namespace Rendering
 {
-	static class Transforms
+	internal static class Transforms
 	{
 		public static float4x4 Identity => float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
@@ -17,7 +17,7 @@ namespace Rendering
 		/// <param name="xslide">x offsets</param>
 		/// <param name="yslide">y offsets</param>
 		/// <param name="zslide">z offsets</param>
-		/// <returns>A mat structure that contains a translated transformation </returns>
+		/// <returns>A mat structure that contains a translated transformation</returns>
 		public static float4x4 Translate(float xoffset, float yoffset, float zoffset)
 		{
 			return float4x4(

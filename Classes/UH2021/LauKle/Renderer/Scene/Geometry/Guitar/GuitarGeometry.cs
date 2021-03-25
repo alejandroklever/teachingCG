@@ -37,47 +37,59 @@ namespace Renderer.Scene.Geometry
             // Create buffer with points to render
             var points = DrawerTools.RandomPositionInCylinderSurface(N);
 
-            var viewMatrix = Transforms.LookAtLH(float3(5f, 4.6f, 2), float3.zero, float3.up);
+            var viewMatrix = Transforms.LookAtLH(float3(0f, 8f, -2f), float3.zero, float3.up);
             var projMatrix = Transforms.PerspectiveFovLH(pi_over_4,
-                render.RenderTarget.Height / (float) render.RenderTarget.Width, 0.01f, 10);
+                render.RenderTarget.Height / (float) render.RenderTarget.Width, 0.01f, 20);
 
-            DrawGuitarBody(render, points, mul(viewMatrix, projMatrix));
+            
+            var transform = mul(viewMatrix, projMatrix);
+            transform = mul(Transforms.Translate(0, 0, -4f), transform);
+            
+            DrawGuitarBody(render, points, transform);
+
+            
+            SetColor(ColorType.Red);
+            var boxPoints = DrawerTools.RandomPositionsInBoxSurface(N);
+
+
+            var position = 3.5f * float3.forward + float3(-.3f, 0, 0f); // 1.75f * float3(-1, 0, -1) + float3(-.5f, 0, .5f);
+            var scale = float3(.6f, .4f, 5f);
+            var rotation = float3(0, 0, 0);
+            TransformAndDrawFretboard(render, boxPoints, transform, position, scale, rotation, useGrad: true);
         }
 
         private void DrawGuitarBody(Raster render, float3[] cylinderPoints, float4x4 transform)
         {
-            SetColor(ColorType.White);
             TransformAndDrawCylinder(render, cylinderPoints, transform, float3.zero, float3(2.2f, .2f, 2.2f));
             
-            // SetColor(ColorType.Red);
             TransformAndDrawCylinder(render, cylinderPoints.Take(cylinderPoints.Length / 2).ToArray(), transform,
-                1.75f * float3(-1, 0, -1), float3(1.6f, .2f, 1.6f));
-
-            SetColor(ColorType.Red);
-            TransformAndDrawFretboard(render, cylinderPoints, transform, 1.75f * float3(-1, 0, -1),
-                float3(.25f, .1f, 5f));
+                2.8f * float3.forward, float3(1.6f, .2f, 1.6f));
         }
 
         private void TransformAndDrawCylinder(Raster render, float3[] cylinderPoints, float4x4 transform,
-            float3? position = null, float3? scale = null, float3? rotation = null)
+            float3? position = null, float3? scale = null, float3? eulerRotation = null, float3? rotCenter = null,
+            float3? rotDirection = null, float? angle = null, bool useGrad = false)
         {
-            var desiredTransform = GetDesiredTransform(transform, position, scale, rotation);
+            var desiredTransform = GetDesiredTransform(transform, position, scale, eulerRotation, rotCenter,
+                rotDirection, angle, useGrad);
             DrawCylinder(render, cylinderPoints, desiredTransform);
         }
 
-        private void DrawCylinder(Raster render, float3[] boxPoints, float4x4 transform)
+        private void DrawCylinder(Raster render, float3[] cylinderPoints, float4x4 transform)
         {
-            var pointsToDraw = ApplyTransform(boxPoints, transform);
+            var pointsToDraw = ApplyTransform(cylinderPoints, transform);
             render.DrawPoints(pointsToDraw, color);
         }
-        
+
         private void TransformAndDrawFretboard(Raster render, float3[] cylinderPoints, float4x4 transform,
-            float3? position = null, float3? scale = null, float3? rotation = null)
+            float3? position = null, float3? scale = null, float3? eulerRotation = null, float3? rotCenter = null,
+            float3? rotDirection = null, float? angle = null, bool useGrad = false)
         {
-            var desiredTransform = GetDesiredTransform(transform, position, scale, rotation);
+            var desiredTransform = GetDesiredTransform(transform, position, scale, eulerRotation, rotCenter,
+                rotDirection, angle, useGrad);
             DrawFretboard(render, cylinderPoints, desiredTransform);
         }
-        
+
         private void DrawFretboard(Raster render, float3[] boxPoints, float4x4 transform)
         {
             var transformingIntoBox = mul(float4x4(
@@ -87,7 +99,7 @@ namespace Renderer.Scene.Geometry
                 0.5f, 0.5f, 0.5f, 1
             ), transform);
 
-            var pointsToDraw = ApplyTransform(boxPoints, transform);
+            var pointsToDraw = ApplyTransform(boxPoints, transformingIntoBox);
             render.DrawPoints(pointsToDraw, color);
         }
         
@@ -110,18 +122,46 @@ namespace Renderer.Scene.Geometry
         private void SetColor(ColorType colorType) => _colorType = colorType;
 
         private float4x4 GetDesiredTransform(float4x4 transform, float3? position = null, float3? scale = null,
-            float3? rotation = null)
+             float3? eulerRotation = null, float3? rotCenter = null, float3? rotDirection = null, float? angle = null, bool useGrad = false)
         {
             var desiredTransform = transform;
 
-            if (position != null) desiredTransform = mul(Transforms.Translate(position.Value), desiredTransform);
+            if (position != null) 
+                desiredTransform = mul(Transforms.Translate(position.Value), desiredTransform);
 
-            if (scale != null) desiredTransform = mul(Transforms.Scale(scale.Value), desiredTransform);
+            if (scale != null) 
+                desiredTransform = mul(Transforms.Scale(scale.Value), desiredTransform);
 
-            if (rotation != null)
+            
+            Func<float3, float3, float, float4x4> RotateRespectTo = Transforms.RotateRespectTo;
+            Func<float, float3, float4x4> Rotate = Transforms.Rotate;
+            Func<float,  float4x4> RotateX = Transforms.RotateX;
+            Func<float,  float4x4> RotateY = Transforms.RotateY;
+            Func<float,  float4x4> RotateZ = Transforms.RotateZ;
+            
+            if (useGrad)
             {
+                RotateRespectTo = Transforms.RotateRespectTo;
+                Rotate = Transforms.RotateGrad;
+                RotateX = Transforms.RotateXGrad;
+                RotateY = Transforms.RotateYGrad;
+                RotateZ = Transforms.RotateZGrad;
             }
 
+
+            if(rotCenter != null && rotDirection != null && angle != null)
+                desiredTransform = mul(RotateRespectTo(rotCenter.Value, rotDirection.Value, angle.Value), desiredTransform);
+            
+            if (rotDirection != null && angle != null)
+                desiredTransform = mul(Rotate(angle.Value, rotDirection.Value), desiredTransform);
+
+            if (eulerRotation != null)
+            {
+                desiredTransform = mul(RotateX(eulerRotation.Value.x), desiredTransform);
+                desiredTransform = mul(RotateY(eulerRotation.Value.y), desiredTransform);
+                desiredTransform = mul(RotateZ(eulerRotation.Value.z), desiredTransform);
+            }
+            
             return desiredTransform;
         }
     }
