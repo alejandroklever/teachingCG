@@ -1,4 +1,6 @@
-namespace GMath 
+using System;
+
+namespace GMath
 {
 	public struct float3
 	{
@@ -8,10 +10,46 @@ namespace GMath
 
 		public float2 xy => new float2(x, y);
 
+		/// <summary>
+		/// Shortcut for (0, 0, 0) 
+		/// </summary>
 		public static float3 zero => new float3(0, 0, 0);
-		
+
+		/// <summary>
+		/// Shortcut for (1, 1, 1) 
+		/// </summary>
 		public static float3 one => new float3(1, 1, 1);
-		
+
+		/// <summary>
+		/// Shortcut for (1, 0, 0) 
+		/// </summary>
+		public static float3 right => new float3(1, 0, 0);
+
+		/// <summary>
+		/// Shortcut for (-1, 0, 0) 
+		/// </summary>
+		public static float3 left => new float3(-1, 0, 0);
+
+		/// <summary>
+		/// Shortcut for (0, 1, 0) 
+		/// </summary>
+		public static float3 up => new float3(0, 1, 0);
+
+		/// <summary>
+		/// Shortcut for (0, -1, 0) 
+		/// </summary>
+		public static float3 down => new float3(0, -1, 0);
+
+		/// <summary>
+		/// Shortcut for (0, 0, 1) 
+		/// </summary>
+		public static float3 forward => new float3(0, 0, 1);
+
+		/// <summary>
+		/// Shortcut for (0, 0, -1) 
+		/// </summary>
+		public static float3 back => new float3(0, 0, -1);
+
 		public float this[int idx]
 		{
 			get
@@ -48,7 +86,16 @@ namespace GMath
 			this.z = z;
 		}
 
-		public float3(float v) : this(v, v, v) { }
+		public float3(float v) : this(v, v, v)
+		{
+		}
+		
+        public void Deconstruct(out float x, out float y, out float z)
+        {
+            x = this.x;
+            y = this.y;
+            z = this.z;
+        }
 
 		public static explicit operator float1(float3 v)
 		{
@@ -143,6 +190,21 @@ namespace GMath
 		public override string ToString()
 		{
 			return $"({x}, {y}, {z})";
+		}
+
+		private bool Equals(float3 other)
+		{
+			return x.Equals(other.x) && y.Equals(other.y) && z.Equals(other.z);
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is float3 other && Equals(other);
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(x, y, z);
 		}
 	}
 }

@@ -3,11 +3,11 @@ public struct int1{
 	public int x;
 	public int this[int idx] {
 		get{
-			if(idx == 0) return this.x;
+			if(idx == 0) return x;
 			return 0; // Silent return ... valid for HLSL
 		}
 		set{
-			if(idx == 0) this.x = value;
+			if(idx == 0) x = value;
 		}
 	}
 	public int1(int x){
@@ -27,12 +27,12 @@ public struct int1{
 	public static int1 operator &(int1 a, int1 b) { return new int1(a.x & b.x); }
 	public static int1 operator |(int1 a, int1 b) { return new int1(a.x | b.x); }
 	public static int1 operator ^(int1 a, int1 b) { return new int1(a.x ^ b.x); }
-	public static int1 operator ==(int1 a, int1 b) { return new int1((a.x == b.x)?1:0); }
-	public static int1 operator !=(int1 a, int1 b) { return new int1((a.x != b.x)?1:0); }
-	public static int1 operator <(int1 a, int1 b) { return new int1((a.x < b.x)?1:0); }
-	public static int1 operator <=(int1 a, int1 b) { return new int1((a.x <= b.x)?1:0); }
-	public static int1 operator >=(int1 a, int1 b) { return new int1((a.x >= b.x)?1:0); }
-	public static int1 operator >(int1 a, int1 b) { return new int1((a.x > b.x)?1:0); }
-	public override string ToString() { return string.Format("({0})", this.x); }
+	public static int1 operator ==(int1 a, int1 b) { return new int1(a.x == b.x?1:0); }
+	public static int1 operator !=(int1 a, int1 b) { return new int1(a.x != b.x?1:0); }
+	public static int1 operator <(int1 a, int1 b) { return new int1(a.x < b.x?1:0); }
+	public static int1 operator <=(int1 a, int1 b) { return new int1(a.x <= b.x?1:0); }
+	public static int1 operator >=(int1 a, int1 b) { return new int1(a.x >= b.x?1:0); }
+	public static int1 operator >(int1 a, int1 b) { return new int1(a.x > b.x?1:0); }
+	public override string ToString() { return $"({x})"; }
 }
 }

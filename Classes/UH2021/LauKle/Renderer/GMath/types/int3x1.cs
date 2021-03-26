@@ -33,12 +33,12 @@ public struct int3x1{
 	public static int3x1 operator &(int3x1 a, int3x1 b) { return new int3x1(a._m00 & b._m00,a._m10 & b._m10,a._m20 & b._m20); }
 	public static int3x1 operator |(int3x1 a, int3x1 b) { return new int3x1(a._m00 | b._m00,a._m10 | b._m10,a._m20 | b._m20); }
 	public static int3x1 operator ^(int3x1 a, int3x1 b) { return new int3x1(a._m00 ^ b._m00,a._m10 ^ b._m10,a._m20 ^ b._m20); }
-	public static int3x1 operator ==(int3x1 a, int3x1 b) { return new int3x1((a._m00 == b._m00)?1:0, (a._m10 == b._m10)?1:0, (a._m20 == b._m20)?1:0); }
-	public static int3x1 operator !=(int3x1 a, int3x1 b) { return new int3x1((a._m00 != b._m00)?1:0, (a._m10 != b._m10)?1:0, (a._m20 != b._m20)?1:0); }
-	public static int3x1 operator <(int3x1 a, int3x1 b) { return new int3x1((a._m00 < b._m00)?1:0, (a._m10 < b._m10)?1:0, (a._m20 < b._m20)?1:0); }
-	public static int3x1 operator <=(int3x1 a, int3x1 b) { return new int3x1((a._m00 <= b._m00)?1:0, (a._m10 <= b._m10)?1:0, (a._m20 <= b._m20)?1:0); }
-	public static int3x1 operator >=(int3x1 a, int3x1 b) { return new int3x1((a._m00 >= b._m00)?1:0, (a._m10 >= b._m10)?1:0, (a._m20 >= b._m20)?1:0); }
-	public static int3x1 operator >(int3x1 a, int3x1 b) { return new int3x1((a._m00 > b._m00)?1:0, (a._m10 > b._m10)?1:0, (a._m20 > b._m20)?1:0); }
-	public override string ToString() { return string.Format("(({0}), ({1}), ({2}))", this._m00, this._m10, this._m20); }
+	public static int3x1 operator ==(int3x1 a, int3x1 b) { return new int3x1(a._m00 == b._m00?1:0, a._m10 == b._m10?1:0, a._m20 == b._m20?1:0); }
+	public static int3x1 operator !=(int3x1 a, int3x1 b) { return new int3x1(a._m00 != b._m00?1:0, a._m10 != b._m10?1:0, a._m20 != b._m20?1:0); }
+	public static int3x1 operator <(int3x1 a, int3x1 b) { return new int3x1(a._m00 < b._m00?1:0, a._m10 < b._m10?1:0, a._m20 < b._m20?1:0); }
+	public static int3x1 operator <=(int3x1 a, int3x1 b) { return new int3x1(a._m00 <= b._m00?1:0, a._m10 <= b._m10?1:0, a._m20 <= b._m20?1:0); }
+	public static int3x1 operator >=(int3x1 a, int3x1 b) { return new int3x1(a._m00 >= b._m00?1:0, a._m10 >= b._m10?1:0, a._m20 >= b._m20?1:0); }
+	public static int3x1 operator >(int3x1 a, int3x1 b) { return new int3x1(a._m00 > b._m00?1:0, a._m10 > b._m10?1:0, a._m20 > b._m20?1:0); }
+	public override string ToString() { return $"(({_m00}), ({_m10}), ({_m20}))"; }
 }
 }

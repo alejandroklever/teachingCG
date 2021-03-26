@@ -1,33 +1,63 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
 using GMath;
 using Renderer.Scene;
 using Renderer.Scene.Geometry;
 using Rendering;
 using static GMath.Gfx;
+using float3 = GMath.float3;
 
 namespace Renderer
 {
     internal static class Program
     {
-        private static IDrawer _drawer;
-        private static DrawerType _drawerType = DrawerType.Guitar;
-        
-        private static void Main(string[] args)
-        {
-            Render();
+        private enum Render
+        {   
+            Free,
+            Table,
+            Guitar
         }
 
-        private static void Render()
+        private static Render _render = Render.Guitar;
+        private static IDrawer _drawer;
+        private static DrawerType _drawerType = DrawerType.Guitar;
+
+        private static void Main(string[] args)
         {
-            Raster render = new Raster(1024, 512);
-            // FreeTransformTest(render);
-            // DrawRoomTest(render);
+            Raster render = new Raster(720, 1280);
+
+            switch (_render)
+            {
+                case Render.Free:
+                    FreeTransformTest(render);
+                    break;
+                case Render.Table:
+                    DrawRoomTest(render);
+                    break;
+                case Render.Guitar:
+                    _drawer = DrawerTools.GetDrawer(_drawerType);
+                    float4x4 transform = _drawer.Draw(render);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             
-            _drawer = DrawerTools.GetDrawer(_drawerType);
-            float4x4 transform = _drawer.Draw(render);
             
             render.RenderTarget.Save("test.rbm");
             Console.WriteLine("Done.");
+
+            var start = new ProcessStartInfo
+            {
+                FileName = "python",
+                Arguments = $"{Path.Combine("..", "..", "..", "image_viewer")} test.rbm",
+                RedirectStandardOutput = true, 
+                UseShellExecute = false
+            };
+
+            using var p = Process.Start(start);
+            using var output = p?.StandardOutput;
+            Console.Write(output?.ReadToEnd());
         }
 
         private static float3[] RandomPositionsInBoxSurface(int N)
@@ -87,6 +117,8 @@ namespace Renderer
             points = ApplyTransform(points,
                 p => float3(p.x * cos(p.y) + p.z * sin(p.y), p.y, p.x * sin(p.y) - p.z * cos(p.y)));
 
+            points = ApplyTransform(points, Transforms.Rotate(pi_over_4, float3.left));
+            
             #region viewing and projecting
 
             points = ApplyTransform(points, Transforms.LookAtLH(float3(5f, 2.6f, 4), float3(0, 0, 0), float3(0, 1, 0)));
@@ -118,7 +150,7 @@ namespace Renderer
         {
             DrawTable(raster, boxPoints, mul(Transforms.Translate(0, 0, 0), transform));
             DrawTable(raster, boxPoints,
-                mul(Transforms.RotateRespectTo(float3(1, 0, 0), float3(0, 1, 0), pi / 2), transform));
+                mul(Transforms.RotateRespectTo(float3.right, float3.up,  pi / 2), transform));
         }
 
         private static void DrawTable(Raster raster, float3[] boxPoints, float4x4 transform)
@@ -132,8 +164,8 @@ namespace Renderer
 
         private static void DrawTableTop(Raster raster, float3[] boxPoints, float4x4 transform)
         {
-            float4x4 transformingIntoLeg = mul(Transforms.Scale(2.2f, 0.2f, 2.2f), transform);
-            DrawBox(raster, boxPoints, transformingIntoLeg);
+            float4x4 transformingIntoTop = mul(Transforms.Scale(2.2f, 0.2f, 2.2f), transform);
+            DrawBox(raster, boxPoints, transformingIntoTop);
         }
 
         private static void DrawTableLeg(Raster raster, float3[] boxPoints, float4x4 transform)
