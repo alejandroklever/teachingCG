@@ -16,6 +16,10 @@ namespace Renderer.Scene.Geometry
             White = 0,
             Red,
             Blue,
+            CreamGold,
+            Gray,
+            Brown,
+            Yellow,
             Black
         }
 
@@ -35,6 +39,10 @@ namespace Renderer.Scene.Geometry
             ColorType.White => float4(1, 1, 1, 1),
             ColorType.Red => float4(.68f, .25f, .25f, 1),
             ColorType.Blue => float4(.25f, .25f, .68f, 1),
+            ColorType.CreamGold => float4(1f, .99f, .82f, 1),
+            ColorType.Gray => float4(.75f, .75f, .75f, 1),
+            ColorType.Brown => float4(.28f, .24f, .2f, 1),
+            ColorType.Yellow => float4(1f, .65f, 0f, 1),
             ColorType.Black => float4(.24f, .24f, .24f, 1),
             _ => throw new ArgumentOutOfRangeException()
         };
@@ -55,9 +63,9 @@ namespace Renderer.Scene.Geometry
             {
                CamPosition.Free => float3(5f, 4.6f, 2),
                CamPosition.FromUp => float3(0f, 12f, -1f),
-               CamPosition.FromBottom => float3(0f, 1f, -5f),
-               CamPosition.FromRight => float3(8f, 0f, 0f),
-               CamPosition.FromLeft => float3(-8f, 1f, 0f),
+               CamPosition.FromBottom => float3(0f, 0f, -5f),
+               CamPosition.FromRight => float3(12f, 0f, 0f),
+               CamPosition.FromLeft => float3(-8f, 0f, 0f),
             };
 
             var viewMatrix = Transforms.LookAtLH(cameraPosition, float3.zero, float3.up);
@@ -65,19 +73,89 @@ namespace Renderer.Scene.Geometry
                 render.RenderTarget.Height / (float) render.RenderTarget.Width, 0.01f, 20);
 
             var transform = mul(viewMatrix, projMatrix);
-            transform = mul(Transforms.Translate(-1 * float3(5f, 9.2f, 2)), transform);
-            transform = mul(Transforms.RotateXGrad(120), transform);
-            transform = mul(Transforms.RotateYGrad(-40), transform);
-            transform = mul(Transforms.RotateZGrad(150), transform);
+            
+            if (camPos == CamPosition.Free)
+                transform = Transforms.GetDesiredTransform(transform, -1 * float3(1f, 4.6f, 1f),
+                    eulerRotation: float3(110, -45, 150), useGrad: true);
 
             const int n = 100000;
-            var points = DrawerTools.RandomPositionInCylinderSurface(n);
 
+
+            var bottomCylinderScale = float3(2.2f, .2f, 2f);
+            var bottomCylinderPosition = float3.zero;
+
+
+            var points = DrawerTools.RandomPositionsInBoxSurface(n);
+            // Create Floor
+            SetColor(ColorType.Yellow);
+            var floorScale = float3(7, .001f, 10);
+            var floorPosition =  1.6f * float3.back + 2 * float3.right + float3.down;
+            var floorRotation = float3(90, 45, 0);
+            TransformAndDrawBox(render, points, transform, floorPosition, floorScale, floorRotation, useGrad: true);
+
+
+            points = DrawerTools.RandomPositionsInBoxSurface(n);
+            // Create Amp
+            SetColor(ColorType.Black);
+            var ampScale = float3(4f, 2f, 3f);
+            var ampPosition = float3(.25f * ampScale.x, -.5f * (ampScale.y + bottomCylinderScale.y),
+                bottomCylinderPosition.z + .25f * bottomCylinderScale.z);
+            var ampRotation = float3.zero;
+            TransformAndDrawBox(render, points, transform, ampPosition, ampScale, ampRotation, useGrad: true);
+
+            SetColor(ColorType.CreamGold);
+            var ampControlsScale = float3(3.2f, .0001f, .3f);
+            var ampControlsPosition = float3(.25f * ampControlsScale.x,
+                -.5f * (ampControlsScale.y + bottomCylinderScale.y),
+                bottomCylinderPosition.z + .25f * bottomCylinderScale.z + .5f * ampScale.z - .4f);
+            var ampControlsRotation = float3.zero;
+            TransformAndDrawBox(render, points, transform, ampControlsPosition, ampControlsScale, ampControlsRotation, useGrad: true);
+
+            SetColor(ColorType.Gray);
+            var ampCoverScale = float3(3.2f, .0001f, 2.2f);
+            var ampCoverPosition = float3(.25f * ampControlsScale.x,
+                -.5f * (ampControlsScale.y + bottomCylinderScale.y),
+                bottomCylinderPosition.z + .2f);
+            var ampCoverRotation = float3.zero;
+            TransformAndDrawBox(render, points, transform, ampCoverPosition, ampCoverScale, ampCoverRotation, useGrad: true);
+
+            points = DrawerTools.RandomPositionInCylinderSurface(n);
+
+            // Draw Amp Potentiometer
+            SetColor(ColorType.Black);
+
+            for (var i = 0; i < 5; i++)
+            {
+                var controlScale = float3(.2f, .1f, .2f);
+                var controlPosition = float3(ampControlsPosition.x + i * .3f, controlScale.y, ampControlsPosition.z);
+                var controlRotation = float3.zero;
+                TransformAndDrawCylinder(render, points, transform, controlPosition, controlScale,
+                    controlRotation, useGrad: true);
+            }
+
+            for (var i = 1; i < 5; i++)
+            {
+                var controlScale = float3(.2f, .1f, .2f);
+                var controlPosition = float3(ampControlsPosition.x - i * .3f, controlScale.y, ampControlsPosition.z);
+                var controlRotation = float3.zero;
+                TransformAndDrawCylinder(render, points, transform, controlPosition, controlScale,
+                    controlRotation, useGrad: true);
+            }
+
+
+            // Create Guitar
+
+            points = DrawerTools.RandomPositionInCylinderSurface(n);
+
+            var guitarGlobalPos = float3(0, .3f, -.35f);
+            var guitarGlobalRot = float3(-10, 5, 0);
+            transform = Transforms.GetDesiredTransform(transform, guitarGlobalPos, eulerRotation: guitarGlobalRot,
+                useGrad: true);
 
             SetColor(ColorType.Red);
             // Create the bottom part of the guitar body
-            var bottomCylinderScale = float3(2.2f, .2f, 2f);
-            var bottomCylinderPosition = float3.zero;
+            bottomCylinderScale = float3(2.2f, .2f, 2f);
+            bottomCylinderPosition = float3.zero;
             var bottomCylinderRotation = float3.zero;
             TransformAndDrawCylinder(render, points, transform, bottomCylinderPosition, bottomCylinderScale,
                 bottomCylinderRotation, useGrad: true);
@@ -126,7 +204,7 @@ namespace Renderer.Scene.Geometry
 
             points = DrawerTools.RandomPositionsInBoxSurface(n);
 
-            // Create Humbucker
+            // Create Bridge Humbucker
             SetColor(ColorType.White);
             var humbuckerScale = float3(.5f, .1f, .25f);
             var humbuckerPosition = float3(0f, .1f, .4f);
@@ -134,6 +212,7 @@ namespace Renderer.Scene.Geometry
             TransformAndDrawCylinder(render, points, transform, humbuckerPosition, humbuckerScale,
                 humbuckerRotation, useGrad: true);
 
+            // Create Fretboard Humbucker
             (_, _, z) = topCylinderPosition;
             humbuckerScale = float3(.5f, .1f, .25f);
             humbuckerPosition = float3(0f, .1f, z + .05f * bottomCylinderScale.z);
@@ -141,30 +220,47 @@ namespace Renderer.Scene.Geometry
             TransformAndDrawCylinder(render, points, transform, humbuckerPosition, humbuckerScale,
                 humbuckerRotation, useGrad: true);
 
+            // Create Bridge
+            var bridgeScale = float3(.75f, .1f, .15f);
+            var bridgePosition = float3(0f, .1f, 0f);
+            var bridgeRotation = float3.zero;
+            TransformAndDrawCylinder(render, points, transform, bridgePosition, bridgeScale,
+                bridgeRotation, useGrad: true);
+
+
+            bridgeScale = float3(.6f, .1f, .05f);
+            bridgePosition = float3(0f, .1f, .2f);
+            bridgeRotation = float3.zero;
+            TransformAndDrawCylinder(render, points, transform, bridgePosition, bridgeScale,
+                bridgeRotation, useGrad: true);
+
+
             // Create FretBoard
-            SetColor(ColorType.White);
+            SetColor(ColorType.Brown);
             (_, _, z) = topCylinderPosition;
             var fretBoardScale = float3(.3f, .1f, 2.5f);
             var fretBoardPosition = (z + .25f * bottomCylinderScale.z + .4f * fretBoardScale.z) * float3.forward +
                                     fretBoardScale.y * float3.up;
             var fretBoardRotation = float3(-.5f, 0, 0);
-            TransformAndDrawFretboard(render, points, transform, fretBoardPosition, fretBoardScale, fretBoardRotation,
+            TransformAndDrawBox(render, points, transform, fretBoardPosition, fretBoardScale, fretBoardRotation,
                 useGrad: true);
 
             // Create Head
             SetColor(ColorType.Black);
-            var headScale = float3(.4f, .1f, .7f);
-            var headPosition = (fretBoardPosition.z + .5f * (fretBoardScale.z +  .9f * headScale.z)) * float3.forward +
+            var headScale = float3(.4f, .1f, .5f);
+            var headPosition = (fretBoardPosition.z + .5f * (fretBoardScale.z + .9f * headScale.z)) * float3.forward +
                 .5f * headScale.y * float3.up;
             var headRotation = float3(-6f, 0, 0);
-            TransformAndDrawHead(render, points, transform, headPosition, headScale, headRotation, useGrad: true);
+            TransformAndDrawBox(render, points, transform, headPosition, headScale, headRotation, useGrad: true);
+
+            Transforms.GetDesiredTransform(transform, -1 * guitarGlobalPos, eulerRotation: -1 * guitarGlobalRot, useGrad: true);
         }
 
         private float4x4 TransformAndDrawCylinder(Raster render, float3[] cylinderPoints, float4x4 transform,
             float3? position = null, float3? scale = null, float3? eulerRotation = null, float3? rotCenter = null,
             float3? rotDirection = null, float? angle = null, bool useGrad = false)
         {
-            var desiredTransform = GetDesiredTransform(transform, position, scale, eulerRotation, rotCenter,
+            var desiredTransform = Transforms.GetDesiredTransform(transform, position, scale, eulerRotation, rotCenter,
                 rotDirection, angle, useGrad);
             DrawCylinder(render, cylinderPoints, desiredTransform);
             return desiredTransform;
@@ -179,21 +275,21 @@ namespace Renderer.Scene.Geometry
                 0, 0, 0, 1
             ), transform);
             
-            var pointsToDraw = ApplyTransform(cylinderPoints, scaledTransform);
+            var pointsToDraw = Transforms.ApplyTransform(cylinderPoints, scaledTransform);
             render.DrawPoints(pointsToDraw, Color);
         }
 
-        private float4x4 TransformAndDrawFretboard(Raster render, float3[] cylinderPoints, float4x4 transform,
+        private float4x4 TransformAndDrawBox(Raster render, float3[] cylinderPoints, float4x4 transform,
             float3? position = null, float3? scale = null, float3? eulerRotation = null, float3? rotCenter = null,
             float3? rotDirection = null, float? angle = null, bool useGrad = false)
         {
-            var desiredTransform = GetDesiredTransform(transform, position, scale, eulerRotation, rotCenter,
+            var desiredTransform = Transforms.GetDesiredTransform(transform, position, scale, eulerRotation, rotCenter,
                 rotDirection, angle, useGrad);
-            DrawFretboard(render, cylinderPoints, desiredTransform);
+            DrawBox(render, cylinderPoints, desiredTransform);
             return desiredTransform;
         }
 
-        private void DrawFretboard(Raster render, float3[] boxPoints, float4x4 transform)
+        private void DrawBox(Raster render, float3[] boxPoints, float4x4 transform)
         {
             var scaledTransform = mul(float4x4(
                 0.5f, 0, 0, 0,
@@ -202,95 +298,10 @@ namespace Renderer.Scene.Geometry
                 0, 0, 0, 1
             ), transform);
 
-            var pointsToDraw = ApplyTransform(boxPoints, scaledTransform);
+            var pointsToDraw = Transforms.ApplyTransform(boxPoints, scaledTransform);
             render.DrawPoints(pointsToDraw, Color);
-        }
-
-        private float4x4 TransformAndDrawHead(Raster render, float3[] cylinderPoints, float4x4 transform,
-            float3? position = null, float3? scale = null, float3? eulerRotation = null, float3? rotCenter = null,
-            float3? rotDirection = null, float? angle = null, bool useGrad = false)
-        {
-            var desiredTransform = GetDesiredTransform(transform, position, scale, eulerRotation, rotCenter,
-                rotDirection, angle, useGrad);
-            DrawHead(render, cylinderPoints, desiredTransform);
-            return desiredTransform;
-        }
-
-        private void DrawHead(Raster render, float3[] boxPoints, float4x4 transform)
-        {
-            var scaledTransform = mul(float4x4(
-                0.5f, 0, 0, 0,
-                0, 0.5f, 0, 0,
-                0, 0, 0.5f, 0,
-                0, 0, 0, 1
-            ), transform);
-
-            var pointsToDraw = ApplyTransform(boxPoints, scaledTransform);
-            render.DrawPoints(pointsToDraw, Color);
-        }
-
-        public static float3[] ApplyTransform(IReadOnlyList<float3> points, float4x4 matrix)
-        {
-            var result = new float3[points.Count];
-
-            // Transform points with a matrix
-            // Linear transform in homogeneous coordinates
-            for (var i = 0; i < points.Count; i++)
-            {
-                var h = float4(points[i], 1);
-                h = mul(h, matrix);
-                result[i] = h.xyz / h.w;
-            }
-
-            return result;
         }
 
         private void SetColor(ColorType colorType) => _colorType = colorType;
-
-        private static float4x4 GetDesiredTransform(float4x4 transform, float3? position = null, float3? scale = null,
-             float3? eulerRotation = null, float3? rotCenter = null, float3? rotDirection = null, float? angle = null, bool useGrad = false)
-        {
-            /*
-             * The order of the operations is important
-             * First we need to Translate, then Rotate, then Scale
-            */
-            var desiredTransform = transform;
-
-            if (position != null)
-                desiredTransform = mul(Transforms.Translate(position.Value), desiredTransform);
-
-            Func<float3, float3, float, float4x4> rotateRespectTo = Transforms.RotateRespectTo;
-            Func<float, float3, float4x4> rotate = Transforms.Rotate;
-            Func<float, float4x4> rotateX = Transforms.RotateX;
-            Func<float, float4x4> rotateY = Transforms.RotateY;
-            Func<float, float4x4> rotateZ = Transforms.RotateZ;
-
-            if (useGrad)
-            {
-                rotateRespectTo = Transforms.RotateRespectTo;
-                rotate = Transforms.RotateGrad;
-                rotateX = Transforms.RotateXGrad;
-                rotateY = Transforms.RotateYGrad;
-                rotateZ = Transforms.RotateZGrad;
-            }
-
-            if (eulerRotation != null)
-            {
-                desiredTransform = mul(rotateX(eulerRotation.Value.x), desiredTransform);
-                desiredTransform = mul(rotateY(eulerRotation.Value.y), desiredTransform);
-                desiredTransform = mul(rotateZ(eulerRotation.Value.z), desiredTransform);
-            }
-
-            else if (rotCenter != null && rotDirection != null && angle != null)
-                desiredTransform = mul(rotateRespectTo(rotCenter.Value, rotDirection.Value, angle.Value), desiredTransform);
-
-            else if (rotDirection != null && angle != null)
-                desiredTransform = mul(rotate(angle.Value, rotDirection.Value), desiredTransform);
-
-            if (scale != null)
-                desiredTransform = mul(Transforms.Scale(scale.Value), desiredTransform);
-
-            return desiredTransform;
-        }
     }
 }

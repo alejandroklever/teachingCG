@@ -25,7 +25,7 @@ namespace Renderer
 
         private static void Main(string[] args)
         {
-            Raster render = new Raster(720, 1280);
+            Raster render = new Raster(736, 1103);
 
             switch (_render)
             {
