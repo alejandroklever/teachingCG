@@ -27,12 +27,12 @@ namespace Renderer.Scene
             return points;
         }
         
-        public static float3[] RandomPositionInCylinderSurface(int n)
+        public static float3[] RandomPositionInCylinderSurface(int n, float r = 1f, float minAngle = 0, float maxAngle = two_pi)
         {
             var points = new float3[n];
 
             for (var i = 0; i < n; i++)
-                points[i] = randomInCylinder();
+                points[i] = randomInCylinder(r, minAngle, maxAngle);
 
             return points;
         }

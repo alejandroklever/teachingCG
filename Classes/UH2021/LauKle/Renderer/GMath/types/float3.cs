@@ -89,6 +89,13 @@ namespace GMath
 		public float3(float v) : this(v, v, v)
 		{
 		}
+		
+        public void Deconstruct(out float x, out float y, out float z)
+        {
+            x = this.x;
+            y = this.y;
+            z = this.z;
+        }
 
 		public static explicit operator float1(float3 v)
 		{
@@ -184,7 +191,6 @@ namespace GMath
 		{
 			return $"({x}, {y}, {z})";
 		}
-
 
 		private bool Equals(float3 other)
 		{

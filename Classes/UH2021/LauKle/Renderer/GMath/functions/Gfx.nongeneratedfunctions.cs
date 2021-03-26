@@ -166,16 +166,18 @@ namespace GMath
                 _ => float3(0, 0, 0) // should never occur... but compiler doesn't know...
             };
         }
-        
+
         /// <summary>
         /// Return a random point inside a cylinder of height 1f
         /// </summary>
         /// <param name="r">Radio of the cylinder</param>
+        /// <param name="minAngle"></param>
+        /// <param name="maxAngle"></param>
         /// <returns></returns>
-        public static float3 randomInCylinder(float r = 1f)
+        public static float3 randomInCylinder(float r = 1f, float minAngle = 0, float maxAngle = two_pi)
         {
             var (top, bottom) = (-1f, 1f);
-            var theta = random(two_pi);
+            var theta = random(minAngle , maxAngle);
             var dr = sqrt(random()) * r;
             var dh = random(bottom, top);
 
