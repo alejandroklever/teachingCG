@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using static GMath.Gfx;
 
-namespace Renderer
+namespace Rendering
 {
     public class Mesh<V> where V : struct, IVertex<V>
     {
@@ -45,26 +45,30 @@ namespace Renderer
             return new Mesh<V>(newVertices, newIndices, this.Topology);
         }
 
+    }
+
+    public static class MeshTools
+    {
         #region Mesh Vertices Transforms
 
-        public Mesh<T> Transform<T>(Func<V, T> transform) where T : struct, IVertex<T>
+        public static Mesh<T> Transform<V, T>(this Mesh<V> mesh, Func<V, T> transform) where V : struct, IVertex<V> where T : struct, IVertex<T>
         {
-            T[] newVertices = new T[Vertices.Length];
+            T[] newVertices = new T[mesh.Vertices.Length];
 
             for (int i = 0; i < newVertices.Length; i++)
-                newVertices[i] = transform(Vertices[i]);
+                newVertices[i] = transform(mesh.Vertices[i]);
 
-            return new Mesh<T>(newVertices, Indices, Topology);
+            return new Mesh<T>(newVertices, mesh.Indices, mesh.Topology);
         }
 
-        public Mesh<V> Transform(Func<V, V> transform)
+        public static Mesh<V> Transform<V>(this Mesh<V> mesh, Func<V, V> transform) where V: struct, IVertex<V>
         {
-            return Transform<V>(transform);
+            return Transform<V, V>(mesh, transform);
         }
 
-        public Mesh<V> Transform(float4x4 transform)
+        public static Mesh<V> Transform<V>(this Mesh<V> mesh, float4x4 transform) where V: struct, IVertex<V>
         {
-            return Transform(v =>
+            return Transform<V>(mesh, v =>
             {
                 float4 hP = float4(v.Position, 1);
                 hP = mul(hP, transform);
@@ -79,15 +83,15 @@ namespace Renderer
         /// <summary>
         /// Changes a mesh to another object with different topology. For instance, from a triangle mesh to a wireframe (lines).
         /// </summary>
-        public Mesh<V> ConvertTo(Topology topology)
+        public static Mesh<V> ConvertTo<V>(this Mesh<V> mesh, Topology topology) where V:struct, IVertex<V>
         {
             switch (topology)
             {
                 case Topology.Triangles:
-                    switch (this.Topology)
+                    switch (mesh.Topology)
                     {
                         case Topology.Triangles:
-                            return this.Clone(); // No necessary change
+                            return mesh.Clone(); // No necessary change
                         case Topology.Lines:
                             // This problem is NP.
                             // Try to implement a greedy, that means, recognize the small triangle and so on...
@@ -97,29 +101,29 @@ namespace Renderer
                     }
                     break;
                 case Topology.Lines:
-                    switch (this.Topology)
+                    switch (mesh.Topology)
                     {
                         case Topology.Points:
                             // Get the wireframe from surface reconstruction
-                            return ConvertTo(Topology.Triangles).ConvertTo(Topology.Lines);
+                            return mesh.ConvertTo(Topology.Triangles).ConvertTo(Topology.Lines);
                         case Topology.Lines:
-                            return this.Clone(); // nothing to do
+                            return mesh.Clone(); // nothing to do
                         case Topology.Triangles:
                             {
                                 // This is repeating edges for adjacent triangles.... use a hash table to prevent for double linking vertices.
-                                V[] newVertices = Vertices.Clone() as V[];
-                                int[] newIndices = new int[Indices.Length * 2];
+                                V[] newVertices = mesh.Vertices.Clone() as V[];
+                                int[] newIndices = new int[mesh.Indices.Length * 2];
                                 int index = 0;
-                                for (int i = 0; i < Indices.Length / 3; i++)
+                                for (int i = 0; i < mesh.Indices.Length / 3; i++)
                                 {
-                                    newIndices[index++] = Indices[i * 3 + 0];
-                                    newIndices[index++] = Indices[i * 3 + 1];
+                                    newIndices[index++] = mesh.Indices[i * 3 + 0];
+                                    newIndices[index++] = mesh.Indices[i * 3 + 1];
 
-                                    newIndices[index++] = Indices[i * 3 + 1];
-                                    newIndices[index++] = Indices[i * 3 + 2];
-                                    
-                                    newIndices[index++] = Indices[i * 3 + 2];
-                                    newIndices[index++] = Indices[i * 3 + 0];
+                                    newIndices[index++] = mesh.Indices[i * 3 + 1];
+                                    newIndices[index++] = mesh.Indices[i * 3 + 2];
+
+                                    newIndices[index++] = mesh.Indices[i * 3 + 2];
+                                    newIndices[index++] = mesh.Indices[i * 3 + 0];
                                 }
                                 return new Mesh<V>(newVertices, newIndices, Topology.Lines);
                             }
@@ -127,7 +131,7 @@ namespace Renderer
                     break;
                 case Topology.Points:
                     {
-                        V[] newVertices = Vertices.Clone() as V[];
+                        V[] newVertices = mesh.Vertices.Clone() as V[];
                         int[] indices = new int[newVertices.Length];
                         for (int i = 0; i < indices.Length; i++)
                             indices[i] = i;
@@ -137,7 +141,67 @@ namespace Renderer
 
             throw new ArgumentException("Wrong topology.");
         }
+        /// <summary>
+        /// Welds different vertices with positions close to each other using an epsilon decimation.
+        /// </summary>
+        public static Mesh<V> Weld<V>(this Mesh<V> mesh, float epsilon = 0.0001f) where V : struct, IVertex<V>
+        {
+            // Method using decimation...
+            // TODO: Implement other methods
+
+            Dictionary<int3, int> uniqueVertices = new Dictionary<int3, int>();
+            int[] mappedVertices = new int[mesh.Vertices.Length];
+            List<V> newVertices = new List<V>();
+
+            for (int i = 0; i < mesh.Vertices.Length; i++)
+            {
+                V vertex = mesh.Vertices[i];
+                float3 p = vertex.Position;
+                int3 cell = (int3)(p / epsilon); // convert vertex position in a discrete cell.
+                if (!uniqueVertices.ContainsKey(cell))
+                {
+                    uniqueVertices.Add(cell, newVertices.Count);
+                    newVertices.Add(vertex);
+                }
+                mappedVertices[i] = uniqueVertices[cell];
+            }
+
+            int[] newIndices = new int[mesh.Indices.Length];
+            for (int i = 0; i < mesh.Indices.Length; i++)
+                newIndices[i] = mappedVertices[mesh.Indices[i]];
+
+            return new Mesh<V>(newVertices.ToArray(), newIndices, mesh.Topology);
+        }
+
+        public static void ComputeNormals<V>(this Mesh<V> mesh) where V:struct, INormalVertex<V>
+        {
+            if (mesh.Topology != Topology.Triangles)
+                return;
+
+            float3[] normals = new float3[mesh.Vertices.Length];
+
+            for (int i=0; i<mesh.Indices.Length/3; i++)
+            {
+                float3 p0 = mesh.Vertices[mesh.Indices[i * 3 + 0]].Position;
+                float3 p1 = mesh.Vertices[mesh.Indices[i * 3 + 1]].Position;
+                float3 p2 = mesh.Vertices[mesh.Indices[i * 3 + 2]].Position;
+
+                // Compute the normal of the triangle.
+                float3 N = cross(p1 - p0, p2 - p0);
+
+                // Add the normal to the vertices involved
+                normals[mesh.Indices[i * 3 + 0]] += N;
+                normals[mesh.Indices[i * 3 + 1]] += N;
+                normals[mesh.Indices[i * 3 + 2]] += N;
+            }
+
+            // Update per-vertex normal using normal accumulation normalized.
+            for (int i = 0; i < mesh.Vertices.Length; i++)
+                mesh.Vertices[i].Normal = normalize(normals[i]);
+        }
+
     }
+
 
     /// <summary>
     /// Tool class to create different mesh from parametric methods.

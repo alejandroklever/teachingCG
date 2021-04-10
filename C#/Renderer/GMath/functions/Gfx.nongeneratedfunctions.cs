@@ -125,9 +125,93 @@ namespace GMath
 
         #endregion
 
-        #region Randoms
+        #region Inverse
 
-        static GRandom __random = new GRandom();
+#pragma region inverse
+
+        public static float1x1 inverse(float1x1 m) {
+            if (m._m00 == 0.0f)
+                return 0.0f;
+
+            return float1x1(1.0f / m._m00);
+        }
+
+        public static float2x2 inverse(float2x2 m)
+        {
+            float det = m._m00 * m._m11 - m._m10 * m._m01;
+            if (det == 0)
+                return 0.0f;
+
+            return float2x2(m._m11, m._m01, m._m10, m._m00) / det;
+        }
+
+        public static float3x3 inverse(float3x3 m)
+        {
+            /// 00 01 02
+            /// 10 11 12
+            /// 20 21 22
+            float Min00 = m._m11 * m._m22 - m._m12 * m._m21;
+            float Min01 = m._m10 * m._m22 - m._m12 * m._m20;
+            float Min02 = m._m10 * m._m21 - m._m11 * m._m20;
+
+            float det = Min00 * m._m00 - Min01 * m._m01 + Min02 * m._m02;
+
+            if (det == 0)
+                return new float3x3(0);
+
+            float Min10 = m._m01 * m._m22 - m._m02 * m._m21;
+            float Min11 = m._m00 * m._m22 - m._m02 * m._m20;
+            float Min12 = m._m00 * m._m21 - m._m01 * m._m20;
+
+            float Min20 = m._m01 * m._m12 - m._m02 * m._m11;
+            float Min21 = m._m00 * m._m12 - m._m02 * m._m10;
+            float Min22 = m._m00 * m._m11 - m._m01 * m._m10;
+
+            return float3x3(
+                (+Min00 / det), (-Min10 / det), (+Min20 / det),
+                (-Min01 / det), (+Min11 / det), (-Min21 / det),
+                (+Min02 / det), (-Min12 / det), (+Min22 / det));
+        }
+
+        public static float4x4 inverse(float4x4 m)
+        {
+            float Min00 = m._m11 * m._m22 * m._m33 + m._m12 * m._m23 * m._m31 + m._m13 * m._m21 * m._m32 - m._m11 * m._m23 * m._m32 - m._m12 * m._m21 * m._m33 - m._m13 * m._m22 * m._m31;
+            float Min01 = m._m10 * m._m22 * m._m33 + m._m12 * m._m23 * m._m30 + m._m13 * m._m20 * m._m32 - m._m10 * m._m23 * m._m32 - m._m12 * m._m20 * m._m33 - m._m13 * m._m22 * m._m30;
+            float Min02 = m._m10 * m._m21 * m._m33 + m._m11 * m._m23 * m._m30 + m._m13 * m._m20 * m._m31 - m._m10 * m._m23 * m._m31 - m._m11 * m._m20 * m._m33 - m._m13 * m._m21 * m._m30;
+            float Min03 = m._m10 * m._m21 * m._m32 + m._m11 * m._m22 * m._m30 + m._m12 * m._m20 * m._m31 - m._m10 * m._m22 * m._m31 - m._m11 * m._m20 * m._m32 - m._m12 * m._m21 * m._m30;
+
+            float det = Min00 * m._m00 - Min01 * m._m01 + Min02 * m._m02 - Min03 * m._m03;
+
+            if (det == 0)
+                return new float4x4(0);
+
+            float Min10 = m._m01 * m._m22 * m._m33 + m._m02 * m._m23 * m._m31 + m._m03 * m._m21 * m._m32 - m._m01 * m._m23 * m._m32 - m._m02 * m._m21 * m._m33 - m._m03 * m._m22 * m._m31;
+            float Min11 = m._m00 * m._m22 * m._m33 + m._m02 * m._m23 * m._m30 + m._m03 * m._m20 * m._m32 - m._m00 * m._m23 * m._m32 - m._m02 * m._m20 * m._m33 - m._m03 * m._m22 * m._m30;
+            float Min12 = m._m00 * m._m21 * m._m33 + m._m01 * m._m23 * m._m30 + m._m03 * m._m20 * m._m31 - m._m00 * m._m23 * m._m31 - m._m01 * m._m20 * m._m33 - m._m03 * m._m21 * m._m30;
+            float Min13 = m._m00 * m._m21 * m._m32 + m._m01 * m._m22 * m._m30 + m._m02 * m._m20 * m._m31 - m._m00 * m._m22 * m._m31 - m._m01 * m._m20 * m._m32 - m._m02 * m._m21 * m._m30;
+
+            float Min20 = m._m01 * m._m12 * m._m33 + m._m02 * m._m13 * m._m31 + m._m03 * m._m11 * m._m32 - m._m01 * m._m13 * m._m32 - m._m02 * m._m11 * m._m33 - m._m03 * m._m12 * m._m31;
+            float Min21 = m._m00 * m._m12 * m._m33 + m._m02 * m._m13 * m._m30 + m._m03 * m._m10 * m._m32 - m._m00 * m._m13 * m._m32 - m._m02 * m._m10 * m._m33 - m._m03 * m._m12 * m._m30;
+            float Min22 = m._m00 * m._m11 * m._m33 + m._m01 * m._m13 * m._m30 + m._m03 * m._m10 * m._m31 - m._m00 * m._m13 * m._m31 - m._m01 * m._m10 * m._m33 - m._m03 * m._m11 * m._m30;
+            float Min23 = m._m00 * m._m11 * m._m32 + m._m01 * m._m12 * m._m30 + m._m02 * m._m10 * m._m31 - m._m00 * m._m12 * m._m31 - m._m01 * m._m10 * m._m32 - m._m02 * m._m11 * m._m30;
+
+            float Min30 = m._m01 * m._m12 * m._m23 + m._m02 * m._m13 * m._m21 + m._m03 * m._m11 * m._m22 - m._m01 * m._m13 * m._m22 - m._m02 * m._m11 * m._m23 - m._m03 * m._m12 * m._m21;
+            float Min31 = m._m00 * m._m12 * m._m23 + m._m02 * m._m13 * m._m20 + m._m03 * m._m10 * m._m22 - m._m00 * m._m13 * m._m22 - m._m02 * m._m10 * m._m23 - m._m03 * m._m12 * m._m20;
+            float Min32 = m._m00 * m._m11 * m._m23 + m._m01 * m._m13 * m._m20 + m._m03 * m._m10 * m._m21 - m._m00 * m._m13 * m._m21 - m._m01 * m._m10 * m._m23 - m._m03 * m._m11 * m._m20;
+            float Min33 = m._m00 * m._m11 * m._m22 + m._m01 * m._m12 * m._m20 + m._m02 * m._m10 * m._m21 - m._m00 * m._m12 * m._m21 - m._m01 * m._m10 * m._m22 - m._m02 * m._m11 * m._m20;
+
+            return float4x4(
+                (+Min00 / det), (-Min10 / det), (+Min20 / det), (-Min30 / det),
+                (-Min01 / det), (+Min11 / det), (-Min21 / det), (+Min31 / det),
+                (+Min02 / det), (-Min12 / det), (+Min22 / det), (-Min32 / det),
+                (-Min03 / det), (+Min13 / det), (-Min23 / det), (+Min33 / det));
+        }
+
+    #endregion
+
+    #region Randoms
+
+    static GRandom __random = new GRandom();
 
         public static float random()
         {
