@@ -1,6 +1,6 @@
 using System;
 
-namespace GMath 
+namespace GMath
 {
 	public static partial class Gfx
 	{
@@ -298,109 +298,109 @@ namespace GMath
 
 		public static bool all(float1 v)
 		{
-			return v.x != 0;
+			return (v.x != 0);
 		}
 
 		public static bool all(float2 v)
 		{
-			return v.x != 0 && v.y != 0;
+			return (v.x != 0) && (v.y != 0);
 		}
 
 		public static bool all(float3 v)
 		{
-			return v.x != 0 && v.y != 0 && v.z != 0;
+			return (v.x != 0) && (v.y != 0) && (v.z != 0);
 		}
 
 		public static bool all(float4 v)
 		{
-			return v.x != 0 && v.y != 0 && v.z != 0 && v.w != 0;
+			return (v.x != 0) && (v.y != 0) && (v.z != 0) && (v.w != 0);
 		}
 
 		public static bool all(float1x1 m)
 		{
-			return m._m00 != 0;
+			return (m._m00 != 0);
 		}
 
 		public static bool all(float1x2 m)
 		{
-			return m._m00 != 0 && m._m01 != 0;
+			return (m._m00 != 0) && (m._m01 != 0);
 		}
 
 		public static bool all(float1x3 m)
 		{
-			return m._m00 != 0 && m._m01 != 0 && m._m02 != 0;
+			return (m._m00 != 0) && (m._m01 != 0) && (m._m02 != 0);
 		}
 
 		public static bool all(float1x4 m)
 		{
-			return m._m00 != 0 && m._m01 != 0 && m._m02 != 0 && m._m03 != 0;
+			return (m._m00 != 0) && (m._m01 != 0) && (m._m02 != 0) && (m._m03 != 0);
 		}
 
 		public static bool all(float2x1 m)
 		{
-			return m._m00 != 0 && m._m10 != 0;
+			return (m._m00 != 0) && (m._m10 != 0);
 		}
 
 		public static bool all(float2x2 m)
 		{
-			return m._m00 != 0 && m._m01 != 0 && m._m10 != 0 && m._m11 != 0;
+			return (m._m00 != 0) && (m._m01 != 0) && (m._m10 != 0) && (m._m11 != 0);
 		}
 
 		public static bool all(float2x3 m)
 		{
-			return m._m00 != 0 && m._m01 != 0 && m._m02 != 0 && m._m10 != 0 && m._m11 != 0 && m._m12 != 0;
+			return (m._m00 != 0) && (m._m01 != 0) && (m._m02 != 0) && (m._m10 != 0) && (m._m11 != 0) && (m._m12 != 0);
 		}
 
 		public static bool all(float2x4 m)
 		{
-			return m._m00 != 0 && m._m01 != 0 && m._m02 != 0 && m._m03 != 0 && m._m10 != 0 && m._m11 != 0 &&
-			       m._m12 != 0 && m._m13 != 0;
+			return (m._m00 != 0) && (m._m01 != 0) && (m._m02 != 0) && (m._m03 != 0) && (m._m10 != 0) && (m._m11 != 0) &&
+			       (m._m12 != 0) && (m._m13 != 0);
 		}
 
 		public static bool all(float3x1 m)
 		{
-			return m._m00 != 0 && m._m10 != 0 && m._m20 != 0;
+			return (m._m00 != 0) && (m._m10 != 0) && (m._m20 != 0);
 		}
 
 		public static bool all(float3x2 m)
 		{
-			return m._m00 != 0 && m._m01 != 0 && m._m10 != 0 && m._m11 != 0 && m._m20 != 0 && m._m21 != 0;
+			return (m._m00 != 0) && (m._m01 != 0) && (m._m10 != 0) && (m._m11 != 0) && (m._m20 != 0) && (m._m21 != 0);
 		}
 
 		public static bool all(float3x3 m)
 		{
-			return m._m00 != 0 && m._m01 != 0 && m._m02 != 0 && m._m10 != 0 && m._m11 != 0 && m._m12 != 0 &&
-			       m._m20 != 0 && m._m21 != 0 && m._m22 != 0;
+			return (m._m00 != 0) && (m._m01 != 0) && (m._m02 != 0) && (m._m10 != 0) && (m._m11 != 0) && (m._m12 != 0) &&
+			       (m._m20 != 0) && (m._m21 != 0) && (m._m22 != 0);
 		}
 
 		public static bool all(float3x4 m)
 		{
-			return m._m00 != 0 && m._m01 != 0 && m._m02 != 0 && m._m03 != 0 && m._m10 != 0 && m._m11 != 0 &&
-			       m._m12 != 0 && m._m13 != 0 && m._m20 != 0 && m._m21 != 0 && m._m22 != 0 && m._m23 != 0;
+			return (m._m00 != 0) && (m._m01 != 0) && (m._m02 != 0) && (m._m03 != 0) && (m._m10 != 0) && (m._m11 != 0) &&
+			       (m._m12 != 0) && (m._m13 != 0) && (m._m20 != 0) && (m._m21 != 0) && (m._m22 != 0) && (m._m23 != 0);
 		}
 
 		public static bool all(float4x1 m)
 		{
-			return m._m00 != 0 && m._m10 != 0 && m._m20 != 0 && m._m30 != 0;
+			return (m._m00 != 0) && (m._m10 != 0) && (m._m20 != 0) && (m._m30 != 0);
 		}
 
 		public static bool all(float4x2 m)
 		{
-			return m._m00 != 0 && m._m01 != 0 && m._m10 != 0 && m._m11 != 0 && m._m20 != 0 && m._m21 != 0 &&
-			       m._m30 != 0 && m._m31 != 0;
+			return (m._m00 != 0) && (m._m01 != 0) && (m._m10 != 0) && (m._m11 != 0) && (m._m20 != 0) && (m._m21 != 0) &&
+			       (m._m30 != 0) && (m._m31 != 0);
 		}
 
 		public static bool all(float4x3 m)
 		{
-			return m._m00 != 0 && m._m01 != 0 && m._m02 != 0 && m._m10 != 0 && m._m11 != 0 && m._m12 != 0 &&
-			       m._m20 != 0 && m._m21 != 0 && m._m22 != 0 && m._m30 != 0 && m._m31 != 0 && m._m32 != 0;
+			return (m._m00 != 0) && (m._m01 != 0) && (m._m02 != 0) && (m._m10 != 0) && (m._m11 != 0) && (m._m12 != 0) &&
+			       (m._m20 != 0) && (m._m21 != 0) && (m._m22 != 0) && (m._m30 != 0) && (m._m31 != 0) && (m._m32 != 0);
 		}
 
 		public static bool all(float4x4 m)
 		{
-			return m._m00 != 0 && m._m01 != 0 && m._m02 != 0 && m._m03 != 0 && m._m10 != 0 && m._m11 != 0 &&
-			       m._m12 != 0 && m._m13 != 0 && m._m20 != 0 && m._m21 != 0 && m._m22 != 0 && m._m23 != 0 &&
-			       m._m30 != 0 && m._m31 != 0 && m._m32 != 0 && m._m33 != 0;
+			return (m._m00 != 0) && (m._m01 != 0) && (m._m02 != 0) && (m._m03 != 0) && (m._m10 != 0) && (m._m11 != 0) &&
+			       (m._m12 != 0) && (m._m13 != 0) && (m._m20 != 0) && (m._m21 != 0) && (m._m22 != 0) && (m._m23 != 0) &&
+			       (m._m30 != 0) && (m._m31 != 0) && (m._m32 != 0) && (m._m33 != 0);
 		}
 
 		#endregion
@@ -410,109 +410,109 @@ namespace GMath
 
 		public static bool any(float1 v)
 		{
-			return v.x != 0;
+			return (v.x != 0);
 		}
 
 		public static bool any(float2 v)
 		{
-			return v.x != 0 || v.y != 0;
+			return (v.x != 0) || (v.y != 0);
 		}
 
 		public static bool any(float3 v)
 		{
-			return v.x != 0 || v.y != 0 || v.z != 0;
+			return (v.x != 0) || (v.y != 0) || (v.z != 0);
 		}
 
 		public static bool any(float4 v)
 		{
-			return v.x != 0 || v.y != 0 || v.z != 0 || v.w != 0;
+			return (v.x != 0) || (v.y != 0) || (v.z != 0) || (v.w != 0);
 		}
 
 		public static bool any(float1x1 m)
 		{
-			return m._m00 != 0;
+			return (m._m00 != 0);
 		}
 
 		public static bool any(float1x2 m)
 		{
-			return m._m00 != 0 || m._m01 != 0;
+			return (m._m00 != 0) || (m._m01 != 0);
 		}
 
 		public static bool any(float1x3 m)
 		{
-			return m._m00 != 0 || m._m01 != 0 || m._m02 != 0;
+			return (m._m00 != 0) || (m._m01 != 0) || (m._m02 != 0);
 		}
 
 		public static bool any(float1x4 m)
 		{
-			return m._m00 != 0 || m._m01 != 0 || m._m02 != 0 || m._m03 != 0;
+			return (m._m00 != 0) || (m._m01 != 0) || (m._m02 != 0) || (m._m03 != 0);
 		}
 
 		public static bool any(float2x1 m)
 		{
-			return m._m00 != 0 || m._m10 != 0;
+			return (m._m00 != 0) || (m._m10 != 0);
 		}
 
 		public static bool any(float2x2 m)
 		{
-			return m._m00 != 0 || m._m01 != 0 || m._m10 != 0 || m._m11 != 0;
+			return (m._m00 != 0) || (m._m01 != 0) || (m._m10 != 0) || (m._m11 != 0);
 		}
 
 		public static bool any(float2x3 m)
 		{
-			return m._m00 != 0 || m._m01 != 0 || m._m02 != 0 || m._m10 != 0 || m._m11 != 0 || m._m12 != 0;
+			return (m._m00 != 0) || (m._m01 != 0) || (m._m02 != 0) || (m._m10 != 0) || (m._m11 != 0) || (m._m12 != 0);
 		}
 
 		public static bool any(float2x4 m)
 		{
-			return m._m00 != 0 || m._m01 != 0 || m._m02 != 0 || m._m03 != 0 || m._m10 != 0 || m._m11 != 0 ||
-			       m._m12 != 0 || m._m13 != 0;
+			return (m._m00 != 0) || (m._m01 != 0) || (m._m02 != 0) || (m._m03 != 0) || (m._m10 != 0) || (m._m11 != 0) ||
+			       (m._m12 != 0) || (m._m13 != 0);
 		}
 
 		public static bool any(float3x1 m)
 		{
-			return m._m00 != 0 || m._m10 != 0 || m._m20 != 0;
+			return (m._m00 != 0) || (m._m10 != 0) || (m._m20 != 0);
 		}
 
 		public static bool any(float3x2 m)
 		{
-			return m._m00 != 0 || m._m01 != 0 || m._m10 != 0 || m._m11 != 0 || m._m20 != 0 || m._m21 != 0;
+			return (m._m00 != 0) || (m._m01 != 0) || (m._m10 != 0) || (m._m11 != 0) || (m._m20 != 0) || (m._m21 != 0);
 		}
 
 		public static bool any(float3x3 m)
 		{
-			return m._m00 != 0 || m._m01 != 0 || m._m02 != 0 || m._m10 != 0 || m._m11 != 0 || m._m12 != 0 ||
-			       m._m20 != 0 || m._m21 != 0 || m._m22 != 0;
+			return (m._m00 != 0) || (m._m01 != 0) || (m._m02 != 0) || (m._m10 != 0) || (m._m11 != 0) || (m._m12 != 0) ||
+			       (m._m20 != 0) || (m._m21 != 0) || (m._m22 != 0);
 		}
 
 		public static bool any(float3x4 m)
 		{
-			return m._m00 != 0 || m._m01 != 0 || m._m02 != 0 || m._m03 != 0 || m._m10 != 0 || m._m11 != 0 ||
-			       m._m12 != 0 || m._m13 != 0 || m._m20 != 0 || m._m21 != 0 || m._m22 != 0 || m._m23 != 0;
+			return (m._m00 != 0) || (m._m01 != 0) || (m._m02 != 0) || (m._m03 != 0) || (m._m10 != 0) || (m._m11 != 0) ||
+			       (m._m12 != 0) || (m._m13 != 0) || (m._m20 != 0) || (m._m21 != 0) || (m._m22 != 0) || (m._m23 != 0);
 		}
 
 		public static bool any(float4x1 m)
 		{
-			return m._m00 != 0 || m._m10 != 0 || m._m20 != 0 || m._m30 != 0;
+			return (m._m00 != 0) || (m._m10 != 0) || (m._m20 != 0) || (m._m30 != 0);
 		}
 
 		public static bool any(float4x2 m)
 		{
-			return m._m00 != 0 || m._m01 != 0 || m._m10 != 0 || m._m11 != 0 || m._m20 != 0 || m._m21 != 0 ||
-			       m._m30 != 0 || m._m31 != 0;
+			return (m._m00 != 0) || (m._m01 != 0) || (m._m10 != 0) || (m._m11 != 0) || (m._m20 != 0) || (m._m21 != 0) ||
+			       (m._m30 != 0) || (m._m31 != 0);
 		}
 
 		public static bool any(float4x3 m)
 		{
-			return m._m00 != 0 || m._m01 != 0 || m._m02 != 0 || m._m10 != 0 || m._m11 != 0 || m._m12 != 0 ||
-			       m._m20 != 0 || m._m21 != 0 || m._m22 != 0 || m._m30 != 0 || m._m31 != 0 || m._m32 != 0;
+			return (m._m00 != 0) || (m._m01 != 0) || (m._m02 != 0) || (m._m10 != 0) || (m._m11 != 0) || (m._m12 != 0) ||
+			       (m._m20 != 0) || (m._m21 != 0) || (m._m22 != 0) || (m._m30 != 0) || (m._m31 != 0) || (m._m32 != 0);
 		}
 
 		public static bool any(float4x4 m)
 		{
-			return m._m00 != 0 || m._m01 != 0 || m._m02 != 0 || m._m03 != 0 || m._m10 != 0 || m._m11 != 0 ||
-			       m._m12 != 0 || m._m13 != 0 || m._m20 != 0 || m._m21 != 0 || m._m22 != 0 || m._m23 != 0 ||
-			       m._m30 != 0 || m._m31 != 0 || m._m32 != 0 || m._m33 != 0;
+			return (m._m00 != 0) || (m._m01 != 0) || (m._m02 != 0) || (m._m03 != 0) || (m._m10 != 0) || (m._m11 != 0) ||
+			       (m._m12 != 0) || (m._m13 != 0) || (m._m20 != 0) || (m._m21 != 0) || (m._m22 != 0) || (m._m23 != 0) ||
+			       (m._m30 != 0) || (m._m31 != 0) || (m._m32 != 0) || (m._m33 != 0);
 		}
 
 		#endregion
