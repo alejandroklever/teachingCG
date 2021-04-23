@@ -1,7 +1,12 @@
-﻿namespace Renderer.Scene.Structs
+﻿using GMath;
+
+namespace Renderer.Scene.Structs
 {
-    public class MyRayPayload
+    /// <summary>
+    /// Payload used to pick a color from a hit intersection
+    /// </summary>
+    struct MyRayPayload
     {
-        
+        public float3 Color;
     }
 }

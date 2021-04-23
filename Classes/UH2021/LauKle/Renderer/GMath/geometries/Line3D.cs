@@ -31,13 +31,13 @@ namespace GMath
         /// </summary>
         public Line3D(float3 a, float3 b)
         {
-            this.A = a;
-            this.B = b;
+            A = a;
+            B = b;
         }
 
         public float Distance(float3 pto, out float3 closest)
         {
-            return GTools.distanceP2L(pto, this.A, this.B, out closest);
+            return GTools.distanceP2L(pto, A, B, out closest);
         }
 
         public float Distance(float3 pto)

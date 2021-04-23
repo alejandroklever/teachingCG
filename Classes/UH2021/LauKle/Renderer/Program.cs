@@ -1,7 +1,9 @@
 ﻿using GMath;
 using Rendering;
 using System;
+using Renderer.Scene.Structs;
 using static GMath.Gfx;
+using float2 = GMath.float2;
 
 namespace Renderer
 {
@@ -140,14 +142,15 @@ namespace Renderer
             
             // Creates the model using a revolution of a bezier.
             // Only Positions are updated.
-            var model = Manifold<PositionNormal>.Revolution(10, 10, t => EvalBezier(contourn, t), float3(0, 1, 0)).Weld();
+            var model = Manifold<PositionNormal>.Revolution(15, 15, t => EvalBezier(contourn, t), float3(0, 1, 0))
+                .Weld();
             model.ComputeNormals();
             return model;
         }
 
         static void CreateMeshScene(Scene<PositionNormal> scene)
         {
-            var model = CreateModel();
+            Mesh<PositionNormal> model = CreateModel();
             scene.Add(model.AsRaycast(), Transforms.Identity);
         }
 
@@ -223,73 +226,47 @@ namespace Renderer
             }
         }
 
+        static void RasterizeMesh(Texture2D texture)
+        {
+            Raster<PositionNormal, MyProjectedVertex> render = new Raster<PositionNormal, MyProjectedVertex>(texture);
+            
+            // Scene Setup
+            float3 CameraPosition = float3(3, 2f, 4);
+            
+            // View and projection matrices
+            float4x4 viewMatrix = Transforms.LookAtLH(CameraPosition, float3(0, 1, 0), float3(0, 1, 0));
+            float4x4 projectionMatrix =
+                Transforms.PerspectiveFovLH(pi_over_4, texture.Height / (float) texture.Width, 0.01f, 20);
+            
+            Mesh<PositionNormal> model = CreateModel();
+            model = model.ConvertTo(Topology.Lines);
+            
+            // Define a vertex shader that projects a vertex into the NDC.
+            render.VertexShader = v =>
+            {
+                float4 hPosition = float4(v.Position, 1);
+                hPosition = mul(hPosition, viewMatrix);
+                hPosition = mul(hPosition, projectionMatrix);
+                return new MyProjectedVertex {Homogeneous = hPosition};
+            };
+
+            // Define a pixel shader that colors using a constant value
+            render.PixelShader = p => float4(p.Homogeneous.x / 1024.0f, p.Homogeneous.y / 512.0f, 1, 1);
+            render.DrawMesh(model);
+        }
+
         static void Main(string[] args)
         {
-            // Texture to output the image.
             Texture2D texture = new Texture2D(512, 512);
-
+            //
             // SimpleRaycast(texture);
             // LitRaycast(texture);
-            RaycastingMesh(texture);
+            // RaycastingMesh(texture);
 
+            RasterizeMesh(texture);
             texture.Save("test.rbm");
             Console.WriteLine("Done.");
             Processing.ShowImageProcess();
-        }
-
-        struct PositionNormal : INormalVertex<PositionNormal>
-        {
-            public float3 Position { get; set; }
-            public float3 Normal { get; set; }
-
-            public PositionNormal Add(PositionNormal other)
-            {
-                return new PositionNormal
-                {
-                    Position = this.Position + other.Position,
-                    Normal = this.Normal + other.Normal
-                };
-            }
-
-            public PositionNormal Mul(float s)
-            {
-                return new PositionNormal
-                {
-                    Position = this.Position * s,
-                    Normal = this.Normal * s
-                };
-            }
-
-            public PositionNormal Transform(float4x4 matrix)
-            {
-                float4 p = float4(Position, 1);
-                p = mul(p, matrix);
-                
-                float4 n = float4(Normal, 0);
-                n = mul(n, matrix);
-
-                return new PositionNormal
-                {
-                    Position = p.xyz / p.w,
-                    Normal = n.xyz
-                };
-            }
-        }
-
-        /// <summary>
-        /// Payload used to pick a color from a hit intersection
-        /// </summary>
-        struct MyRayPayload
-        {
-            public float3 Color;
-        }
-
-        /// <summary>
-        /// Payload used to flag when a ray was shadowed.
-        /// </summary>
-        struct ShadowRayPayload
-        {
-            public bool Shadowed;
         }
     }
 }

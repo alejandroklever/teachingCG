@@ -18,9 +18,9 @@ namespace Rendering
         /// </summary>
         public Texture2D(int width, int height)
         {
-            this.Width = width;
-            this.Height = height;
-            this.data = new float4[height, width];
+            Width = width;
+            Height = height;
+            data = new float4[height, width];
         }
 
         /// <summary>

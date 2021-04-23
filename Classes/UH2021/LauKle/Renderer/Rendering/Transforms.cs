@@ -9,9 +9,9 @@ namespace Rendering
 	static class Transforms
 	{
 		public static float4x4 Identity
-        {
-            get { return float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
-        }
+		{
+			get { return float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
+		}
 
 		/// matrices
 		/// <summary>
@@ -71,6 +71,7 @@ namespace Rendering
 				0, 0, 0, 1
 			);
 		}
+
 		/// <summary>
 		/// Rotation mat around Z axis
 		/// </summary>
@@ -79,6 +80,7 @@ namespace Rendering
 		{
 			return RotateZ(alpha * pi / 180);
 		}
+
 		/// <summary>
 		/// Rotation mat around Z axis
 		/// </summary>
@@ -94,6 +96,7 @@ namespace Rendering
 				0, 0, 0, 1
 			);
 		}
+
 		/// <summary>
 		/// Rotation mat around Z axis
 		/// </summary>
@@ -102,6 +105,7 @@ namespace Rendering
 		{
 			return RotateY(alpha * pi / 180);
 		}
+
 		/// <summary>
 		/// Rotation mat around Z axis
 		/// </summary>
@@ -117,6 +121,7 @@ namespace Rendering
 				0, 0, 0, 1
 			);
 		}
+
 		/// <summary>
 		/// Rotation mat around Z axis
 		/// </summary>
@@ -125,6 +130,7 @@ namespace Rendering
 		{
 			return RotateX(alpha * pi / 180);
 		}
+
 		public static float4x4 Rotate(float angle, float3 dir)
 		{
 			float x = dir.x;
@@ -140,6 +146,7 @@ namespace Rendering
 				0, 0, 0, 1
 			);
 		}
+
 		public static float4x4 RotateRespectTo(float3 center, float3 direction, float angle)
 		{
 			return mul(Translate(center), mul(Rotate(angle, direction), Translate(center * -1.0f)));
@@ -162,6 +169,7 @@ namespace Rendering
 				0, 0, zscale, 0,
 				0, 0, 0, 1);
 		}
+
 		public static float4x4 Scale(float3 size)
 		{
 			return Scale(size.x, size.y, size.z);
@@ -171,6 +179,7 @@ namespace Rendering
 		{
 			return mul(mul(Translate(center), Scale(size)), Translate(center * -1));
 		}
+
 		public static float4x4 ScaleRespectTo(float3 center, float sx, float sy, float sz)
 		{
 			return ScaleRespectTo(center, float3(sx, sy, sz));
@@ -270,5 +279,68 @@ namespace Rendering
 				0, 0, znearPlane / (znearPlane - zfarPlane), 1);
 		}
 
+		public static float4x4 GetDesiredTransform(float4x4 transform, float3? position = null, float3? scale = null,
+			float3? eulerRotation = null, float3? rotCenter = null, float3? rotDirection = null, float? angle = null,
+			bool useGrad = false)
+		{
+			/*
+			 * The order of the operations is important
+			 * First we need to Translate, then Rotate, then Scale
+			*/
+			var desiredTransform = transform;
+
+			if (position != null)
+				desiredTransform = mul(Translate(position.Value), desiredTransform);
+
+			Func<float3, float3, float, float4x4> rotateRespectTo = RotateRespectTo;
+			Func<float, float3, float4x4> rotate = Rotate;
+			Func<float, float4x4> rotateX = RotateX;
+			Func<float, float4x4> rotateY = RotateY;
+			Func<float, float4x4> rotateZ = RotateZ;
+
+			if (useGrad)
+			{
+				rotateRespectTo = RotateRespectTo;
+				rotate = RotateGrad;
+				rotateX = RotateXGrad;
+				rotateY = RotateYGrad;
+				rotateZ = RotateZGrad;
+			}
+
+			if (eulerRotation != null)
+			{
+				desiredTransform = mul(rotateX(eulerRotation.Value.x), desiredTransform);
+				desiredTransform = mul(rotateY(eulerRotation.Value.y), desiredTransform);
+				desiredTransform = mul(rotateZ(eulerRotation.Value.z), desiredTransform);
+			}
+
+			else if (rotCenter != null && rotDirection != null && angle != null)
+				desiredTransform = mul(rotateRespectTo(rotCenter.Value, rotDirection.Value, angle.Value),
+					desiredTransform);
+
+			else if (rotDirection != null && angle != null)
+				desiredTransform = mul(rotate(angle.Value, rotDirection.Value), desiredTransform);
+
+			if (scale != null)
+				desiredTransform = mul(Scale(scale.Value), desiredTransform);
+
+			return desiredTransform;
+		}
+
+		public static float3[] ApplyTransform(IReadOnlyList<float3> points, float4x4 matrix)
+		{
+			var result = new float3[points.Count];
+
+			// Transform points with a matrix
+			// Linear transform in homogeneous coordinates
+			for (var i = 0; i < points.Count; i++)
+			{
+				var h = float4(points[i], 1);
+				h = mul(h, matrix);
+				result[i] = h.xyz / h.w;
+			}
+
+			return result;
+		}
 	}
 }

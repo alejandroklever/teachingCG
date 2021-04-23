@@ -198,10 +198,10 @@ namespace Rendering
 
         public RayDescription(float3 origin, float3 direction, float minT = 0.0001f, float maxT = 1000000)
         {
-            this.Origin = origin;
-            this.Direction = direction;
-            this.MinT = minT;
-            this.MaxT = maxT;
+            Origin = origin;
+            Direction = direction;
+            MinT = minT;
+            MaxT = maxT;
         }
 
         public RayDescription Transform(float4x4 matrix)
@@ -212,7 +212,7 @@ namespace Rendering
             o = mul(o, matrix);
             t = mul(t, matrix);
 
-            return new RayDescription(o.xyz / o.w, t.xyz / t.w - o.xyz / o.w, this.MinT, this.MaxT);
+            return new RayDescription(o.xyz / o.w, t.xyz / t.w - o.xyz / o.w, MinT, MaxT);
         }
 
         public static RayDescription FromScreen(float px, float py, int width, int height, float4x4 inverseView,
@@ -271,8 +271,8 @@ namespace Rendering
 
             public IEnumerable<HitInfo<T>> Raycast(RayDescription ray)
             {
-                return this.geometry.Raycast(ray)
-                    .Select(h => new HitInfo<T> {T = h.T, Attribute = this.transform(h.Attribute)});
+                return geometry.Raycast(ray)
+                    .Select(h => new HitInfo<T> {T = h.T, Attribute = transform(h.Attribute)});
             }
         }
 
@@ -299,7 +299,7 @@ namespace Rendering
         {
             get
             {
-                return __UnitarySphereInstance ?? (__UnitarySphereInstance = new Raycasting.UnitarySphereGeometry());
+                return __UnitarySphereInstance ?? (__UnitarySphereInstance = new UnitarySphereGeometry());
             }
         }
 
@@ -313,13 +313,13 @@ namespace Rendering
 
             public QuadricGeometry(float3x3 Q, float3 P, float R)
             {
-                this.quadric = new Quadric(Q, P, R);
+                quadric = new Quadric(Q, P, R);
             }
 
             public IEnumerable<HitInfo<float3>> Raycast(RayDescription ray)
             {
                 float minT, maxT;
-                if (!this.quadric.Intersect(new Ray3D(ray.Origin, ray.Direction), out minT, out maxT))
+                if (!quadric.Intersect(new Ray3D(ray.Origin, ray.Direction), out minT, out maxT))
                     yield break;
 
                 if (minT >= ray.MinT && minT < ray.MaxT)
@@ -353,7 +353,7 @@ namespace Rendering
 
             public PlaneGeometry(float3 P, float3 N)
             {
-                this.plane = new Plane3D(P, N);
+                plane = new Plane3D(P, N);
             }
 
             public IEnumerable<HitInfo<float3>> Raycast(RayDescription ray)

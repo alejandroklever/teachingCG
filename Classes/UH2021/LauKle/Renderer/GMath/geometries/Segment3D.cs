@@ -49,8 +49,8 @@ namespace GMath
         /// </summary>
         public Segment3D(float3 a, float3 b)
         {
-            this.A = a;
-            this.B = b;
+            A = a;
+            B = b;
         }
 
         public static explicit operator Line3D(Segment3D segment)
@@ -60,11 +60,11 @@ namespace GMath
 
         public float Distance(Segment3D other, out float3 closest1, out float3 closest2)
         {
-            return GTools.distanceS2S(this.A, this.B, other.A, other.B, out closest1, out closest2);
+            return GTools.distanceS2S(A, B, other.A, other.B, out closest1, out closest2);
         }
         public float Distance(Segment3D other)
         {
-            return GTools.distanceS2S(this.A, this.B, other.A, other.B, out float3 _, out float3 _);
+            return GTools.distanceS2S(A, B, other.A, other.B, out float3 _, out float3 _);
         }
 
         public float3 FromBaricenter(float alpha)

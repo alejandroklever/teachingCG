@@ -12,8 +12,8 @@ namespace GMath
 
         public AABB3D (float3 min, float3 max)
         {
-            this.Minimum = min;
-            this.Maximum = max;
+            Minimum = min;
+            Maximum = max;
         }
 
         public bool Intersect(Ray3D ray, out float minT, out float maxT)

@@ -29,9 +29,9 @@ namespace Rendering
         /// </summary>
         public Mesh (V[] vertices, int[] indices, Topology topology = Topology.Triangles)
         {
-            this.Vertices = vertices;
-            this.Indices = indices;
-            this.Topology = topology;
+            Vertices = vertices;
+            Indices = indices;
+            Topology = topology;
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Rendering
         {
             V[] newVertices = Vertices.Clone() as V[];
             int[] newIndices = Indices.Clone() as int[];
-            return new Mesh<V>(newVertices, newIndices, this.Topology);
+            return new Mesh<V>(newVertices, newIndices, Topology);
         }
 
     }

@@ -13,9 +13,9 @@ namespace GMath
 
         public Triangle3D(float3 v0, float3 v1, float3 v2)
         {
-            this.V0 = v0;
-            this.V1 = v1;
-            this.V2 = v2;
+            V0 = v0;
+            V1 = v1;
+            V2 = v2;
         }
 
         public bool Intersect(Ray3D ray, out float t, out float3 baricenter)
