@@ -297,10 +297,7 @@ namespace Rendering
 
         public static IRaycastGeometry<float3> UnitarySphere
         {
-            get
-            {
-                return __UnitarySphereInstance ?? (__UnitarySphereInstance = new UnitarySphereGeometry());
-            }
+            get { return __UnitarySphereInstance ?? (__UnitarySphereInstance = new UnitarySphereGeometry()); }
         }
 
         #endregion

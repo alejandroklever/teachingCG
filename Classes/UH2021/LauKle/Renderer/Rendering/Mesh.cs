@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using static GMath.Gfx;
+using float3 = GMath.float3;
 
 namespace Rendering
 {
@@ -27,7 +28,7 @@ namespace Rendering
         /// <summary>
         /// Creates a mesh object using vertices, indices and the desired topology.
         /// </summary>
-        public Mesh (V[] vertices, int[] indices, Topology topology = Topology.Triangles)
+        public Mesh(V[] vertices, int[] indices, Topology topology = Topology.Triangles)
         {
             Vertices = vertices;
             Indices = indices;
@@ -44,14 +45,14 @@ namespace Rendering
             int[] newIndices = Indices.Clone() as int[];
             return new Mesh<V>(newVertices, newIndices, Topology);
         }
-
     }
 
     public static class MeshTools
     {
         #region Mesh Vertices Transforms
 
-        public static Mesh<T> Transform<V, T>(this Mesh<V> mesh, Func<V, T> transform) where V : struct, IVertex<V> where T : struct, IVertex<T>
+        public static Mesh<T> Transform<V, T>(this Mesh<V> mesh, Func<V, T> transform)
+            where V : struct, IVertex<V> where T : struct, IVertex<T>
         {
             T[] newVertices = new T[mesh.Vertices.Length];
 
@@ -61,12 +62,12 @@ namespace Rendering
             return new Mesh<T>(newVertices, mesh.Indices, mesh.Topology);
         }
 
-        public static Mesh<V> Transform<V>(this Mesh<V> mesh, Func<V, V> transform) where V: struct, IVertex<V>
+        public static Mesh<V> Transform<V>(this Mesh<V> mesh, Func<V, V> transform) where V : struct, IVertex<V>
         {
             return Transform<V, V>(mesh, transform);
         }
 
-        public static Mesh<V> Transform<V>(this Mesh<V> mesh, float4x4 transform) where V: struct, IVertex<V>
+        public static Mesh<V> Transform<V>(this Mesh<V> mesh, float4x4 transform) where V : struct, IVertex<V>
         {
             return Transform<V>(mesh, v =>
             {
@@ -83,7 +84,7 @@ namespace Rendering
         /// <summary>
         /// Changes a mesh to another object with different topology. For instance, from a triangle mesh to a wireframe (lines).
         /// </summary>
-        public static Mesh<V> ConvertTo<V>(this Mesh<V> mesh, Topology topology) where V:struct, IVertex<V>
+        public static Mesh<V> ConvertTo<V>(this Mesh<V> mesh, Topology topology) where V : struct, IVertex<V>
         {
             switch (topology)
             {
@@ -99,6 +100,7 @@ namespace Rendering
                         case Topology.Points:
                             throw new NotImplementedException("Missing implementing point-to-triangle conversion.");
                     }
+
                     break;
                 case Topology.Lines:
                     switch (mesh.Topology)
@@ -109,38 +111,41 @@ namespace Rendering
                         case Topology.Lines:
                             return mesh.Clone(); // nothing to do
                         case Topology.Triangles:
+                        {
+                            // This is repeating edges for adjacent triangles.... use a hash table to prevent for double linking vertices.
+                            V[] newVertices = mesh.Vertices.Clone() as V[];
+                            int[] newIndices = new int[mesh.Indices.Length * 2];
+                            int index = 0;
+                            for (int i = 0; i < mesh.Indices.Length / 3; i++)
                             {
-                                // This is repeating edges for adjacent triangles.... use a hash table to prevent for double linking vertices.
-                                V[] newVertices = mesh.Vertices.Clone() as V[];
-                                int[] newIndices = new int[mesh.Indices.Length * 2];
-                                int index = 0;
-                                for (int i = 0; i < mesh.Indices.Length / 3; i++)
-                                {
-                                    newIndices[index++] = mesh.Indices[i * 3 + 0];
-                                    newIndices[index++] = mesh.Indices[i * 3 + 1];
+                                newIndices[index++] = mesh.Indices[i * 3 + 0];
+                                newIndices[index++] = mesh.Indices[i * 3 + 1];
 
-                                    newIndices[index++] = mesh.Indices[i * 3 + 1];
-                                    newIndices[index++] = mesh.Indices[i * 3 + 2];
+                                newIndices[index++] = mesh.Indices[i * 3 + 1];
+                                newIndices[index++] = mesh.Indices[i * 3 + 2];
 
-                                    newIndices[index++] = mesh.Indices[i * 3 + 2];
-                                    newIndices[index++] = mesh.Indices[i * 3 + 0];
-                                }
-                                return new Mesh<V>(newVertices, newIndices, Topology.Lines);
+                                newIndices[index++] = mesh.Indices[i * 3 + 2];
+                                newIndices[index++] = mesh.Indices[i * 3 + 0];
                             }
+
+                            return new Mesh<V>(newVertices, newIndices, Topology.Lines);
+                        }
                     }
+
                     break;
                 case Topology.Points:
-                    {
-                        V[] newVertices = mesh.Vertices.Clone() as V[];
-                        int[] indices = new int[newVertices.Length];
-                        for (int i = 0; i < indices.Length; i++)
-                            indices[i] = i;
-                        return new Mesh<V>(newVertices, indices, Topology.Points);
-                    }
+                {
+                    V[] newVertices = mesh.Vertices.Clone() as V[];
+                    int[] indices = new int[newVertices.Length];
+                    for (int i = 0; i < indices.Length; i++)
+                        indices[i] = i;
+                    return new Mesh<V>(newVertices, indices, Topology.Points);
+                }
             }
 
             throw new ArgumentException("Wrong topology.");
         }
+
         /// <summary>
         /// Welds different vertices with positions close to each other using an epsilon decimation.
         /// </summary>
@@ -157,12 +162,13 @@ namespace Rendering
             {
                 V vertex = mesh.Vertices[i];
                 float3 p = vertex.Position;
-                int3 cell = (int3)(p / epsilon); // convert vertex position in a discrete cell.
+                int3 cell = (int3) (p / epsilon); // convert vertex position in a discrete cell.
                 if (!uniqueVertices.ContainsKey(cell))
                 {
                     uniqueVertices.Add(cell, newVertices.Count);
                     newVertices.Add(vertex);
                 }
+
                 mappedVertices[i] = uniqueVertices[cell];
             }
 
@@ -173,14 +179,14 @@ namespace Rendering
             return new Mesh<V>(newVertices.ToArray(), newIndices, mesh.Topology);
         }
 
-        public static void ComputeNormals<V>(this Mesh<V> mesh) where V:struct, INormalVertex<V>
+        public static void ComputeNormals<V>(this Mesh<V> mesh) where V : struct, INormalVertex<V>
         {
             if (mesh.Topology != Topology.Triangles)
                 return;
 
             float3[] normals = new float3[mesh.Vertices.Length];
 
-            for (int i=0; i<mesh.Indices.Length/3; i++)
+            for (int i = 0; i < mesh.Indices.Length / 3; i++)
             {
                 float3 p0 = mesh.Vertices[mesh.Indices[i * 3 + 0]].Position;
                 float3 p1 = mesh.Vertices[mesh.Indices[i * 3 + 1]].Position;
@@ -216,22 +222,22 @@ namespace Rendering
             // Filling vertices for the manifold.
             // A manifold with x,y,z mapped from (0,0)-(1,1)
             for (int i = 0; i <= stacks; i++)
-                for (int j = 0; j <= slices; j++)
-                    vertices[i * (slices + 1) + j] = new V { Position = generating(j / (float)slices, i / (float)stacks) };
+            for (int j = 0; j <= slices; j++)
+                vertices[i * (slices + 1) + j] = new V {Position = generating(j / (float) slices, i / (float) stacks)};
 
             // Filling the indices of the quad. Vertices are linked to adjacent.
             int index = 0;
             for (int i = 0; i < stacks; i++)
-                for (int j = 0; j < slices; j++)
-                {
-                    indices[index++] = i * (slices + 1) + j;
-                    indices[index++] = (i + 1) * (slices + 1) + j;
-                    indices[index++] = (i + 1) * (slices + 1) + (j + 1);
+            for (int j = 0; j < slices; j++)
+            {
+                indices[index++] = i * (slices + 1) + j;
+                indices[index++] = (i + 1) * (slices + 1) + j;
+                indices[index++] = (i + 1) * (slices + 1) + (j + 1);
 
-                    indices[index++] = i * (slices + 1) + j;
-                    indices[index++] = (i + 1) * (slices + 1) + (j + 1);
-                    indices[index++] = i * (slices + 1) + (j + 1);
-                }
+                indices[index++] = i * (slices + 1) + j;
+                indices[index++] = (i + 1) * (slices + 1) + (j + 1);
+                indices[index++] = i * (slices + 1) + (j + 1);
+            }
 
             return new Mesh<V>(vertices, indices);
         }
@@ -255,6 +261,16 @@ namespace Rendering
         {
             return Surface(slices, stacks, (u, v) => g1(u) * (1 - v) + g2(u) * v);
         }
+        
+        public static Mesh<V> Sphere(float3 pos, float r = 1f)
+        {
+            return Surface(30, 30, (u, v) =>
+            {
+                float alpha = u * 2 * pi;
+                float beta = pi / 2 - v * pi;
+                return pos + r * float3(cos(alpha) * cos(beta), sin(beta), sin(alpha) * cos(beta));
+            });
+        }
     }
 
     /// <summary>
@@ -266,10 +282,12 @@ namespace Rendering
         /// Every vertex is a different point.
         /// </summary>
         Points,
+
         /// <summary>
         /// Every two vertices there is a line in between.
         /// </summary>
         Lines,
+
         /// <summary>
         /// Every three vertices form a triangle
         /// </summary>

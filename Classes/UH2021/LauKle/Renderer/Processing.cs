@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Renderer
 {
-    public class Processing
+    public static class Processing
     {
         public static void ShowImageProcess()
         {

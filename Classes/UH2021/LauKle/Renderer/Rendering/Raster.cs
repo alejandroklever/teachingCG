@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using GMath;
-using Renderer;
+using Renderer.Scene;
 using static GMath.Gfx;
 
 namespace Rendering
@@ -107,6 +105,48 @@ namespace Rendering
             DrawIndexedPrimitive(mesh.Topology, mesh.Vertices, mesh.Indices);
         }
 
+        public void DrawBezier(BezierCurve bezierCurve, bool drawExtras = false)
+        {
+            for (var i = 0; i < bezierCurve.CountOfSegments; i++)
+            {
+                var points = bezierCurve.GetPointsInSegment(i);
+                PixelShader = t => float4(.25f, .68f, .25f, 1);
+                DrawBezierSegment(points[0], points[1], points[2], points[3]);
+            }
+
+            if (!drawExtras) return;
+            for (var i = 0; i < bezierCurve.CountOfSegments; i++)
+            {
+                var points = bezierCurve.GetPointsInSegment(i);
+                
+                PixelShader = t => float4(1, 1, 1, 1);
+                DrawLine(new V {Position = points[0]}, new V {Position = points[1]});
+                DrawLine(new V {Position = points[2]}, new V {Position = points[3]});
+                
+                PixelShader = t => float4(.68f, .25f, .25f, 1);
+                DrawMesh(Manifold<V>.Sphere(points[0], .1f).ConvertTo(Topology.Lines));
+
+                PixelShader = t => float4(.25f, .25f, .68f, 1);
+                DrawMesh(Manifold<V>.Sphere(points[1], .1f).ConvertTo(Topology.Lines));
+                DrawMesh(Manifold<V>.Sphere(points[2], .1f).ConvertTo(Topology.Lines));
+                
+                PixelShader = t => float4(.68f, .25f, .25f, 1);
+                DrawMesh(Manifold<V>.Sphere(points[3], .1f).ConvertTo(Topology.Lines));
+            }
+        }
+
+        private void DrawBezierSegment(float3 p0, float3 p1, float3 p2, float3 p3)
+        {
+            const int steps = 100;
+            var lastPoint = BezierCurve.Eval(p0, p1, p2, p3, 0);
+            for (int i = 1; i <= steps; i++)
+            {
+                var current = BezierCurve.Eval(p0, p1, p2, p3, i / (float) steps);
+                DrawLine(new V {Position = lastPoint}, new V {Position = current});
+                lastPoint = current;
+            }
+        }
+
         #region Private Tools for Clipling, Rasterization and Updating Buffers
 
         void FromNDCToScreen(float4 pPosition, out float px, out float py)
@@ -124,7 +164,7 @@ namespace Rendering
                 PerformPixelShader(pixelInput);
         }
 
-        void DrawPoint(V vertex)
+        public void DrawPoint(V vertex)
         {
             P pixelInput = PerformVertexShader(vertex);
 
@@ -231,7 +271,7 @@ namespace Rendering
             return PixelShader(p);
         }
 
-        void DrawLine(V v1, V v2)
+        public void DrawLine(V v1, V v2)
         {
             P p1 = PerformVertexShader(v1);
             P p2 = PerformVertexShader(v2);
