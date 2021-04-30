@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using GMath;
 using Renderer.Scene;
 using Rendering;
+using static GMath.Gfx;
+using float3 = GMath.float3;
+
 
 namespace Renderer.Scene
 {
@@ -18,6 +22,7 @@ namespace Renderer.Scene
         public float3 direction = float3.zero;
         public readonly int j;
         public readonly int i;
+        public float weight;
         
         public bool Visited { get; set; }
         
@@ -32,9 +37,14 @@ namespace Renderer.Scene
         {
             return HashCode.Combine(i, j);
         }
+
+        public override string ToString()
+        {
+            return $"Node {(i, j)}";
+        }
     }
 
-    public class Graph<N> where N : INode
+    public class Graph<N> : IEnumerable<N> where N : INode
     {
         private readonly Dictionary<N, List<N>> _dictionary;
 
@@ -45,24 +55,30 @@ namespace Renderer.Scene
 
         public List<N> this[N n]
         {
-            get => _dictionary[n];
+            get => Neighbors(n);
             set => _dictionary[n] = value;
         }
 
+        public List<N> Neighbors(N node) => _dictionary[node];
+        
         public void Clear() => _dictionary.Clear();
+        
+        public IEnumerator<N> GetEnumerator() => _dictionary.Keys.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     public class MeshManipulator
     {
-        public static float3[] Adjust<V>(int stacks, int slices, Mesh<V> mesh, BezierCurve curve)
+        public static Mesh<V> Adjust<V>(int stacks, int slices, Mesh<V> mesh, BezierCurve curve)
             where V : struct, IVertex<V>
         {
             var grid = new Node[stacks + 1, slices + 1];
             var graph = new Graph<Node>();
             var set = new HashSet<Node>();
             var queue = new Queue<Node>();
-            
-            
+
+
             for (var i = 0; i < stacks + 1; i++)
             for (var j = 0; j < slices + 1; j++)
             {
@@ -72,7 +88,7 @@ namespace Renderer.Scene
             }
 
             bool IsValid(int i, int j) => i <= stacks && j <= slices && i >= 0 && j >= 0;
-            
+
             for (var i = 0; i < stacks + 1; i++)
             for (var j = 0; j < slices + 1; j++)
             {
@@ -97,35 +113,71 @@ namespace Renderer.Scene
                     graph[node].Add(grid[i + 1, j - 1]);
             }
 
-            var n = queue.Count;
-            var firstNode = queue.First(node => node.i == 0 && node.j == (slices + 1) / 2);
-            
-            
+            var index = 0;
+            var n = set.Count;
+            var subgraph = InducedSubGraph(graph, set);
+            var firstNode = subgraph.First(node => node.i == 0 && node.j == (slices + 1) / 2);
+            var secondNode = subgraph[firstNode].First(node => node.j == firstNode.j - 1);
+
+            // this is a trap for starting a path in a non directed circle graph
+            subgraph[firstNode] = new List<Node>(new[] {secondNode});
+
+            var currentNode = firstNode;
+            while (true)
+            {
+                Console.WriteLine((currentNode, index / (float) n));
+                var source = currentNode.pos;
+                currentNode.pos = curve.GetPoint(index++ / (float) n);
+                currentNode.direction = normalize(currentNode.pos - source);
+                currentNode.Visited = true;
+
+                foreach (var node in graph[firstNode])
+                    queue.Enqueue(node);
+
+                if (subgraph[currentNode].All(node => node.Visited))
+                    break;
+
+                currentNode = subgraph[currentNode].First(node => !node.Visited);
+            }
+
+            var t = .8f;
             while (queue.Count > 0)
             {
                 var node = queue.Dequeue();
-                
-                if (node.Visited) continue;
 
-                node = UpdateNodePosition(node, graph);
+                if (node.Visited) continue;
+                node = UpdateNodePosition(node, graph, t);
                 node.Visited = true;
-                
+
                 foreach (var adj in graph[node].Where(adj => !adj.Visited))
                     queue.Enqueue(adj);
-            }
-            
 
-            return null;
+                t /= 2f;
+            }
+
+            for (var i = 0; i < stacks + 1; i++)
+            for (var j = 0; j < slices + 1; j++)
+                mesh.Vertices[j + i * (slices + 1)] = new V {Position = grid[i, j].pos};
+
+            return mesh;
         }
 
-        public static Node UpdateNodePosition(Node node, Graph<Node> graph)
+        public static Node UpdateNodePosition(Node node, Graph<Node> graph, float t = 1f)
         {
             var visitedAdjacent = graph[node].Where(n => n.Visited);
             var lastPos = node.pos;
-            node.pos += visitedAdjacent.Select(n => n.direction)
+            node.pos += t * visitedAdjacent.Select(n => n.direction)
                 .Aggregate(float3.zero, (total, current) => total + current);
-            node.direction = node.pos - lastPos;
+            node.direction = normalize(node.pos - lastPos); // dest - src
             return node;
+        }
+
+        public static Graph<T> InducedSubGraph<T>(Graph<T> graph, ISet<T> nodes) where T : INode
+        {
+            var subgraph = new Graph<T>();
+            foreach (var node in nodes)
+                subgraph[node] = graph[node].Where(nodes.Contains).ToList();
+            return subgraph;
         }
     }
 }

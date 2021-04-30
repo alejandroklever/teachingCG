@@ -69,7 +69,7 @@ namespace Renderer.Scene
                 t -= i;
                 i *= 3;
             }
-            return Eval(_points[i], _points[i + 1], _points[i + 2], _points[i + 3], t);
+            return Eval(_points[i], _points[i + 1], _points[i + 2], _points[LoopIndex(i + 3)], t);
         }
     }
 }

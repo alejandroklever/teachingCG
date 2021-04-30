@@ -254,35 +254,7 @@ namespace Renderer
             float4x4 projectionMatrix =
                 Transforms.PerspectiveFovLH(pi_over_4, texture.Height / (float) texture.Width, 0.01f, 20);
 
-            var path = new BezierCurve(
-                float3(-0.04884124f, -2.970556f, 0f),
-                float3(-3.124903f, -2.962161f, 0f),
-                float3(-2.721841f, -0.7429778f, 0f),
-                float3(-1.6f, -0.005768061f, 0f),
-                float3(-0.9554807f, 0.417773f, 0f),
-                float3(-1.717579f, 0.8927901f, 0f),
-                float3(-1.707786f, 1.40761f, 0f),
-                float3(-1.697563f, 1.945039f, 0f),
-                float3(-0.7979001f, 2.036842f, 0f),
-                float3(-0.007782161f, 2.010925f, 0f),
-                float3(0.2717567f, 2.001756f, 0f),
-                float3(0.4391647f, 1.99094f, 0f),
-                float3(0.5791342f, 1.99094f, 0f),
-                float3(0.5791342f, 1.825696f, 0f),
-                float3(0.5883141f, 1.632911f, 0f),
-                float3(0.5791342f, 1.375865f, 0f),
-                float3(0.6066751f, 0.8709524f, 0f),
-                float3(1.322733f, 0.8342313f, 0f),
-                float3(1.313553f, 1.366685f, 0f),
-                float3(1.295192f, 1.522749f, 0f),
-                float3(1.476111f, 1.761416f, 0f),
-                float3(1.634861f, 1.284063f, 0f),
-                float3(1.810262f, 0.7566362f, 0f),
-                float3(0.9574833f, 0.4208248f, 0f),
-                float3(1.6f, -0.002990961f, 0f),
-                float3(2.721841f, -0.7429778f, 0f),
-                float3(3.11974f, -2.979204f, 0f)
-            );
+            var path = GuitarOutline();
 
             // Define a vertex shader that projects a vertex into the NDC.
             render.VertexShader = v =>
@@ -306,6 +278,8 @@ namespace Renderer
             //     render.DrawLine(new PositionNormal {Position = p0}, new PositionNormal {Position = p1});
             // }
 
+            
+            
             const int steps = 1;
             for (var i = 1; i <= steps; i++)
             {
@@ -378,10 +352,11 @@ namespace Renderer
 
             var slices = 10;
             var stacks = 10;
-            var model = Manifold<PositionNormal>.Surface(10, 10, (u, v) => float3(lerp(-2, 2, u), lerp(-2, 2, v), 0))
-                .Weld();
-            model = model.ConvertTo(Topology.Lines);
-
+            var model = Manifold<PositionNormal>.Surface(10, 10,
+                (u, v) => float3(lerp(-2, 2, u), lerp(-2, 2, v), 0));
+            var guitarOutline = GuitarOutline();
+            model = MeshManipulator.Adjust(stacks, slices, model, guitarOutline);
+            model = model.Weld().ConvertTo(Topology.Lines);
 
             // Define a vertex shader that projects a vertex into the NDC.
             render.VertexShader = v =>
@@ -395,54 +370,22 @@ namespace Renderer
             // Define a pixel shader that colors using a constant value
             render.PixelShader = p => float4(p.Homogeneous.x / 512.0f, p.Homogeneous.y / 512.0f, 1, 1);
             render.DrawMesh(model);
-
-
-            for (int i = 0; i <= stacks; i++)
+            
+            for (int i = 0; i < stacks + 1; i++)
+            for (int j = 0; j < slices + 1; j++)
             {
-                for (int j = 0; j <= slices; j++)
-                {
-                    if (i == 0 || j == 0 || i == stacks || j == slices)
-                    {
-                        var p = model.Vertices[j + i * (slices + 1)];
-                        render.DrawMesh(Manifold<PositionNormal>.Sphere(p.Position, .1f).ConvertTo(Topology.Lines));
-                    }
-                }
+                if (i != 0 && j != 0 && i != stacks && j != slices) continue;
+                Console.WriteLine((i, j, j + i * (slices + 1), model.Vertices.Length));
+                var p = model.Vertices[j + i * (slices + 1)];
+                render.DrawMesh(Manifold<PositionNormal>.Sphere(p.Position, .1f).ConvertTo(Topology.Lines));
             }
         }
 
-        static void ValuesToTxt(int segment, int steps)
+        private static void ValuesToTxt(int segment, int steps)
         {
             var writer = new StreamWriter("out.txt");
             var s = new StringBuilder();
-            var curve = new BezierCurve(
-                float3(-0.04884124f, -2.970556f, 0f),
-                float3(-3.124903f, -2.962161f, 0f),
-                float3(-2.721841f, -0.7429778f, 0f),
-                float3(-1.6f, -0.005768061f, 0f),
-                float3(-0.9554807f, 0.417773f, 0f),
-                float3(-1.717579f, 0.8927901f, 0f),
-                float3(-1.707786f, 1.40761f, 0f),
-                float3(-1.697563f, 1.945039f, 0f),
-                float3(-0.7979001f, 2.036842f, 0f),
-                float3(-0.007782161f, 2.010925f, 0f),
-                float3(0.2717567f, 2.001756f, 0f),
-                float3(0.4391647f, 1.99094f, 0f),
-                float3(0.5791342f, 1.99094f, 0f),
-                float3(0.5791342f, 1.825696f, 0f),
-                float3(0.5883141f, 1.632911f, 0f),
-                float3(0.5791342f, 1.375865f, 0f),
-                float3(0.6066751f, 0.8709524f, 0f),
-                float3(1.322733f, 0.8342313f, 0f),
-                float3(1.313553f, 1.366685f, 0f),
-                float3(1.295192f, 1.522749f, 0f),
-                float3(1.476111f, 1.761416f, 0f),
-                float3(1.634861f, 1.284063f, 0f),
-                float3(1.810262f, 0.7566362f, 0f),
-                float3(0.9574833f, 0.4208248f, 0f),
-                float3(1.6f, -0.002990961f, 0f),
-                float3(2.721841f, -0.7429778f, 0f),
-                float3(3.11974f, -2.979204f, 0f)
-            );
+            var curve = GuitarOutline();
 
             var pointsInSegment = curve.GetPointsInSegment(segment);
             for (var i = 0; i < steps; i++)
@@ -461,5 +404,35 @@ namespace Renderer
             File.Delete("out.txt");
             File.Delete("test.rbm");
         }
+        
+        private static BezierCurve GuitarOutline() =>  new BezierCurve(
+            float3(-0.04884124f, -2.970556f, 0f),
+            float3(-3.124903f, -2.962161f, 0f),
+            float3(-2.721841f, -0.7429778f, 0f),
+            float3(-1.6f, -0.005768061f, 0f),
+            float3(-0.9554807f, 0.417773f, 0f),
+            float3(-1.717579f, 0.8927901f, 0f),
+            float3(-1.707786f, 1.40761f, 0f),
+            float3(-1.697563f, 1.945039f, 0f),
+            float3(-0.7979001f, 2.036842f, 0f),
+            float3(-0.007782161f, 2.010925f, 0f),
+            float3(0.2717567f, 2.001756f, 0f),
+            float3(0.4391647f, 1.99094f, 0f),
+            float3(0.5791342f, 1.99094f, 0f),
+            float3(0.5791342f, 1.825696f, 0f),
+            float3(0.5883141f, 1.632911f, 0f),
+            float3(0.5791342f, 1.375865f, 0f),
+            float3(0.6066751f, 0.8709524f, 0f),
+            float3(1.322733f, 0.8342313f, 0f),
+            float3(1.313553f, 1.366685f, 0f),
+            float3(1.295192f, 1.522749f, 0f),
+            float3(1.476111f, 1.761416f, 0f),
+            float3(1.634861f, 1.284063f, 0f),
+            float3(1.810262f, 0.7566362f, 0f),
+            float3(0.9574833f, 0.4208248f, 0f),
+            float3(1.6f, -0.002990961f, 0f),
+            float3(2.721841f, -0.7429778f, 0f),
+            float3(3.11974f, -2.979204f, 0f)
+        );
     }
 }
