@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Scene\MeshGen" />
+    <Folder Include="Scene\Tools" />
   </ItemGroup>
 
 </Project>

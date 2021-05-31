@@ -1,8 +1,9 @@
 ﻿using GMath;
 using Rendering;
 using System;
-using System.IO;
-using System.Text;
+using System.Collections;
+using System.Diagnostics;
+using System.Linq;
 using Renderer.Scene;
 using Renderer.Scene.Structs;
 using static GMath.Gfx;
@@ -159,24 +160,30 @@ namespace Renderer
                     t => EvalBezier(contourn, t),
                     float3(1, 0, 0))
                 .Weld();
-            
+
             model.ComputeNormals();
             return model;
         }
 
         static void CreateMeshScene(Scene<PositionNormal> scene)
         {
-            Mesh<PositionNormal> model = CreateModel();
+            var mesh = Manifold<PositionNormal>.Cube(float3.zero)
+                .Transform(Transforms.Translate(float3.zero - .5f * float3.one)).Weld();
+            
+            mesh = mesh.CatmullClark(2);
+            mesh.ComputeNormals();
+            
+            Mesh<PositionNormal> model = mesh; // CreateModel();
             scene.Add(model.AsRaycast(), Transforms.Identity);
         }
 
         static void RaycastingMesh(Texture2D texture)
         {
             // Scene Setup
-            float3 CameraPosition = float3(3, 2f, 4);
+            float3 CameraPosition = float3(0, 5, -5);
             float3 LightPosition = float3(3, 5, -2);
             // View and projection matrices
-            float4x4 viewMatrix = Transforms.LookAtLH(CameraPosition, float3(0, 1, 0), float3(0, 1, 0));
+            float4x4 viewMatrix = Transforms.LookAtLH(CameraPosition, float3(0, 0, 0), float3(0, 1, 0));
             float4x4 projectionMatrix =
                 Transforms.PerspectiveFovLH(pi_over_4, texture.Height / (float) texture.Width, 0.01f, 20);
 
@@ -225,7 +232,7 @@ namespace Renderer
             for (int px = 0; px < texture.Width; px++)
             for (int py = 0; py < texture.Height; py++)
             {
-                int progress = (px * texture.Height + py);
+                int progress = px * texture.Height + py;
                 if (progress % 100 == 0)
                 {
                     Console.Write("\r" + progress * 100 / (float) (texture.Width * texture.Height) + "%            ");
@@ -240,83 +247,7 @@ namespace Renderer
 
                 texture.Write(px, py, float4(coloring.Color, 1));
             }
-        }
-
-        static void DrawBezierCurve(Texture2D texture)
-        {
-            Raster<PositionNormal, MyProjectedVertex> render = new Raster<PositionNormal, MyProjectedVertex>(texture);
-
-            // Scene Setup
-            float3 CameraPosition = float3(0f, 0f, -10f);
-
-            // View and projection matrices
-            float4x4 viewMatrix = Transforms.LookAtLH(CameraPosition, float3(0, 0, 0), float3(0, 1, 0));
-            float4x4 projectionMatrix =
-                Transforms.PerspectiveFovLH(pi_over_4, texture.Height / (float) texture.Width, 0.01f, 20);
-
-            var path = GuitarOutline();
-
-            // Define a vertex shader that projects a vertex into the NDC.
-            render.VertexShader = v =>
-            {
-                float4 hPosition = float4(v.Position, 1);
-                hPosition = mul(hPosition, viewMatrix);
-                hPosition = mul(hPosition, projectionMatrix);
-                return new MyProjectedVertex {Homogeneous = hPosition};
-            };
-
-            // Manifold<PositionNormal>.Surface(10, 10,
-            //     (u, v) => { return float3.zero; });
-            //
-            // var slices = 10;
-            // var stacks = 10;
-            // for (int j = 0; j < stacks; j++)
-            // {
-            //     var step = j / (float) stacks;
-            //     var p0 = step * float3.up;
-            //     var p1 = p0 + float3.left;
-            //     render.DrawLine(new PositionNormal {Position = p0}, new PositionNormal {Position = p1});
-            // }
-
-            
-            
-            const int steps = 1;
-            for (var i = 1; i <= steps; i++)
-            {
-                var subPath = new BezierCurve(Transforms.ApplyTransform(path.Points,
-                    Transforms.Scale((i / (float) steps) * float3.one)));
-                render.DrawBezier(subPath, false);
-            }
-        }
-
-        static void RasterizeMesh(Texture2D texture)
-        {
-            Raster<PositionNormal, MyProjectedVertex> render = new Raster<PositionNormal, MyProjectedVertex>(texture);
-
-            // Scene Setup
-            float3 CameraPosition = 2 * float3(0f, 0f, -5f);
-
-            // View and projection matrices
-            float4x4 viewMatrix = Transforms.LookAtLH(CameraPosition, float3(0, 0, 0), float3(0, 1, 0));
-            float4x4 projectionMatrix =
-                Transforms.PerspectiveFovLH(pi_over_4, texture.Height / (float) texture.Width, 0.01f, 20);
-
-            Mesh<PositionNormal> model = CreateModel();
-            model.ComputeNormals();
-            model = model.ConvertTo(Topology.Lines);
-
-            // Define a vertex shader that projects a vertex into the NDC.
-            render.VertexShader = v =>
-            {
-                float4 hPosition = float4(v.Position, 1);
-                hPosition = mul(hPosition, viewMatrix);
-                hPosition = mul(hPosition, projectionMatrix);
-                return new MyProjectedVertex {Homogeneous = hPosition};
-            };
-
-            // Define a pixel shader that colors using a constant value
-            render.PixelShader = p => float4(p.Homogeneous.x / 512.0f, p.Homogeneous.y / 512.0f, 1, 1);
-            render.DrawMesh(model);
+            Console.Write("\r" + 100 + "%            ");
         }
 
         static void Main(string[] args)
@@ -325,114 +256,16 @@ namespace Renderer
 
             // SimpleRaycast(texture);
             // LitRaycast(texture);
-            // RaycastingMesh(texture);
+            RaycastingMesh(texture);
 
-            // RasterizeMesh(texture);
+            /* Guitar Pieces */
+            // GuitarMeshData.DrawMesh(texture);
+            // PotentiometerMeshData.DrawMesh(texture);
+            // HumbuckerMeshData.DrawMesh(texture);
 
-            // DrawBezierCurve(texture);
-
-            DrawPlane(texture);
-            
             texture.Save("test.rbm");
             Console.WriteLine("Done.");
             Processing.ShowImageProcess();
         }
-
-        private static void DrawPlane(Texture2D texture)
-        {
-            var render = new Raster<PositionNormal, MyProjectedVertex>(texture);
-
-            // Scene Setup
-            float3 CameraPosition = float3(0f, 0f, -10f);
-
-            // View and projection matrices
-            float4x4 viewMatrix = Transforms.LookAtLH(CameraPosition, float3(0, 0, 0), float3(0, 1, 0));
-            float4x4 projectionMatrix =
-                Transforms.PerspectiveFovLH(pi_over_4, texture.Height / (float) texture.Width, 0.01f, 20);
-
-            var slices = 10;
-            var stacks = 10;
-            var model = Manifold<PositionNormal>.Surface(10, 10,
-                (u, v) => float3(lerp(-2, 2, u), lerp(-2, 2, v), 0));
-            var guitarOutline = GuitarOutline();
-            model = MeshManipulator.Adjust(stacks, slices, model, guitarOutline);
-            model = model.Weld().ConvertTo(Topology.Lines);
-
-            // Define a vertex shader that projects a vertex into the NDC.
-            render.VertexShader = v =>
-            {
-                float4 hPosition = float4(v.Position, 1);
-                hPosition = mul(hPosition, viewMatrix);
-                hPosition = mul(hPosition, projectionMatrix);
-                return new MyProjectedVertex {Homogeneous = hPosition};
-            };
-
-            // Define a pixel shader that colors using a constant value
-            render.PixelShader = p => float4(p.Homogeneous.x / 512.0f, p.Homogeneous.y / 512.0f, 1, 1);
-            render.DrawMesh(model);
-            
-            for (int i = 0; i < stacks + 1; i++)
-            for (int j = 0; j < slices + 1; j++)
-            {
-                if (i != 0 && j != 0 && i != stacks && j != slices) continue;
-                Console.WriteLine((i, j, j + i * (slices + 1), model.Vertices.Length));
-                var p = model.Vertices[j + i * (slices + 1)];
-                render.DrawMesh(Manifold<PositionNormal>.Sphere(p.Position, .1f).ConvertTo(Topology.Lines));
-            }
-        }
-
-        private static void ValuesToTxt(int segment, int steps)
-        {
-            var writer = new StreamWriter("out.txt");
-            var s = new StringBuilder();
-            var curve = GuitarOutline();
-
-            var pointsInSegment = curve.GetPointsInSegment(segment);
-            for (var i = 0; i < steps; i++)
-            {
-                var (x, y, z) = BezierCurve.Eval(pointsInSegment[0], pointsInSegment[1], pointsInSegment[2],
-                    pointsInSegment[3], i / (float) steps);
-                s.Append($"{(x: x, y: y, z: z)}\n");
-            }
-
-            writer.Write(s.ToString());
-            writer.Close();
-        }
-
-        private static void ClearDirectory()
-        {
-            File.Delete("out.txt");
-            File.Delete("test.rbm");
-        }
-        
-        private static BezierCurve GuitarOutline() =>  new BezierCurve(
-            float3(-0.04884124f, -2.970556f, 0f),
-            float3(-3.124903f, -2.962161f, 0f),
-            float3(-2.721841f, -0.7429778f, 0f),
-            float3(-1.6f, -0.005768061f, 0f),
-            float3(-0.9554807f, 0.417773f, 0f),
-            float3(-1.717579f, 0.8927901f, 0f),
-            float3(-1.707786f, 1.40761f, 0f),
-            float3(-1.697563f, 1.945039f, 0f),
-            float3(-0.7979001f, 2.036842f, 0f),
-            float3(-0.007782161f, 2.010925f, 0f),
-            float3(0.2717567f, 2.001756f, 0f),
-            float3(0.4391647f, 1.99094f, 0f),
-            float3(0.5791342f, 1.99094f, 0f),
-            float3(0.5791342f, 1.825696f, 0f),
-            float3(0.5883141f, 1.632911f, 0f),
-            float3(0.5791342f, 1.375865f, 0f),
-            float3(0.6066751f, 0.8709524f, 0f),
-            float3(1.322733f, 0.8342313f, 0f),
-            float3(1.313553f, 1.366685f, 0f),
-            float3(1.295192f, 1.522749f, 0f),
-            float3(1.476111f, 1.761416f, 0f),
-            float3(1.634861f, 1.284063f, 0f),
-            float3(1.810262f, 0.7566362f, 0f),
-            float3(0.9574833f, 0.4208248f, 0f),
-            float3(1.6f, -0.002990961f, 0f),
-            float3(2.721841f, -0.7429778f, 0f),
-            float3(3.11974f, -2.979204f, 0f)
-        );
     }
 }

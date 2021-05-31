@@ -124,14 +124,14 @@ namespace Rendering
                 DrawLine(new V {Position = points[2]}, new V {Position = points[3]});
                 
                 PixelShader = t => float4(.68f, .25f, .25f, 1);
-                DrawMesh(Manifold<V>.Sphere(points[0], .1f).ConvertTo(Topology.Lines));
+                DrawMesh(Manifold<V>.Sphere(30, 30, points[0], .1f).ConvertTo(Topology.Lines));
 
                 PixelShader = t => float4(.25f, .25f, .68f, 1);
-                DrawMesh(Manifold<V>.Sphere(points[1], .1f).ConvertTo(Topology.Lines));
-                DrawMesh(Manifold<V>.Sphere(points[2], .1f).ConvertTo(Topology.Lines));
+                DrawMesh(Manifold<V>.Sphere(30, 30, points[1], .1f).ConvertTo(Topology.Lines));
+                DrawMesh(Manifold<V>.Sphere(30, 30, points[2], .1f).ConvertTo(Topology.Lines));
                 
                 PixelShader = t => float4(.68f, .25f, .25f, 1);
-                DrawMesh(Manifold<V>.Sphere(points[3], .1f).ConvertTo(Topology.Lines));
+                DrawMesh(Manifold<V>.Sphere(30, 30, points[3], .1f).ConvertTo(Topology.Lines));
             }
         }
 
