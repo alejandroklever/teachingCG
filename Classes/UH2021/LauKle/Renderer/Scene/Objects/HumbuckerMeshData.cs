@@ -109,7 +109,7 @@ namespace Renderer.Scene
             var render = new Raster<PositionNormal, MyProjectedVertex>(texture);
 
             // Scene Setup
-            var CameraPosition = .4f * float3(10f, 6f, 10f);
+            var CameraPosition = 1f * float3(5f, 5f, -5f);
             var (viewMatrix, projectionMatrix) = CameraTools.GetViewAndProjection(CameraPosition, texture);
 
             
@@ -127,8 +127,8 @@ namespace Renderer.Scene
             // Define a pixel shader that colors using a constant value
             render.PixelShader = p => float4(p.Homogeneous.x / 512.0f, p.Homogeneous.y / 512.0f, 1, 1);
             
-            render.DrawMesh(mesh);
             
+            // render.DrawMesh(mesh);
             var t = .2f;
             var curve = new BezierCurve(
                 float3(2 - t, 1f, 1 - t),

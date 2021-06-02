@@ -5,6 +5,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.Linq;
 using Renderer.Scene;
+using Renderer.Scene.Objects;
 using Renderer.Scene.Structs;
 using static GMath.Gfx;
 using float3 = GMath.float3;
@@ -167,23 +168,34 @@ namespace Renderer
 
         static void CreateMeshScene(Scene<PositionNormal> scene)
         {
-            var mesh = Manifold<PositionNormal>.Cube(float3.zero)
-                .Transform(Transforms.Translate(float3.zero - .5f * float3.one)).Weld();
-            
-            mesh = mesh.CatmullClark(2);
-            mesh.ComputeNormals();
+            Mesh<PositionNormal> mesh;
+
+            var cubeTransform = new Transform
+            {
+                Position = 2 * float3.up
+            };
+            var cube = new Cube<PositionNormal>(cubeTransform, 4, 4, 6, 1);
+            mesh = cube.Mesh;
+
+            var position = float3(2, 2, 4);
             
             Mesh<PositionNormal> model = mesh; // CreateModel();
-            scene.Add(model.AsRaycast(), Transforms.Identity);
+            scene.Add(cube.RaycastGeometry, cube.TransformMatrix);
+
+            scene.Add(
+                Raycasting.PlaneXZ.AttributesMap(a => new PositionNormal {Position = a, Normal = float3(0, 1, 0)}),
+                Transforms.Identity);
         }
 
         static void RaycastingMesh(Texture2D texture)
         {
             // Scene Setup
-            float3 CameraPosition = float3(0, 5, -5);
-            float3 LightPosition = float3(3, 5, -2);
+            float3 CameraPosition = 2 * float3(5, 5, -5);
+            float3 LightPosition = 3 * float3(3, 5, -2);
+
+            // CameraPosition = LightPosition = 5 * float3(1, 1, -1);
             // View and projection matrices
-            float4x4 viewMatrix = Transforms.LookAtLH(CameraPosition, float3(0, 0, 0), float3(0, 1, 0));
+            float4x4 viewMatrix = Transforms.LookAtLH(CameraPosition, 2 * float3.up /*float3(3.8088684f, 2.825542f, 2.3400934f)*/, float3(0, 1, 0));
             float4x4 projectionMatrix =
                 Transforms.PerspectiveFovLH(pi_over_4, texture.Height / (float) texture.Width, 0.01f, 20);
 

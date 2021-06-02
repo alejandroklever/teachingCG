@@ -450,6 +450,35 @@ namespace Rendering
             return new Mesh<V>(vertices, indices);
         }
 
+        
+        public static Mesh<V> SurfaceDiscrete(int slices, int stacks, Func<int, int, float3> generating)
+        {
+            V[] vertices = new V[(slices + 1) * (stacks + 1)];
+            int[] indices = new int[slices * stacks * 6];
+
+            // Filling vertices for the manifold.
+            // A manifold with x,y,z mapped from (0,0)-(1,1)
+            for (int i = 0; i <= stacks; i++)
+            for (int j = 0; j <= slices; j++)
+                vertices[i * (slices + 1) + j] = new V {Position = generating(j, i)};
+
+            // Filling the indices of the quad. Vertices are linked to adjacent.
+            int index = 0;
+            for (int i = 0; i < stacks; i++)
+            for (int j = 0; j < slices; j++)
+            {
+                indices[index++] = i * (slices + 1) + j;
+                indices[index++] = (i + 1) * (slices + 1) + j;
+                indices[index++] = (i + 1) * (slices + 1) + (j + 1);
+
+                indices[index++] = i * (slices + 1) + j;
+                indices[index++] = (i + 1) * (slices + 1) + (j + 1);
+                indices[index++] = i * (slices + 1) + (j + 1);
+            }
+
+            return new Mesh<V>(vertices, indices);
+        }
+        
         public static Mesh<V> Generative(int slices, int stacks, Func<float, float3> g, Func<float3, float, float3> f)
         {
             return Surface(slices, stacks, (u, v) => f(g(u), v));
