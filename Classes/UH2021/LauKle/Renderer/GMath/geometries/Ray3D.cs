@@ -32,7 +32,7 @@ namespace GMath
         /// </summary>
         public static Ray3D CreateFromTo(float3 a, float3 b)
         {
-            return new Ray3D(a, Gfx.normalize(b - a));
+            return new Ray3D(a, b - a);
         }
 
         public static explicit operator Line3D (Ray3D ray)

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using GMath;
-using Renderer.Scene;
-using Renderer.Scene.Geometry;
+﻿using GMath;
 using Rendering;
+using System;
+using Renderer.Scene;
 using static GMath.Gfx;
 using float3 = GMath.float3;
 
@@ -12,179 +9,273 @@ namespace Renderer
 {
     internal static class Program
     {
-        private enum Render
-        {   
-            Free,
-            Table,
-            Guitar
+        static void CreateScene(Scene<float3> scene)
+        {
+            // Adding elements of the scene
+            scene.Add(Raycasting.UnitarySphere, Transforms.Translate(0, 1, 0));
+            scene.Add(Raycasting.PlaneXZ, Transforms.Identity);
         }
 
-        private static Render _render = Render.Guitar;
-        private static IDrawer _drawer;
-        private static DrawerType _drawerType = DrawerType.Guitar;
+        static void CreateScene(Scene<PositionNormal> scene)
+        {
+            // Adding elements of the scene
+            scene.Add(
+                Raycasting.UnitarySphere.AttributesMap(a => new PositionNormal {Position = a, Normal = normalize(a)}),
+                Transforms.Translate(0, 1, 0));
+
+            scene.Add(
+                Raycasting.PlaneXZ.AttributesMap(a => new PositionNormal {Position = a, Normal = float3(0, 1, 0)}),
+                Transforms.Identity);
+        }
+
+        static void SimpleRaycast(Texture2D texture)
+        {
+            Raytracer<RayPayload, float3> raycaster = new Raytracer<RayPayload, float3>();
+
+            // View and projection matrices
+            float4x4 viewMatrix = Transforms.LookAtLH(float3(2, 1f, 4), float3(0, 0, 0), float3(0, 1, 0));
+            float4x4 projectionMatrix =
+                Transforms.PerspectiveFovLH(pi_over_4, texture.Height / (float) texture.Width, 0.01f, 20);
+
+            Scene<float3> scene = new Scene<float3>();
+            CreateScene(scene);
+
+            raycaster.OnClosestHit += delegate(IRaycastContext context, float3 attribute, ref RayPayload payload)
+            {
+                payload.Color = attribute;
+            };
+
+            for (float px = 0.5f; px < texture.Width; px++)
+            for (float py = 0.5f; py < texture.Height; py++)
+            {
+                RayDescription ray = RayDescription.FromScreen(px, py, texture.Width, texture.Height,
+                    inverse(viewMatrix), inverse(projectionMatrix), 0, 1000);
+
+                RayPayload coloring = new RayPayload();
+
+                raycaster.Trace(scene, ray, ref coloring);
+
+                texture.Write((int) px, (int) py, float4(coloring.Color, 1));
+            }
+        }
+
+        static void LitRaycast(Texture2D texture)
+        {
+            // Scene Setup
+            float3 CameraPosition = float3(3, 2f, 4);
+            float3 LightPosition = float3(3, 5, -2);
+
+            // View and projection matrices
+            float4x4 viewMatrix = Transforms.LookAtLH(CameraPosition, float3(0, 1, 0), float3(0, 1, 0));
+            float4x4 projectionMatrix =
+                Transforms.PerspectiveFovLH(pi_over_4, texture.Height / (float) texture.Width, 0.01f, 20);
+
+            Scene<PositionNormal> scene = new Scene<PositionNormal>();
+            CreateScene(scene);
+
+            // Raycaster to trace rays and check for shadow rays.
+            Raytracer<ShadowRayPayload, PositionNormal> shadower = new Raytracer<ShadowRayPayload, PositionNormal>();
+            shadower.OnAnyHit += delegate(IRaycastContext context, PositionNormal attribute,
+                ref ShadowRayPayload payload)
+            {
+                // If any object is found in ray-path to the light, the ray is shadowed.
+                payload.Shadowed = true;
+                // No neccessary to continue checking other objects
+                return HitResult.Stop;
+            };
+
+            // Raycaster to trace rays and lit closest surfaces
+            Raytracer<RayPayload, PositionNormal> raycaster = new Raytracer<RayPayload, PositionNormal>();
+            raycaster.OnClosestHit +=
+                delegate(IRaycastContext context, PositionNormal attribute, ref RayPayload payload)
+                {
+                    // Move geometry attribute to world space
+                    attribute = attribute.Transform(context.FromGeometryToWorld);
+
+                    float3 V = normalize(CameraPosition - attribute.Position);
+                    float3 L = normalize(LightPosition - attribute.Position);
+                    float lambertFactor = max(0, dot(attribute.Normal, L));
+
+                    // Check ray to light...
+                    ShadowRayPayload shadow = new ShadowRayPayload();
+                    shadower.Trace(scene,
+                        RayDescription.FromTo(
+                            attribute.Position +
+                            attribute.Normal * 0.001f, // Move an epsilon away from the surface to avoid self-shadowing 
+                            LightPosition), ref shadow);
+
+                    payload.Color = shadow.Shadowed ? float3(0, 0, 0) : float3(1, 1, 1) * lambertFactor;
+                };
+            raycaster.OnMiss += delegate(IRaycastContext context, ref RayPayload payload)
+            {
+                payload.Color = float3(0, 0, 1); // Blue, as the sky.
+            };
+
+            // Render all points of the screen
+            for (int px = 0; px < texture.Width; px++)
+            for (int py = 0; py < texture.Height; py++)
+            {
+                RayDescription ray = RayDescription.FromScreen(px + 0.5f, py + 0.5f, texture.Width, texture.Height,
+                    inverse(viewMatrix), inverse(projectionMatrix), 0, 1000);
+
+                RayPayload coloring = new RayPayload();
+
+                raycaster.Trace(scene, ray, ref coloring);
+
+                texture.Write(px, py, float4(coloring.Color, 1));
+            }
+        }
+
+        static float3 EvalBezier(float3[] control, float t)
+        {
+            // DeCasteljau
+            if (control.Length == 1)
+                return control[0]; // stop condition
+            float3[] nestedPoints = new float3[control.Length - 1];
+            for (int i = 0; i < nestedPoints.Length; i++)
+                nestedPoints[i] = lerp(control[i], control[i + 1], t);
+            return EvalBezier(nestedPoints, t);
+        }
+
+        static Mesh<PositionNormal> CreateModel()
+        {
+            // Revolution Sample with Bezier
+            float3[] contourn =
+            {
+                float3(0, -.5f, 0),
+                float3(0.8f, -0.5f, 0),
+                float3(1f, -0.2f, 0),
+                float3(0.6f, 1, 0),
+                float3(0, 1, 0)
+            };
+
+            // Creates the model using a revolution of a bezier.
+            // Only Positions are updated.
+            Mesh<PositionNormal> model;
+            model = Manifold<PositionNormal>.Revolution(10, 10,
+                    t => EvalBezier(contourn, t),
+                    float3(1, 0, 0))
+                .Weld();
+
+            model.ComputeNormals();
+            return model;
+        }
+
+        static void CreateMeshScene(Scene<PositionNormal> scene)
+        {
+            Mesh<PositionNormal> mesh;
+
+            var transform = new Transform
+            {
+                Position = float3.zero, // 2 * float3.up
+                // Scale = .5f * float3.one
+            };
+
+            var cube = new Microphone<PositionNormal>(transform);
+            mesh = cube.Mesh;
+
+            var model = mesh; // CreateModel();
+            scene.Add(cube.RaycastGeometry, cube.TransformMatrix);
+
+            scene.Add(
+                Raycasting.PlaneXZ.AttributesMap(a => new PositionNormal {Position = a, Normal = float3(0, 1, 0)}),
+                Transforms.Identity);
+        }
+
+        static void RaycastingMesh(Texture2D texture)
+        {
+            // Scene Setup
+            float3 CameraPosition = 2 * float3(0, 5, -5);
+            float3 LightPosition = 3 * float3(3, 5, -2);
+
+            // CameraPosition = LightPosition = 5 * float3(1, 1, -1);
+            // View and projection matrices
+            float4x4 viewMatrix = Transforms.LookAtLH(CameraPosition, 2 * float3.up, float3(0, 1, 0));
+            float4x4 projectionMatrix =
+                Transforms.PerspectiveFovLH(pi_over_4, texture.Height / (float) texture.Width, 0.01f, 20);
+
+            Scene<PositionNormal> scene = new Scene<PositionNormal>();
+            CreateMeshScene(scene);
+
+            // Raycaster to trace rays and check for shadow rays.
+            var shadower = new Raytracer<ShadowRayPayload, PositionNormal>();
+            shadower.OnAnyHit += delegate(IRaycastContext context, PositionNormal attribute,
+                ref ShadowRayPayload payload)
+            {
+                // If any object is found in ray-path to the light, the ray is shadowed.
+                payload.Shadowed = true;
+                // No neccessary to continue checking other objects
+                return HitResult.Stop;
+            };
+
+            // Raycaster to trace rays and lit closest surfaces
+            Raytracer<RayPayload, PositionNormal> raycaster = new Raytracer<RayPayload, PositionNormal>();
+            raycaster.OnClosestHit +=
+                delegate(IRaycastContext context, PositionNormal attribute, ref RayPayload payload)
+                {
+                    // Move geometry attribute to world space
+                    attribute = attribute.Transform(context.FromGeometryToWorld);
+
+                    float3 V = normalize(CameraPosition - attribute.Position);
+                    float3 L = normalize(LightPosition - attribute.Position);
+                    float lambertFactor = max(0, dot(attribute.Normal, L));
+
+                    // Check ray to light...
+                    ShadowRayPayload shadow = new ShadowRayPayload();
+                    shadower.Trace(scene,
+                        RayDescription.FromTo(
+                            attribute.Position +
+                            attribute.Normal * 0.001f, // Move an epsilon away from the surface to avoid self-shadowing 
+                            LightPosition), ref shadow);
+
+                    payload.Color = shadow.Shadowed ? float3(0, 0, 0) : float3(1, 1, 1) * lambertFactor;
+                };
+            raycaster.OnMiss += delegate(IRaycastContext context, ref RayPayload payload)
+            {
+                payload.Color = float3(0, 0, 1); // Blue, as the sky.
+            };
+
+            // Render all points of the screen
+            for (int px = 0; px < texture.Width; px++)
+            for (int py = 0; py < texture.Height; py++)
+            {
+                int progress = px * texture.Height + py;
+                if (progress % 100 == 0)
+                {
+                    Console.Write("\r" + progress * 100 / (float) (texture.Width * texture.Height) + "%            ");
+                }
+
+                RayDescription ray = RayDescription.FromScreen(px + 0.5f, py + 0.5f, texture.Width, texture.Height,
+                    inverse(viewMatrix), inverse(projectionMatrix), 0, 1000);
+
+                RayPayload coloring = new RayPayload();
+
+                raycaster.Trace(scene, ray, ref coloring);
+
+                texture.Write(px, py, float4(coloring.Color, 1));
+            }
+
+            Console.Write("\r" + 100 + "%            ");
+        }
 
         private static void Main(string[] args)
         {
-            Raster render = new Raster(736, 1103);
+            // Texture2D texture = new Texture2D(256, 256);
+            //
+            // SimpleRaycast(texture);
+            // LitRaycast(texture);
+            // RaycastingMesh(texture);
+            //
+            // texture.Save("test.rbm");
+            // Console.WriteLine("Done.");
 
-            switch (_render)
-            {
-                case Render.Free:
-                    FreeTransformTest(render);
-                    break;
-                case Render.Table:
-                    DrawRoomTest(render);
-                    break;
-                case Render.Guitar:
-                    _drawer = DrawerTools.GetDrawer(_drawerType);
-                    float4x4 transform = _drawer.Draw(render);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-            
-            
-            render.RenderTarget.Save("test.rbm");
-            Console.WriteLine("Done.");
-
-            var start = new ProcessStartInfo
-            {
-                FileName = "python",
-                Arguments = $"{Path.Combine("..", "..", "..", "image_viewer")} test.rbm",
-                RedirectStandardOutput = true, 
-                UseShellExecute = false
-            };
-
-            using var p = Process.Start(start);
-            using var output = p?.StandardOutput;
-            Console.Write(output?.ReadToEnd());
-        }
-
-        private static float3[] RandomPositionsInBoxSurface(int N)
-        {
-            float3[] points = new float3[N];
-
-            for (int i = 0; i < N; i++)
-                points[i] = randomInBox();
-
-            return points;
-        }
-
-        private static float3[] ApplyTransform(float3[] points, float4x4 matrix)
-        {
-            float3[] result = new float3[points.Length];
-
-            // Transform points with a matrix
-            // Linear transform in homogeneous coordinates
-            for (int i = 0; i < points.Length; i++)
-            {
-                float4 h = float4(points[i], 1);
-                h = mul(h, matrix);
-                result[i] = h.xyz / h.w;
-            }
-
-            return result;
-        }
-
-        private static float3[] ApplyTransform(float3[] points, Func<float3, float3> freeTransform)
-        {
-            float3[] result = new float3[points.Length];
-
-            // Transform points with a function
-            for (int i = 0; i < points.Length; i++)
-                result[i] = freeTransform(points[i]);
-
-            return result;
-        }
-
-        private static void FreeTransformTest(Raster render)
-        {
-            render.ClearRT(float4(0, 0, 0.2f, 1)); // clear with color dark blue.
-
-            const int N = 100000;
-            // Create buffer with points to render
-            float3[] points = RandomPositionsInBoxSurface(N);
-
-            // Creating boxy...
-            points = ApplyTransform(points, float4x4(
-                1f, 0, 0, 0,
-                0, 1.57f, 0, 0,
-                0, 0, 1f, 0,
-                0, 0, 0, 1
-            ));
-
-            // Apply a free transform
-            points = ApplyTransform(points,
-                p => float3(p.x * cos(p.y) + p.z * sin(p.y), p.y, p.x * sin(p.y) - p.z * cos(p.y)));
-
-            points = ApplyTransform(points, Transforms.Rotate(pi_over_4, float3.left));
-            
-            #region viewing and projecting
-
-            points = ApplyTransform(points, Transforms.LookAtLH(float3(5f, 2.6f, 4), float3(0, 0, 0), float3(0, 1, 0)));
-            points = ApplyTransform(points,
-                Transforms.PerspectiveFovLH(pi_over_4, render.RenderTarget.Height / (float) render.RenderTarget.Width,
-                    0.01f, 10));
-
-            #endregion
-
-            render.DrawPoints(points);
-        }
-
-        public static void DrawRoomTest(Raster raster)
-        {
-            raster.ClearRT(float4(0, 0, 0.2f, 1)); // clear with color dark blue.
-
-            const int N = 100000;
-            // Create buffer with points to render
-            float3[] points = RandomPositionsInBoxSurface(N);
-
-            float4x4 viewMatrix = Transforms.LookAtLH(float3(5f, 4.6f, 2), float3(0, 0, 0), float3(0, 1, 0));
-            float4x4 projMatrix = Transforms.PerspectiveFovLH(pi_over_4,
-                raster.RenderTarget.Height / (float) raster.RenderTarget.Width, 0.01f, 10);
-
-            DrawRoom(raster, points, mul(viewMatrix, projMatrix));
-        }
-
-        private static void DrawRoom(Raster raster, float3[] boxPoints, float4x4 transform)
-        {
-            DrawTable(raster, boxPoints, mul(Transforms.Translate(0, 0, 0), transform));
-            DrawTable(raster, boxPoints,
-                mul(Transforms.RotateRespectTo(float3.right, float3.up,  pi / 2), transform));
-        }
-
-        private static void DrawTable(Raster raster, float3[] boxPoints, float4x4 transform)
-        {
-            DrawTableLeg(raster, boxPoints, mul(Transforms.Translate(0.2f, 0, 0.2f), transform));
-            DrawTableLeg(raster, boxPoints, mul(Transforms.Translate(1.6f, 0, 0.2f), transform));
-            DrawTableLeg(raster, boxPoints, mul(Transforms.Translate(1.6f, 0, 1.6f), transform));
-            DrawTableLeg(raster, boxPoints, mul(Transforms.Translate(0.2f, 0, 1.6f), transform));
-            DrawTableTop(raster, boxPoints, mul(Transforms.Translate(0, 2, 0), transform));
-        }
-
-        private static void DrawTableTop(Raster raster, float3[] boxPoints, float4x4 transform)
-        {
-            float4x4 transformingIntoTop = mul(Transforms.Scale(2.2f, 0.2f, 2.2f), transform);
-            DrawBox(raster, boxPoints, transformingIntoTop);
-        }
-
-        private static void DrawTableLeg(Raster raster, float3[] boxPoints, float4x4 transform)
-        {
-            float4x4 transformingIntoLeg = mul(Transforms.Scale(0.2f, 2, 0.2f), transform);
-            DrawBox(raster, boxPoints, transformingIntoLeg);
-        }
-
-        private static void DrawBox(Raster raster, float3[] boxPoints, float4x4 transform)
-        {
-            float4x4 transformingIntoBox = mul(float4x4(
-                0.5f, 0, 0, 0,
-                0, 0.5f, 0, 0,
-                0, 0, 0.5f, 0,
-                0.5f, 0.5f, 0.5f, 1
-            ), transform);
-
-            float3[] pointsToDraw = ApplyTransform(boxPoints, transformingIntoBox);
-            raster.DrawPoints(pointsToDraw);
+            RaycastProcess.StartProcess(new TestConfig{
+                width = 256,
+                height = 256,
+                camera = 2 * float3(5, 5, 0),
+                light = 3 * float3(3, 5, -2),
+                target = 2 * float3.up});
+            Processing.ShowImageProcess();
         }
     }
 }
