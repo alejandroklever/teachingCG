@@ -17,12 +17,19 @@ public struct int3{
 			if(idx == 2) this.z = value;
 		}
 	}
-	public int3(int x,int y,int z){
-		this.x=x;
-		this.y=y;
-		this.z=z;
-	}
-	public int3(int v):this(v,v,v){}
+		public int3(int x, int y, int z)
+		{
+			this.x = x;
+			this.y = y;
+			this.z = z;
+		}
+		public int3(bool x, bool y, bool z)
+		{
+			this.x = x ? 1 : 0;
+			this.y = y ? 1 : 0;
+			this.z = z ? 1 : 0;
+		}
+		public int3(int v):this(v,v,v){}
 	public static explicit operator int1(int3 v) { return new int1(v.x); }
 	public static explicit operator int2(int3 v) { return new int2(v.x, v.y); }
 	public static implicit operator int3(int v) { return new int3(v); }
