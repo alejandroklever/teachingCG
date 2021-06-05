@@ -1,12 +1,7 @@
 ﻿using GMath;
 using Rendering;
 using System;
-using System.Collections;
-using System.Diagnostics;
-using System.Linq;
 using Renderer.Scene;
-using Renderer.Scene.Objects;
-using Renderer.Scene.Structs;
 using static GMath.Gfx;
 using float3 = GMath.float3;
 
@@ -35,7 +30,7 @@ namespace Renderer
 
         static void SimpleRaycast(Texture2D texture)
         {
-            Raytracer<MyRayPayload, float3> raycaster = new Raytracer<MyRayPayload, float3>();
+            Raytracer<RayPayload, float3> raycaster = new Raytracer<RayPayload, float3>();
 
             // View and projection matrices
             float4x4 viewMatrix = Transforms.LookAtLH(float3(2, 1f, 4), float3(0, 0, 0), float3(0, 1, 0));
@@ -45,7 +40,7 @@ namespace Renderer
             Scene<float3> scene = new Scene<float3>();
             CreateScene(scene);
 
-            raycaster.OnClosestHit += delegate(IRaycastContext context, float3 attribute, ref MyRayPayload payload)
+            raycaster.OnClosestHit += delegate(IRaycastContext context, float3 attribute, ref RayPayload payload)
             {
                 payload.Color = attribute;
             };
@@ -56,7 +51,7 @@ namespace Renderer
                 RayDescription ray = RayDescription.FromScreen(px, py, texture.Width, texture.Height,
                     inverse(viewMatrix), inverse(projectionMatrix), 0, 1000);
 
-                MyRayPayload coloring = new MyRayPayload();
+                RayPayload coloring = new RayPayload();
 
                 raycaster.Trace(scene, ray, ref coloring);
 
@@ -90,9 +85,9 @@ namespace Renderer
             };
 
             // Raycaster to trace rays and lit closest surfaces
-            Raytracer<MyRayPayload, PositionNormal> raycaster = new Raytracer<MyRayPayload, PositionNormal>();
+            Raytracer<RayPayload, PositionNormal> raycaster = new Raytracer<RayPayload, PositionNormal>();
             raycaster.OnClosestHit +=
-                delegate(IRaycastContext context, PositionNormal attribute, ref MyRayPayload payload)
+                delegate(IRaycastContext context, PositionNormal attribute, ref RayPayload payload)
                 {
                     // Move geometry attribute to world space
                     attribute = attribute.Transform(context.FromGeometryToWorld);
@@ -111,7 +106,7 @@ namespace Renderer
 
                     payload.Color = shadow.Shadowed ? float3(0, 0, 0) : float3(1, 1, 1) * lambertFactor;
                 };
-            raycaster.OnMiss += delegate(IRaycastContext context, ref MyRayPayload payload)
+            raycaster.OnMiss += delegate(IRaycastContext context, ref RayPayload payload)
             {
                 payload.Color = float3(0, 0, 1); // Blue, as the sky.
             };
@@ -123,7 +118,7 @@ namespace Renderer
                 RayDescription ray = RayDescription.FromScreen(px + 0.5f, py + 0.5f, texture.Width, texture.Height,
                     inverse(viewMatrix), inverse(projectionMatrix), 0, 1000);
 
-                MyRayPayload coloring = new MyRayPayload();
+                RayPayload coloring = new RayPayload();
 
                 raycaster.Trace(scene, ray, ref coloring);
 
@@ -170,16 +165,16 @@ namespace Renderer
         {
             Mesh<PositionNormal> mesh;
 
-            var cubeTransform = new Transform
+            var transform = new Transform
             {
-                Position = 2 * float3.up
+                Position = float3.zero, // 2 * float3.up
+                // Scale = .5f * float3.one
             };
-            var cube = new Cube<PositionNormal>(cubeTransform, 4, 4, 6, 1);
+
+            var cube = new Microphone<PositionNormal>(transform);
             mesh = cube.Mesh;
 
-            var position = float3(2, 2, 4);
-            
-            Mesh<PositionNormal> model = mesh; // CreateModel();
+            var model = mesh; // CreateModel();
             scene.Add(cube.RaycastGeometry, cube.TransformMatrix);
 
             scene.Add(
@@ -190,12 +185,12 @@ namespace Renderer
         static void RaycastingMesh(Texture2D texture)
         {
             // Scene Setup
-            float3 CameraPosition = 2 * float3(5, 5, -5);
+            float3 CameraPosition = 2 * float3(0, 5, -5);
             float3 LightPosition = 3 * float3(3, 5, -2);
 
             // CameraPosition = LightPosition = 5 * float3(1, 1, -1);
             // View and projection matrices
-            float4x4 viewMatrix = Transforms.LookAtLH(CameraPosition, 2 * float3.up /*float3(3.8088684f, 2.825542f, 2.3400934f)*/, float3(0, 1, 0));
+            float4x4 viewMatrix = Transforms.LookAtLH(CameraPosition, 2 * float3.up, float3(0, 1, 0));
             float4x4 projectionMatrix =
                 Transforms.PerspectiveFovLH(pi_over_4, texture.Height / (float) texture.Width, 0.01f, 20);
 
@@ -214,9 +209,9 @@ namespace Renderer
             };
 
             // Raycaster to trace rays and lit closest surfaces
-            Raytracer<MyRayPayload, PositionNormal> raycaster = new Raytracer<MyRayPayload, PositionNormal>();
+            Raytracer<RayPayload, PositionNormal> raycaster = new Raytracer<RayPayload, PositionNormal>();
             raycaster.OnClosestHit +=
-                delegate(IRaycastContext context, PositionNormal attribute, ref MyRayPayload payload)
+                delegate(IRaycastContext context, PositionNormal attribute, ref RayPayload payload)
                 {
                     // Move geometry attribute to world space
                     attribute = attribute.Transform(context.FromGeometryToWorld);
@@ -235,7 +230,7 @@ namespace Renderer
 
                     payload.Color = shadow.Shadowed ? float3(0, 0, 0) : float3(1, 1, 1) * lambertFactor;
                 };
-            raycaster.OnMiss += delegate(IRaycastContext context, ref MyRayPayload payload)
+            raycaster.OnMiss += delegate(IRaycastContext context, ref RayPayload payload)
             {
                 payload.Color = float3(0, 0, 1); // Blue, as the sky.
             };
@@ -253,30 +248,33 @@ namespace Renderer
                 RayDescription ray = RayDescription.FromScreen(px + 0.5f, py + 0.5f, texture.Width, texture.Height,
                     inverse(viewMatrix), inverse(projectionMatrix), 0, 1000);
 
-                MyRayPayload coloring = new MyRayPayload();
+                RayPayload coloring = new RayPayload();
 
                 raycaster.Trace(scene, ray, ref coloring);
 
                 texture.Write(px, py, float4(coloring.Color, 1));
             }
+
             Console.Write("\r" + 100 + "%            ");
         }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            Texture2D texture = new Texture2D(512, 512);
-
+            // Texture2D texture = new Texture2D(256, 256);
+            //
             // SimpleRaycast(texture);
             // LitRaycast(texture);
-            RaycastingMesh(texture);
+            // RaycastingMesh(texture);
+            //
+            // texture.Save("test.rbm");
+            // Console.WriteLine("Done.");
 
-            /* Guitar Pieces */
-            // GuitarMeshData.DrawMesh(texture);
-            // PotentiometerMeshData.DrawMesh(texture);
-            // HumbuckerMeshData.DrawMesh(texture);
-
-            texture.Save("test.rbm");
-            Console.WriteLine("Done.");
+            RaycastProcess.StartProcess(new TestConfig{
+                width = 256,
+                height = 256,
+                camera = 2 * float3(5, 5, 0),
+                light = 3 * float3(3, 5, -2),
+                target = 2 * float3.up});
             Processing.ShowImageProcess();
         }
     }

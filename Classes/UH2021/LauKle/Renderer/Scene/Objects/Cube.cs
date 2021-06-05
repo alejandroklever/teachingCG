@@ -1,18 +1,15 @@
 ﻿using System.Linq;
-using GMath;
-using Renderer.Scene.Objects;
 using Rendering;
 using static GMath.Gfx;
-using float3 = GMath.float3;
 
 namespace Renderer.Scene
 {
 	public class Cube<V>: SceneObject<V> where V : struct, INormalVertex<V>
 	{
-		private readonly int roundness;
-		private readonly int xSize;
-		private readonly int ySize;
-		private readonly int zSize;
+		public readonly int roundness;
+		public readonly int xSize;
+		public readonly int ySize;
+		public readonly int zSize;
 
 		public Cube(Transform transform,int xSize, int ySize, int zSize, int roundness = 0): base(transform)
 		{
@@ -24,22 +21,22 @@ namespace Renderer.Scene
 			var meshes = new[]
 			{
 				// front
-				Manifold<V>.SurfaceDiscrete(xSize, ySize,
+				Manifold2<V>.SurfaceDiscrete(xSize, ySize,
 					(u, v) => float3(u, v, 0)),
 				// right
-				Manifold<V>.SurfaceDiscrete(zSize, ySize,
+				Manifold2<V>.SurfaceDiscrete(zSize, ySize,
 					(u, v) => float3(xSize, v, u)),
 				// back
-				Manifold<V>.SurfaceDiscrete(xSize, ySize,
+				Manifold2<V>.SurfaceDiscrete(xSize, ySize,
 					(u, v) => float3(xSize - u, v, zSize)),
 				// left
-				Manifold<V>.SurfaceDiscrete(zSize, ySize,
+				Manifold2<V>.SurfaceDiscrete(zSize, ySize,
 					(u, v) => float3(0,  v, zSize - u)),
 				// top
-				Manifold<V>.SurfaceDiscrete(xSize, zSize,
+				Manifold2<V>.SurfaceDiscrete(xSize, zSize,
 					(u, v) => float3(u, ySize, v)),
 				// bottom
-				Manifold<V>.SurfaceDiscrete(xSize, zSize,
+				Manifold2<V>.SurfaceDiscrete(xSize, zSize,
 					(u, v) => float3(xSize - u, 0, v)),
 			};
 			
@@ -72,8 +69,7 @@ namespace Renderer.Scene
 			}
 			
 			Mesh.ComputeNormals();
+			UpdateTranslation();
 		}
-
-
 	}
 }

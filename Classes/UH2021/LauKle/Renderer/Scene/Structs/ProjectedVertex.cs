@@ -1,23 +1,23 @@
 ﻿using GMath;
 using Rendering;
 
-namespace Renderer.Scene.Structs
+namespace Renderer.Scene
 {
-    public struct MyProjectedVertex : IProjectedVertex<MyProjectedVertex>
+    public struct ProjectedVertex : IProjectedVertex<ProjectedVertex>
     {
         public float4 Homogeneous { get; set; }
 
-        public MyProjectedVertex Add(MyProjectedVertex other)
+        public ProjectedVertex Add(ProjectedVertex other)
         {
-            return new MyProjectedVertex
+            return new ProjectedVertex
             {
                 Homogeneous = Homogeneous + other.Homogeneous
             };
         }
 
-        public MyProjectedVertex Mul(float s)
+        public ProjectedVertex Mul(float s)
         {
-            return new MyProjectedVertex
+            return new ProjectedVertex
             {
                 Homogeneous = Homogeneous * s
             };

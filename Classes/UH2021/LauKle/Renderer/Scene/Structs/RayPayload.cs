@@ -1,11 +1,11 @@
 ﻿using GMath;
 
-namespace Renderer.Scene.Structs
+namespace Renderer.Scene
 {
     /// <summary>
     /// Payload used to pick a color from a hit intersection
     /// </summary>
-    struct MyRayPayload
+    struct RayPayload
     {
         public float3 Color;
     }

@@ -1,4 +1,4 @@
-﻿namespace Renderer.Scene.Structs
+﻿namespace Renderer.Scene
 {
     
     /// <summary>

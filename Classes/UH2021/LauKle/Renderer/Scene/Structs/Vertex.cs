@@ -1,23 +1,23 @@
 ﻿using GMath;
 using Rendering;
 
-namespace Renderer.Scene.Structs
+namespace Renderer.Scene
 {
-    public struct MyVertex : IVertex<MyVertex>
+    public struct Vertex : IVertex<Vertex>
     {
         public float3 Position { get; set; }
 
-        public MyVertex Add(MyVertex other)
+        public Vertex Add(Vertex other)
         {
-            return new MyVertex
+            return new Vertex
             {
                 Position = Position + other.Position,
             };
         }
 
-        public MyVertex Mul(float s)
+        public Vertex Mul(float s)
         {
-            return new MyVertex
+            return new Vertex
             {
                 Position = Position * s,
             };

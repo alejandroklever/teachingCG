@@ -2,7 +2,7 @@
 using Rendering;
 using static GMath.Gfx;
 
-namespace Renderer.Scene.Structs
+namespace Renderer.Scene
 {
     public struct PositionNormal : INormalVertex<PositionNormal>
     {

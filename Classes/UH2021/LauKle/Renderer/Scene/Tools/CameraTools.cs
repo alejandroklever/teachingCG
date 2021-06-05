@@ -2,7 +2,7 @@
 using Rendering;
 using static GMath.Gfx;
 
-namespace Renderer
+namespace Renderer.Scene
 {
     public static class CameraTools
     {

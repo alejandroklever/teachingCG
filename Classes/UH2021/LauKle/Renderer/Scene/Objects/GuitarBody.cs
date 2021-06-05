@@ -1,14 +1,19 @@
-﻿using System.Collections.Generic;
-using GMath;
-using Rendering;
-using Renderer.Scene;
-using Renderer.Scene.Structs;
+﻿using Rendering;
 using static GMath.Gfx;
 using float3 = GMath.float3;
 
 namespace Renderer.Scene
 {
-    public static class GuitarMeshData
+    public class Guitar<V> : SceneObject<V> where V : struct, INormalVertex<V>
+    {
+        public Guitar(Transform transform) : base(transform)
+        {
+            Mesh = GuitarMeshData<V>.GetMesh(10, 10);
+            UpdateTranslation();
+        }
+    }
+
+    public static class GuitarMeshData<V> where V : struct, INormalVertex<V>
     {
         public static readonly BezierCurve GuitarOutline = new BezierCurve(
             float3(-0.04884124f, -2.970556f, 0f),
@@ -80,16 +85,22 @@ namespace Renderer.Scene
             float3(0.007782161f, 2.010925f, 0f)
         );
 
-        private static Mesh<T> GetFrontMesh<T>(Topology topology = Topology.Lines) where T : struct, INormalVertex<T>
+        public static Mesh<V> GetMesh(int slices, int stacks)
         {
-            var upperMesh = Manifold<T>.Surface(10, 10, (u, v) =>
+            return MeshTools.Join(GetFrontMesh(slices, stacks), GetBorderMeshes(slices, 1),
+                GetBackMesh(slices, stacks));
+        }
+
+        private static Mesh<V> GetFrontMesh(int slices, int stacks)
+        {
+            var upperMesh = Manifold2<V>.Surface(slices, stacks, (u, v) =>
             {
                 var left = upperLeftCurve.GetPoint(u);
                 var right = upperRightCurve.GetPoint(u);
                 return lerp(left, right, v);
             });
 
-            var bottomMesh = Manifold<T>.Surface(10, 10,
+            var bottomMesh = Manifold2<V>.Surface(slices, stacks,
                 (u, v) =>
                 {
                     var left = bottomLeftCurve.GetPoint(u);
@@ -98,21 +109,19 @@ namespace Renderer.Scene
                 }
             );
 
-            var mesh = bottomMesh.Concat(upperMesh).Weld();
-            mesh.ComputeNormals();
-            return mesh.ConvertTo(topology);
+            return bottomMesh.Concat(upperMesh).Weld();
         }
 
-        private static Mesh<T> GetBackMesh<T>(Topology topology = Topology.Lines) where T : struct, INormalVertex<T>
+        private static Mesh<V> GetBackMesh(int slices, int stacks)
         {
-            var upperMesh = Manifold<T>.Surface(10, 10, (u, v) =>
+            var upperMesh = Manifold2<V>.Surface(slices, stacks, (u, v) =>
             {
                 var left = upperLeftCurve.GetPoint(u);
                 var right = upperRightCurve.GetPoint(u);
                 return lerp(left, right, v) + .5f * float3.back;
             });
 
-            var bottomMesh = Manifold<T>.Surface(10, 10,
+            var bottomMesh = Manifold2<V>.Surface(slices, stacks,
                 (u, v) =>
                 {
                     var left = bottomLeftCurve.GetPoint(u);
@@ -121,64 +130,28 @@ namespace Renderer.Scene
                 }
             );
 
-            var mesh = bottomMesh.Concat(upperMesh).Weld();
-            mesh.ComputeNormals();
-            return mesh.ConvertTo(topology);
+            return bottomMesh.Concat(upperMesh).Weld();
         }
 
-        private static Mesh<V> GetBorderMeshes<V>(int slices, int stacks, Topology topology = Topology.Lines)
-            where V : struct, INormalVertex<V>
+        private static Mesh<V> GetBorderMeshes(int slices, int stacks)
         {
-            var meshes = new List<Mesh<V>>(
-                new[]
-                {
-                    Manifold<V>.Lofted(slices, stacks,
-                        t => bottomLeftCurve.GetPoint(t),
-                        t => bottomLeftCurve.GetPoint(t) + .5f * float3.back),
-                    Manifold<V>.Lofted(slices, stacks,
-                        t => bottomRightCurve.GetPoint(t),
-                        t => bottomRightCurve.GetPoint(t) + .5f * float3.back),
-                    Manifold<V>.Lofted(slices, stacks,
-                        t => upperLeftCurve.GetPoint(t),
-                        t => upperLeftCurve.GetPoint(t) + .5f * float3.back),
-                    Manifold<V>.Lofted(slices, stacks,
-                        t => upperRightCurve.GetPoint(t),
-                        t => upperRightCurve.GetPoint(t) + .5f * float3.back)
-                }
-            );
-
-            var mesh = meshes[0].Concat(meshes[1]).Concat(meshes[2]).Concat(meshes[3]).Weld();
-            mesh.ComputeNormals();
-            return mesh.ConvertTo(topology);
-        }
-
-        public static void DrawMesh(Texture2D texture)
-        {
-            var render = new Raster<PositionNormal, MyProjectedVertex>(texture);
-
-            // Scene Setup
-            var CameraPosition = float3(5f, 0f, 5f);
-            var (viewMatrix, projectionMatrix) = CameraTools.GetViewAndProjection(CameraPosition, texture);
-
-            var frontMesh = GetFrontMesh<PositionNormal>();
-            var borderMesh = GetBorderMeshes<PositionNormal>(10, 1);
-            var backMesh = GetBackMesh<PositionNormal>();
-
-            // Define a vertex shader that projects a vertex into the NDC.
-            render.VertexShader = v =>
+            var meshes = new[]
             {
-                var hPosition = float4(v.Position, 1);
-                hPosition = mul(hPosition, viewMatrix);
-                hPosition = mul(hPosition, projectionMatrix);
-                return new MyProjectedVertex {Homogeneous = hPosition};
+                Manifold2<V>.Lofted(slices, stacks,
+                    t => bottomLeftCurve.GetPoint(t),
+                    t => bottomLeftCurve.GetPoint(t) + .5f * float3.back),
+                Manifold2<V>.Lofted(slices, stacks,
+                    t => bottomRightCurve.GetPoint(t),
+                    t => bottomRightCurve.GetPoint(t) + .5f * float3.back),
+                Manifold2<V>.Lofted(slices, stacks,
+                    t => upperLeftCurve.GetPoint(t),
+                    t => upperLeftCurve.GetPoint(t) + .5f * float3.back),
+                Manifold2<V>.Lofted(slices, stacks,
+                    t => upperRightCurve.GetPoint(t),
+                    t => upperRightCurve.GetPoint(t) + .5f * float3.back)
             };
 
-            // Define a pixel shader that colors using a constant value
-            render.PixelShader = p => float4(p.Homogeneous.x / 512.0f, p.Homogeneous.y / 512.0f, 1, 1);
-
-            render.DrawMesh(frontMesh);
-            render.DrawMesh(borderMesh);
-            render.DrawMesh(backMesh);
+            return MeshTools.Join(meshes).Weld();
         }
     }
 }
