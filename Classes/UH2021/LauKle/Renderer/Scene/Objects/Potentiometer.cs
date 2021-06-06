@@ -8,12 +8,12 @@ namespace Renderer.Scene
     {
         public Potentiometer(Transform transform) : base(transform)
         {
-            Mesh = PotentiometerMeshData<V>.GetMesh(6, 4);
+            Mesh = PotentiometerMeshData<V>.GetMesh(6, 4).Weld();
             UpdateTranslation();
         }
     }
 
-    public class PotentiometerMeshData<V> where V : struct, INormalVertex<V>
+    public static class PotentiometerMeshData<V> where V : struct, INormalVertex<V>
     {
         private static readonly BezierCurve potentiometerOutline = new BezierCurve(
             float3(-0.9888976f, -1f, 0f),
@@ -28,9 +28,9 @@ namespace Renderer.Scene
             float3(0f, -0.1897819f, 0f)
         );
 
-        public static Mesh<V> GetMesh(int slices, int stacks, Topology topology = Topology.Lines)
+        public static Mesh<V> GetMesh(int slices, int stacks)
         {
-            return Manifold2<V>.Revolution(slices, stacks, t => potentiometerOutline.GetPoint(t), float3.up).Weld();
+            return MyManifold<V>.Revolution(slices, stacks, t => potentiometerOutline.GetPoint(t), float3.up);
         }
     }
 }

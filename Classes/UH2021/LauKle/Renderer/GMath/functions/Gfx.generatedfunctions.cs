@@ -3810,7 +3810,12 @@ namespace GMath
 
 
 		#region pow
-
+		
+		public static int pow(int a, int b)
+		{
+			return (int) Math.Pow(a, b);
+		}
+		
 		public static float pow(float a, float b)
 		{
 			return (float) Math.Pow(a, b);

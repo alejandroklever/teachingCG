@@ -10,11 +10,12 @@ namespace Renderer.Scene
 {
     public class SceneObject<V> where V : struct, INormalVertex<V>
     {
-        public List<Transform> Childs { get; protected set; }
-        public Transform Transform { get; protected set; }
+        public List<Transform> Childs { get; set; }
+        public Transform Transform { get; set; }
         public float4x4 TransformMatrix => Transform.Matrix;
         public Mesh<V> Mesh { get; set; }
         public IRaycastGeometry<V> RaycastGeometry => Mesh.AsRaycast();
+        public float3 Position => Transform.Position;
 
         public SceneObject(Transform transform)
         {
@@ -56,7 +57,10 @@ namespace Renderer.Scene
         {
             Transform.TranslationVector = Transform.Position - source;
         }
-    }
 
-   
+        public virtual void ComputeNormals()
+        {
+            Mesh.ComputeNormals();
+        }
+    }
 }

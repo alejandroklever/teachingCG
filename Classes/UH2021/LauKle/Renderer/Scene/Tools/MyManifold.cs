@@ -5,7 +5,7 @@ using static GMath.Gfx;
 
 namespace Renderer.Scene
 {
-    public class Manifold2<V>: Manifold<V> where V : struct, IVertex<V>
+    public class MyManifold<V>: Manifold<V> where V : struct, IVertex<V>
     {
         public static Mesh<V> SurfaceDiscrete(int slices, int stacks, Func<int, int, float3> generating)
         {

@@ -136,10 +136,8 @@ namespace Rendering
             float closestDistance = ray.MaxT;
             bool stopped = false;
 
-            InternalRaycastingContext context = new InternalRaycastingContext();
+            InternalRaycastingContext context = new InternalRaycastingContext {GlobalRay = ray, GeometryIndex = 0};
 
-            context.GlobalRay = ray;
-            context.GeometryIndex = 0;
             foreach (var v in scene.instances)
             {
                 context.FromGeometryToWorld = v.Transform;

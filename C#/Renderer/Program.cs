@@ -453,7 +453,7 @@ namespace Renderer
         {
             // Texture to output the image.
             Texture2D texture = new Texture2D(512, 512);
-
+            
             bool UseRT = false;
             if (UseRT)
             {
@@ -472,13 +472,19 @@ namespace Renderer
             else
             {
                 int pass = 0;
-                while (true)
+                
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                while (pass < 500)
                 {
                     Console.WriteLine("Pass: " + pass);
                     Pathtracing(texture, pass);
                     texture.Save("test.rbm");
                     pass++;
                 }
+                stopwatch.Stop();
+                Console.WriteLine("Done. Rendered in " + stopwatch.ElapsedMilliseconds + " ms");
+                Processing.ShowImageProcess();
             }
         }
     }

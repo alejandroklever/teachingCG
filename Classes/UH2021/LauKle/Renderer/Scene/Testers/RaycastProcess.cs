@@ -7,9 +7,9 @@ namespace Renderer.Scene
 {
     public static class RaycastProcess
     {
-        public static void StartProcess(TestConfig config)
+        public static void StartProcess(TestConfig config, Texture2D texture = null)
         {
-            var texture = new Texture2D(config.width, config.height);
+            texture ??= new Texture2D(config.width, config.height);
             RaycastingMesh(texture, config.camera, config.light, config.target);
             texture.Save("test.rbm");
             Console.WriteLine("Done.");
@@ -19,12 +19,24 @@ namespace Renderer.Scene
         {
             var transform = new Transform
             {
-                Position = float3.zero, // 2 * float3.up
-                // Scale = .5f * float3.one
+                Position = .5f * float3.up,
+                Scale = 2 * float3.one,
+                Rotation = float3(-pi / 2, 0, 0)
             };
-            var cube = new Microphone<PositionNormal>(transform);
-            scene.Add(cube.RaycastGeometry, cube.TransformMatrix);
+            var guitarBody = new GuitarBody<PositionNormal>(transform, 5,5);
+            guitarBody.ComputeNormals();
+            scene.Add(guitarBody.RaycastGeometry, guitarBody.TransformMatrix);
 
+            var transform2 = new Transform
+            {
+                Position = 2.5f * float3.up,
+                Scale = float3.one,
+                Rotation = float3(0, pi / 2, 0)
+            };
+            var microphone1 = new Microphone<PositionNormal>(transform2);
+            microphone1.ComputeNormals();
+            scene.Add(microphone1.RaycastGeometry, microphone1.TransformMatrix);
+            
             scene.Add(
                 Raycasting.PlaneXZ.AttributesMap(a => new PositionNormal {Position = a, Normal = float3(0, 1, 0)}),
                 Transforms.Identity);
@@ -42,8 +54,7 @@ namespace Renderer.Scene
 
             // Raycaster to trace rays and check for shadow rays.
             var shadower = new Raytracer<ShadowRayPayload, PositionNormal>();
-            shadower.OnAnyHit += delegate(IRaycastContext context, PositionNormal attribute,
-                ref ShadowRayPayload payload)
+            shadower.OnAnyHit += (IRaycastContext context, PositionNormal attribute, ref ShadowRayPayload payload) =>
             {
                 // If any object is found in ray-path to the light, the ray is shadowed.
                 payload.Shadowed = true;
@@ -53,27 +64,27 @@ namespace Renderer.Scene
 
             // Raycaster to trace rays and lit closest surfaces
             var raycaster = new Raytracer<RayPayload, PositionNormal>();
-            raycaster.OnClosestHit +=
-                delegate(IRaycastContext context, PositionNormal attribute, ref RayPayload payload)
-                {
-                    // Move geometry attribute to world space
-                    attribute = attribute.Transform(context.FromGeometryToWorld);
+            raycaster.OnClosestHit += (IRaycastContext context, PositionNormal attribute, ref RayPayload payload) =>
+            {
+                // Move geometry attribute to world space
+                attribute = attribute.Transform(context.FromGeometryToWorld);
 
-                    var V = normalize(cameraPosition - attribute.Position);
-                    var L = normalize(lightPosition - attribute.Position);
-                    var lambertFactor = max(0, dot(attribute.Normal, L));
+                var V = normalize(cameraPosition - attribute.Position);
+                var L = normalize(lightPosition - attribute.Position);
+                var lambertFactor = max(0, dot(attribute.Normal, L));
 
-                    // Check ray to light...
-                    var shadow = new ShadowRayPayload();
-                    shadower.Trace(scene,
-                        RayDescription.FromTo(
-                            attribute.Position +
-                            attribute.Normal * 0.001f, // Move an epsilon away from the surface to avoid self-shadowing 
-                            lightPosition), ref shadow);
+                // Check ray to light...
+                var shadow = new ShadowRayPayload();
+                shadower.Trace(scene,
+                    RayDescription.FromTo(
+                        attribute.Position +
+                        attribute.Normal * 0.001f, // Move an epsilon away from the surface to avoid self-shadowing 
+                        lightPosition), ref shadow);
 
-                    payload.Color = shadow.Shadowed ? float3(0, 0, 0) : float3(1, 1, 1) * lambertFactor;
-                };
-            raycaster.OnMiss += delegate(IRaycastContext context, ref RayPayload payload)
+                payload.Color = shadow.Shadowed ? float3(0, 0, 0) : float3(1, 1, 1) * lambertFactor;
+            };
+            
+            raycaster.OnMiss += (IRaycastContext context, ref RayPayload payload) =>
             {
                 payload.Color = float3(0, 0, 1); // Blue, as the sky.
             };

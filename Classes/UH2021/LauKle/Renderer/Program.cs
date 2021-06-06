@@ -163,18 +163,13 @@ namespace Renderer
 
         static void CreateMeshScene(Scene<PositionNormal> scene)
         {
-            Mesh<PositionNormal> mesh;
-
             var transform = new Transform
             {
                 Position = float3.zero, // 2 * float3.up
-                // Scale = .5f * float3.one
+                Scale = float3.one
             };
 
             var cube = new Microphone<PositionNormal>(transform);
-            mesh = cube.Mesh;
-
-            var model = mesh; // CreateModel();
             scene.Add(cube.RaycastGeometry, cube.TransformMatrix);
 
             scene.Add(
@@ -260,7 +255,7 @@ namespace Renderer
 
         private static void Main(string[] args)
         {
-            // Texture2D texture = new Texture2D(256, 256);
+            // Texture2D texture = new Texture2D(512, 512);
             //
             // SimpleRaycast(texture);
             // LitRaycast(texture);
@@ -269,12 +264,17 @@ namespace Renderer
             // texture.Save("test.rbm");
             // Console.WriteLine("Done.");
 
-            RaycastProcess.StartProcess(new TestConfig{
-                width = 256,
-                height = 256,
-                camera = 2 * float3(5, 5, 0),
+            var config = new TestConfig
+            {
+                width = pow(2, 8),
+                height = pow(2, 8),
+                camera = 2 * float3(0, 5, -5),
                 light = 3 * float3(3, 5, -2),
-                target = 2 * float3.up});
+                target = .5f * float3.up
+            };
+            var texture = new Texture2D(config.width, config.height);
+            RaycastProcess.StartProcess(config, texture);
+            // RasterProcess.StartProcess<PositionNormal>(config, texture);
             Processing.ShowImageProcess();
         }
     }

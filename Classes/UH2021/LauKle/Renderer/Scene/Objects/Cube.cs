@@ -21,22 +21,22 @@ namespace Renderer.Scene
 			var meshes = new[]
 			{
 				// front
-				Manifold2<V>.SurfaceDiscrete(xSize, ySize,
+				MyManifold<V>.SurfaceDiscrete(xSize, ySize,
 					(u, v) => float3(u, v, 0)),
 				// right
-				Manifold2<V>.SurfaceDiscrete(zSize, ySize,
+				MyManifold<V>.SurfaceDiscrete(zSize, ySize,
 					(u, v) => float3(xSize, v, u)),
 				// back
-				Manifold2<V>.SurfaceDiscrete(xSize, ySize,
+				MyManifold<V>.SurfaceDiscrete(xSize, ySize,
 					(u, v) => float3(xSize - u, v, zSize)),
 				// left
-				Manifold2<V>.SurfaceDiscrete(zSize, ySize,
+				MyManifold<V>.SurfaceDiscrete(zSize, ySize,
 					(u, v) => float3(0,  v, zSize - u)),
 				// top
-				Manifold2<V>.SurfaceDiscrete(xSize, zSize,
+				MyManifold<V>.SurfaceDiscrete(xSize, zSize,
 					(u, v) => float3(u, ySize, v)),
 				// bottom
-				Manifold2<V>.SurfaceDiscrete(xSize, zSize,
+				MyManifold<V>.SurfaceDiscrete(xSize, zSize,
 					(u, v) => float3(xSize - u, 0, v)),
 			};
 			
@@ -64,11 +64,11 @@ namespace Renderer.Scene
 				else if (z > zSize - roundness)
 					inner.z = zSize - roundness;
 
-				Mesh.Vertices[i].Normal = normalize(vertex.Position - inner);
-				Mesh.Vertices[i].Position = inner + Mesh.Vertices[i].Normal * roundness;
+				var normal = normalize(vertex.Position - inner);
+				Mesh.Vertices[i].Position = inner + normal * roundness;
 			}
 			
-			Mesh.ComputeNormals();
+			// Mesh.ComputeNormals();
 			UpdateTranslation();
 		}
 	}

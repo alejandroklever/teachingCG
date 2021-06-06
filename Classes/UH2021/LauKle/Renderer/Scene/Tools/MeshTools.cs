@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using GMath;
 using Rendering;
@@ -56,6 +57,24 @@ namespace Renderer.Scene
             }
 
             return (faces, edges.ToList());
+        }
+
+        public static List<(float3, float3, float3)> TrianglesInvolvingPoint<V>(this Mesh<V> mesh, float3 point)
+            where V : struct, IVertex<V>
+        {
+            var points = new List<(float3, float3, float3)>();
+
+            for (var i = 0; i < mesh.Indices.Length / 3; i++)
+            {
+
+                var p0 = mesh.Vertices[mesh.Indices[i * 3 + 0]].Position;
+                var p1 = mesh.Vertices[mesh.Indices[i * 3 + 1]].Position;
+                var p2 = mesh.Vertices[mesh.Indices[i * 3 + 2]].Position;
+                if (p0.Equals(point) || p1.Equals(point) || p2.Equals(point))
+                    points.Add((p0, p1, p2));
+            }
+
+            return points;
         }
 
         private static List<int[]> FacesInvolvingPoint<V>(this Mesh<V> mesh, int i, IEnumerable<int[]> faces)
@@ -162,6 +181,31 @@ namespace Renderer.Scene
 
         public static IEnumerable<float3> Positions<V>(this IEnumerable<IVertex<V>> enumerable) where V : struct =>
             enumerable.Select(v => v.Position);
-    }
 
+        public static Mesh<V> DeleteTriangles<V>(this Mesh<V> mesh, IEnumerable<(float3, float3, float3)> triangles) where V : struct, IVertex<V>
+        {
+            var indexFilter = new HashSet<int>();
+            for (var i = 0; i < mesh.Indices.Length / 3; i++)
+            {
+                var p0 = mesh.Vertices[mesh.Indices[i * 3 + 0]].Position;
+                var p1 = mesh.Vertices[mesh.Indices[i * 3 + 1]].Position;
+                var p2 = mesh.Vertices[mesh.Indices[i * 3 + 2]].Position;
+
+                if (triangles.Any(triangle => (p0, p1, p2).Equals(triangle)))
+                {
+                    // Console.WriteLine("Added: ");
+                    // Console.WriteLine($"\tp0 => {p0}");
+                    // Console.WriteLine($"\tp1 => {p1}");
+                    // Console.WriteLine($"\tp2 => {p2}");
+                    indexFilter.UnionWith(new[]
+                    {
+                        i * 3, i * 3 + 1, i * 3 + 2
+                    });
+                }
+            }
+
+            var indices = mesh.Indices.Where((item, index) => !indexFilter.Contains(index)).ToArray();
+            return new Mesh<V>(mesh.Vertices, indices.ToArray());
+        }
+    }
 }
