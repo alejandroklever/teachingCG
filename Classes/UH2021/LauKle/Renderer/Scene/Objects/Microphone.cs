@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using GMath;
 using Renderer.Scene;
 using Rendering;
 using static GMath.Gfx;
-using float3 = GMath.float3;
 
 namespace Renderer.Scene
 {
@@ -14,14 +11,14 @@ namespace Renderer.Scene
         public Microphone(Transform transform) : base(transform)
         {
             var centerCube = new Cube<V>(new Transform(), 4, 4, 6, 1);
-            var rightCube = new Cube<V>(new Transform {Position = float3(2.5f, 2, 0)}, 1, 1, centerCube.zSize + 2);
-            var leftCube = new Cube<V>(new Transform {Position = float3(-2.5f, 2, 0)}, 1, 1, centerCube.zSize + 2);
-            var frontCube = new Cube<V>(new Transform {Position = float3(0, 2, -3.5f)}, 4, 1, 1);
-            var backCube = new Cube<V>(new Transform {Position = float3(0, 2, 3.5f)}, 4, 1, 1);
+            var rightCube = new Cube<V>(new Transform {Position = float3(2.5f, 1f, 0)}, 1, 1, centerCube.zSize + 2);
+            var leftCube = new Cube<V>(new Transform {Position = float3(-2.5f, 1f, 0)}, 1, 1, centerCube.zSize + 2);
+            var frontCube = new Cube<V>(new Transform {Position = float3(0, 1f, -3.5f)}, centerCube.xSize, 1, 1);
+            var backCube = new Cube<V>(new Transform {Position = float3(0, 1f, 3.5f)}, centerCube.xSize, 1, 1);
             
             var centerCubePos = centerCube.Center();
             centerCube.UpdateTranslation(centerCubePos);
-            centerCube.Mesh = centerCube.Mesh.Transform(centerCube.Transform.Matrix);
+            centerCube.Mesh = centerCube.Mesh.Transform(centerCube.TransformMatrix);
             
             rightCube.Mesh = rightCube.Mesh.DeleteTriangles(new[]
             {
@@ -33,7 +30,7 @@ namespace Renderer.Scene
             });
             var rightCubePos = rightCube.Center();
             rightCube.UpdateTranslation(rightCubePos);
-            rightCube.Mesh = rightCube.Mesh.Transform(rightCube.Transform.Matrix);
+            rightCube.Mesh = rightCube.Mesh.Transform(rightCube.TransformMatrix);
             
             leftCube.Mesh = leftCube.Mesh.DeleteTriangles(new[]
             {
@@ -69,8 +66,10 @@ namespace Renderer.Scene
             backCube.UpdateTranslation(backCubePos);
             backCube.Mesh = backCube.Mesh.Transform(backCube.TransformMatrix);
 
-            Mesh = MeshTools.Join(centerCube.Mesh, frontCube.Mesh, rightCube.Mesh, backCube.Mesh, leftCube.Mesh).Weld();
-
+            Mesh = centerCube.Mesh; // MeshTools.Join(centerCube.Mesh, frontCube.Mesh, rightCube.Mesh, backCube.Mesh, leftCube.Mesh).Weld();
+            
+            Console.WriteLine($"{Mesh.Vertices.Length} points");
+            Console.WriteLine($"{Mesh.Indices.Length / 3} polygons");
             UpdateTranslation();
         }
     }

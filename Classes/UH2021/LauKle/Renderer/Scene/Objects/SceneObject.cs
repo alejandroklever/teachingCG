@@ -14,13 +14,18 @@ namespace Renderer.Scene
         public Transform Transform { get; set; }
         public float4x4 TransformMatrix => Transform.Matrix;
         public Mesh<V> Mesh { get; set; }
+        public List<Mesh<V>> SubMeshes;
         public IRaycastGeometry<V> RaycastGeometry => Mesh.AsRaycast();
         public float3 Position => Transform.Position;
+        public float3 Rotation => Transform.Rotation;
+        public float3 Scale => Transform.Scale;
 
+        
         public SceneObject(Transform transform)
         {
             Transform = transform;
             Childs = new List<Transform>();
+            SubMeshes = new List<Mesh<V>>();
         }
 
         public virtual float3 Center()

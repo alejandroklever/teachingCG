@@ -55,7 +55,7 @@ namespace GMath
 
         public static explicit operator Line3D(Segment3D segment)
         {
-            return new Line3D(segment.A, segment.B);
+            return new(segment.A, segment.B);
         }
 
         public float Distance(Segment3D other, out float3 closest1, out float3 closest2)

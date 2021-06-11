@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Rendering;
 using static GMath.Gfx;
 using float3 = GMath.float3;
@@ -19,23 +21,45 @@ namespace Renderer.Scene
         {
             var transform = new Transform
             {
-                Position = .5f * float3.up,
-                Scale = 2 * float3.one,
-                Rotation = float3(-pi / 2, 0, 0)
+                Position = 3f * float3.up,
+                Scale = float3.one,
+                Rotation = float3(0, 0, 0)
             };
-            var guitarBody = new GuitarBody<PositionNormal>(transform, 5,5);
+            var guitarBody = new GuitarBody<PositionNormal>(transform, 5, 5);
             guitarBody.ComputeNormals();
-            scene.Add(guitarBody.RaycastGeometry, guitarBody.TransformMatrix);
+            // scene.Add(guitarBody.RaycastGeometry, guitarBody.TransformMatrix);
 
             var transform2 = new Transform
             {
-                Position = 2.5f * float3.up,
+                Position = 4f * float3.up,
                 Scale = float3.one,
-                Rotation = float3(0, pi / 2, 0)
+                Rotation = float3.zero // float3(0, pi / 2, 0)
             };
             var microphone1 = new Microphone<PositionNormal>(transform2);
             microphone1.ComputeNormals();
             scene.Add(microphone1.RaycastGeometry, microphone1.TransformMatrix);
+            
+            // var transform3 = new Transform
+            // {
+            //     Position = 2.5f * float3.up + 5* float3.back,
+            //     Scale = .5f * float3.one,
+            //     Rotation = float3(0, pi / 2, 0)
+            // };
+            // var microphone2 = new Microphone<PositionNormal>(transform3);
+            // microphone2.ComputeNormals();
+            // scene.Add(microphone2.RaycastGeometry, microphone2.TransformMatrix);
+            
+
+            // var transform5 = new Transform
+            // {
+            //     Parent = guitarBody.Transform,
+            //     Position =  float3.up + .25f * float3.back,
+            //     Scale = float3(.5f, 1, 1)
+            //     // Rotation = float3(-pi / 32, 0, 0)
+            // };
+            // var fretboard = new Fretboard<PositionNormal>(transform5, 5, 22, 5);
+            // fretboard.ComputeNormals();
+            // scene.Add(fretboard.RaycastGeometry, fretboard.TransformMatrix);
             
             scene.Add(
                 Raycasting.PlaneXZ.AttributesMap(a => new PositionNormal {Position = a, Normal = float3(0, 1, 0)}),
@@ -66,6 +90,8 @@ namespace Renderer.Scene
             var raycaster = new Raytracer<RayPayload, PositionNormal>();
             raycaster.OnClosestHit += (IRaycastContext context, PositionNormal attribute, ref RayPayload payload) =>
             {
+                // payload.Color = attribute.Normal;
+                // return;
                 // Move geometry attribute to world space
                 attribute = attribute.Transform(context.FromGeometryToWorld);
 
@@ -81,7 +107,7 @@ namespace Renderer.Scene
                         attribute.Normal * 0.001f, // Move an epsilon away from the surface to avoid self-shadowing 
                         lightPosition), ref shadow);
 
-                payload.Color = shadow.Shadowed ? float3(0, 0, 0) : float3(1, 1, 1) * lambertFactor;
+                payload.Color = shadow.Shadowed ? float3.zero : float3.one * lambertFactor;
             };
             
             raycaster.OnMiss += (IRaycastContext context, ref RayPayload payload) =>

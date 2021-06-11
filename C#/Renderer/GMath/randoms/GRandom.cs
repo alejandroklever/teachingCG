@@ -7,7 +7,7 @@ namespace GMath
 {
     public partial class GRandom
     {
-        Random rnd = new Random();
+        Random rnd = new();
 
         public GRandom(int seed)
         {

@@ -9,7 +9,7 @@ namespace GMath
         #region cross
         public static float3 cross(float3 pto1, float3 pto2)
         {
-            return new float3(
+            return new(
                 pto1.y * pto2.z - pto1.z * pto2.y,
                 pto1.z * pto2.x - pto1.x * pto2.z,
                 pto1.x * pto2.y - pto1.y * pto2.x);
@@ -62,7 +62,7 @@ namespace GMath
         #region lit
         public static float4 lit(float NdotL, float NdotH, float power)
         {
-            return new float4(1, NdotL < 0 ? 0 : NdotL, NdotL < 0 || NdotH < 0 ? 0 : (float)Math.Pow(NdotH, power), 1);
+            return new(1, NdotL < 0 ? 0 : NdotL, NdotL < 0 || NdotH < 0 ? 0 : (float)Math.Pow(NdotH, power), 1);
         }
         #endregion
 
@@ -210,7 +210,7 @@ namespace GMath
 
         #region Randoms
 
-        static GRandom __random = new GRandom();
+        static GRandom __random = new();
 
         public static float random()
         {

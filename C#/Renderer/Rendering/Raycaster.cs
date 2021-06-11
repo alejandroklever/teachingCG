@@ -93,7 +93,7 @@ namespace Rendering
             });
         }
 
-        internal List<Visual> instances = new List<Visual>();
+        internal List<Visual> instances = new();
     }
 
     /// <summary>
@@ -231,7 +231,7 @@ namespace Rendering
 
         public static RayDescription FromTo(float3 origin, float3 target)
         {
-            return new RayDescription
+            return new()
             {
                 Origin = origin,
                 Direction = target - origin,
@@ -242,7 +242,7 @@ namespace Rendering
 
         public static RayDescription FromDir(float3 origin, float3 direction, float minT = 0.0001f, float maxT = 100000)
         {
-            return new RayDescription
+            return new()
             {
                 Origin = origin,
                 Direction = direction,
@@ -366,9 +366,9 @@ namespace Rendering
             }
         }
 
-        static PlaneGeometry __PlaneXY = new PlaneGeometry(float3(0, 0, 0), float3(0, 0, 1));
-        static PlaneGeometry __PlaneXZ = new PlaneGeometry(float3(0, 0, 0), float3(0, 1, 0));
-        static PlaneGeometry __PlaneYZ = new PlaneGeometry(float3(0, 0, 0), float3(1, 0, 0));
+        static PlaneGeometry __PlaneXY = new(float3(0, 0, 0), float3(0, 0, 1));
+        static PlaneGeometry __PlaneXZ = new(float3(0, 0, 0), float3(0, 1, 0));
+        static PlaneGeometry __PlaneYZ = new(float3(0, 0, 0), float3(1, 0, 0));
 
         public static IRaycastGeometry<float3> PlaneXY { get { return __PlaneXY; } }
         public static IRaycastGeometry<float3> PlaneXZ { get { return __PlaneXZ; } }

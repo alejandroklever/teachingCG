@@ -13,26 +13,26 @@ public struct int1{
 	public int1(int x){
 		this.x=x;
 	}
-	public static implicit operator int1(int v) { return new int1(v); }
-	public static implicit operator float1(int1 v) { return new float1((float)v.x); }
-	public static int1 operator -(int1 a) { return new int1(-a.x); }
-	public static int1 operator +(int1 a) { return new int1(+a.x); }
-	public static int1 operator ~(int1 a) { return new int1(~a.x); }
-	public static int1 operator !(int1 a) { return new int1(a.x==0?1:0); }
-	public static int1 operator +(int1 a, int1 b) { return new int1(a.x + b.x); }
-	public static int1 operator *(int1 a, int1 b) { return new int1(a.x * b.x); }
-	public static int1 operator -(int1 a, int1 b) { return new int1(a.x - b.x); }
-	public static int1 operator /(int1 a, int1 b) { return new int1(a.x / b.x); }
-	public static int1 operator %(int1 a, int1 b) { return new int1(a.x % b.x); }
-	public static int1 operator &(int1 a, int1 b) { return new int1(a.x & b.x); }
-	public static int1 operator |(int1 a, int1 b) { return new int1(a.x | b.x); }
-	public static int1 operator ^(int1 a, int1 b) { return new int1(a.x ^ b.x); }
-	public static int1 operator ==(int1 a, int1 b) { return new int1((a.x == b.x)?1:0); }
-	public static int1 operator !=(int1 a, int1 b) { return new int1((a.x != b.x)?1:0); }
-	public static int1 operator <(int1 a, int1 b) { return new int1((a.x < b.x)?1:0); }
-	public static int1 operator <=(int1 a, int1 b) { return new int1((a.x <= b.x)?1:0); }
-	public static int1 operator >=(int1 a, int1 b) { return new int1((a.x >= b.x)?1:0); }
-	public static int1 operator >(int1 a, int1 b) { return new int1((a.x > b.x)?1:0); }
-	public override string ToString() { return string.Format("({0})", this.x); }
+	public static implicit operator int1(int v) { return new(v); }
+	public static implicit operator float1(int1 v) { return new((float)v.x); }
+	public static int1 operator -(int1 a) { return new(-a.x); }
+	public static int1 operator +(int1 a) { return new(+a.x); }
+	public static int1 operator ~(int1 a) { return new(~a.x); }
+	public static int1 operator !(int1 a) { return new(a.x==0?1:0); }
+	public static int1 operator +(int1 a, int1 b) { return new(a.x + b.x); }
+	public static int1 operator *(int1 a, int1 b) { return new(a.x * b.x); }
+	public static int1 operator -(int1 a, int1 b) { return new(a.x - b.x); }
+	public static int1 operator /(int1 a, int1 b) { return new(a.x / b.x); }
+	public static int1 operator %(int1 a, int1 b) { return new(a.x % b.x); }
+	public static int1 operator &(int1 a, int1 b) { return new(a.x & b.x); }
+	public static int1 operator |(int1 a, int1 b) { return new(a.x | b.x); }
+	public static int1 operator ^(int1 a, int1 b) { return new(a.x ^ b.x); }
+	public static int1 operator ==(int1 a, int1 b) { return new((a.x == b.x)?1:0); }
+	public static int1 operator !=(int1 a, int1 b) { return new((a.x != b.x)?1:0); }
+	public static int1 operator <(int1 a, int1 b) { return new((a.x < b.x)?1:0); }
+	public static int1 operator <=(int1 a, int1 b) { return new((a.x <= b.x)?1:0); }
+	public static int1 operator >=(int1 a, int1 b) { return new((a.x >= b.x)?1:0); }
+	public static int1 operator >(int1 a, int1 b) { return new((a.x > b.x)?1:0); }
+	public override string ToString() { return $"({this.x})"; }
 }
 }

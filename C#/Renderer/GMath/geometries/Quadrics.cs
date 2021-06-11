@@ -38,7 +38,7 @@ namespace GMath
 
         public static Quadric Sphere(float radius = 1)
         {
-            return new Quadric(
+            return new(
                 float3x3(
                     1, 0, 0,
                     0, 1, 0,

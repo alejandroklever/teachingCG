@@ -279,7 +279,7 @@ namespace Rendering
 				0, 0, znearPlane / (znearPlane - zfarPlane), 1);
 		}
 
-		public static float4x4 GetDesiredTransform(float4x4 transform, float3? position = null, float3? scale = null,
+		public static float4x4 DesiredTransform(float4x4? transform = null, float3? translation = null, float3? scale = null,
 			float3? eulerRotation = null, float3? rotCenter = null, float3? rotDirection = null, float? angle = null,
 			bool useGrad = false)
 		{
@@ -287,10 +287,10 @@ namespace Rendering
 			 * The order of the operations is important
 			 * First we need to Translate, then Rotate, then Scale
 			*/
-			var desiredTransform = transform;
+			var desiredTransform = transform ?? Identity;
 
-			if (position != null)
-				desiredTransform = mul(Translate(position.Value), desiredTransform);
+			if (translation != null)
+				desiredTransform = mul(Translate(translation.Value), desiredTransform);
 
 			Func<float3, float3, float, float4x4> rotateRespectTo = RotateRespectTo;
 			Func<float, float3, float4x4> rotate = Rotate;

@@ -258,8 +258,8 @@ namespace Renderer
             // Texture2D texture = new Texture2D(512, 512);
             //
             // SimpleRaycast(texture);
-            // LitRaycast(texture);
-            // RaycastingMesh(texture);
+            // // LitRaycast(texture);
+            // // RaycastingMesh(texture);
             //
             // texture.Save("test.rbm");
             // Console.WriteLine("Done.");
@@ -268,9 +268,9 @@ namespace Renderer
             {
                 width = pow(2, 8),
                 height = pow(2, 8),
-                camera = 2 * float3(0, 5, -5),
-                light = 3 * float3(3, 5, -2),
-                target = .5f * float3.up
+                camera = 1.75f * float3(-5, 5, -5),
+                light = 2f * float3(-3, 5, -2),
+                target = 2f * float3.up
             };
             var texture = new Texture2D(config.width, config.height);
             RaycastProcess.StartProcess(config, texture);

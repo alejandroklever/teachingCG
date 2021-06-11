@@ -8,7 +8,7 @@ namespace Renderer.Scene
     {
         public GuitarBody(Transform transform, int slices, int stacks) : base(transform)
         {
-            Mesh = GuitarMeshData<V>.GetMesh(slices, stacks).Weld();
+            Mesh = GuitarMeshData<V>.GetMesh(slices, stacks);
             UpdateTranslation();
         }
     }
