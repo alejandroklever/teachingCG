@@ -12,15 +12,15 @@ namespace GMath
 
         public AABB3D (float3 min, float3 max)
         {
-            this.Minimum = min;
-            this.Maximum = max;
+            Minimum = min;
+            Maximum = max;
         }
 
         private static void sort(ref float a, ref float b)
         {
             if (a > b)
             {
-                float temp = a;
+                var temp = a;
                 a = b;
                 b = temp;
             }
@@ -28,12 +28,12 @@ namespace GMath
 
         public bool Intersect(Ray3D ray, out float minT, out float maxT)
         {
-            float xtmin = ray.D.x == 0 ? -10000000 : (Minimum.x - ray.X.x) / ray.D.x;
-            float ytmin = ray.D.y == 0 ? -10000000 : (Minimum.y - ray.X.y) / ray.D.y;
-            float ztmin = ray.D.z == 0 ? -10000000 : (Minimum.z - ray.X.z) / ray.D.z;
-            float xtmax = ray.D.x == 0 ? 10000000 : (Maximum.x - ray.X.x) / ray.D.x;
-            float ytmax = ray.D.y == 0 ? 10000000 : (Maximum.y - ray.X.y) / ray.D.y;
-            float ztmax = ray.D.z == 0 ? 10000000 : (Maximum.z - ray.X.z) / ray.D.z;
+            var xtmin = ray.D.x == 0 ? -10000000 : (Minimum.x - ray.X.x) / ray.D.x;
+            var ytmin = ray.D.y == 0 ? -10000000 : (Minimum.y - ray.X.y) / ray.D.y;
+            var ztmin = ray.D.z == 0 ? -10000000 : (Minimum.z - ray.X.z) / ray.D.z;
+            var xtmax = ray.D.x == 0 ? 10000000 : (Maximum.x - ray.X.x) / ray.D.x;
+            var ytmax = ray.D.y == 0 ? 10000000 : (Maximum.y - ray.X.y) / ray.D.y;
+            var ztmax = ray.D.z == 0 ? 10000000 : (Maximum.z - ray.X.z) / ray.D.z;
 
             sort(ref xtmin, ref xtmax);
             sort(ref ytmin, ref ytmax);

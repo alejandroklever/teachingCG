@@ -29,9 +29,9 @@ namespace Rendering
         /// </summary>
         public Mesh (V[] vertices, int[] indices, Topology topology = Topology.Triangles)
         {
-            this.Vertices = vertices;
-            this.Indices = indices;
-            this.Topology = topology;
+            Vertices = vertices;
+            Indices = indices;
+            Topology = topology;
         }
 
         /// <summary>
@@ -40,9 +40,9 @@ namespace Rendering
         /// <returns></returns>
         public Mesh<V> Clone()
         {
-            V[] newVertices = Vertices.Clone() as V[];
-            int[] newIndices = Indices.Clone() as int[];
-            return new Mesh<V>(newVertices, newIndices, this.Topology);
+            var newVertices = Vertices.Clone() as V[];
+            var newIndices = Indices.Clone() as int[];
+            return new Mesh<V>(newVertices, newIndices, Topology);
         }
     }
 
@@ -52,9 +52,9 @@ namespace Rendering
 
         public static Mesh<T> Transform<V, T>(this Mesh<V> mesh, Func<V, T> transform) where V : struct, IVertex<V> where T : struct, IVertex<T>
         {
-            T[] newVertices = new T[mesh.Vertices.Length];
+            var newVertices = new T[mesh.Vertices.Length];
 
-            for (int i = 0; i < newVertices.Length; i++)
+            for (var i = 0; i < newVertices.Length; i++)
                 newVertices[i] = transform(mesh.Vertices[i]);
 
             return new Mesh<T>(newVertices, mesh.Indices, mesh.Topology);
@@ -69,9 +69,9 @@ namespace Rendering
         {
             return Transform<V>(mesh, v =>
             {
-                float4 hP = float4(v.Position, 1);
+                var hP = float4(v.Position, 1);
                 hP = mul(hP, transform);
-                V newVertex = v;
+                var newVertex = v;
                 newVertex.Position = hP.xyz / hP.w;
                 return newVertex;
             });
@@ -110,10 +110,10 @@ namespace Rendering
                         case Topology.Triangles:
                             {
                                 // This is repeating edges for adjacent triangles.... use a hash table to prevent for double linking vertices.
-                                V[] newVertices = mesh.Vertices.Clone() as V[];
-                                int[] newIndices = new int[mesh.Indices.Length * 2];
-                                int index = 0;
-                                for (int i = 0; i < mesh.Indices.Length / 3; i++)
+                                var newVertices = mesh.Vertices.Clone() as V[];
+                                var newIndices = new int[mesh.Indices.Length * 2];
+                                var index = 0;
+                                for (var i = 0; i < mesh.Indices.Length / 3; i++)
                                 {
                                     newIndices[index++] = mesh.Indices[i * 3 + 0];
                                     newIndices[index++] = mesh.Indices[i * 3 + 1];
@@ -130,9 +130,9 @@ namespace Rendering
                     break;
                 case Topology.Points:
                     {
-                        V[] newVertices = mesh.Vertices.Clone() as V[];
-                        int[] indices = new int[newVertices.Length];
-                        for (int i = 0; i < indices.Length; i++)
+                        var newVertices = mesh.Vertices.Clone() as V[];
+                        var indices = new int[newVertices.Length];
+                        for (var i = 0; i < indices.Length; i++)
                             indices[i] = i;
                         return new Mesh<V>(newVertices, indices, Topology.Points);
                     }
@@ -148,15 +148,15 @@ namespace Rendering
             // Method using decimation...
             // TODO: Implement other methods
 
-            Dictionary<int3, int> uniqueVertices = new Dictionary<int3, int>();
-            int[] mappedVertices = new int[mesh.Vertices.Length];
-            List<V> newVertices = new List<V>();
+            var uniqueVertices = new Dictionary<int3, int>();
+            var mappedVertices = new int[mesh.Vertices.Length];
+            var newVertices = new List<V>();
 
-            for (int i = 0; i < mesh.Vertices.Length; i++)
+            for (var i = 0; i < mesh.Vertices.Length; i++)
             {
-                V vertex = mesh.Vertices[i];
-                float3 p = vertex.Position;
-                int3 cell = (int3)(p / epsilon); // convert vertex position in a discrete cell.
+                var vertex = mesh.Vertices[i];
+                var p = vertex.Position;
+                var cell = (int3)(p / epsilon); // convert vertex position in a discrete cell.
                 if (!uniqueVertices.ContainsKey(cell))
                 {
                     uniqueVertices.Add(cell, newVertices.Count);
@@ -165,8 +165,8 @@ namespace Rendering
                 mappedVertices[i] = uniqueVertices[cell];
             }
 
-            int[] newIndices = new int[mesh.Indices.Length];
-            for (int i = 0; i < mesh.Indices.Length; i++)
+            var newIndices = new int[mesh.Indices.Length];
+            for (var i = 0; i < mesh.Indices.Length; i++)
                 newIndices[i] = mappedVertices[mesh.Indices[i]];
 
             return new Mesh<V>(newVertices.ToArray(), newIndices, mesh.Topology);
@@ -180,16 +180,16 @@ namespace Rendering
             if (mesh.Topology != Topology.Triangles)
                 return;
 
-            float3[] normals = new float3[mesh.Vertices.Length];
+            var normals = new float3[mesh.Vertices.Length];
 
-            for (int i=0; i<mesh.Indices.Length/3; i++)
+            for (var i=0; i<mesh.Indices.Length/3; i++)
             {
-                float3 p0 = mesh.Vertices[mesh.Indices[i * 3 + 0]].Position;
-                float3 p1 = mesh.Vertices[mesh.Indices[i * 3 + 1]].Position;
-                float3 p2 = mesh.Vertices[mesh.Indices[i * 3 + 2]].Position;
+                var p0 = mesh.Vertices[mesh.Indices[i * 3 + 0]].Position;
+                var p1 = mesh.Vertices[mesh.Indices[i * 3 + 1]].Position;
+                var p2 = mesh.Vertices[mesh.Indices[i * 3 + 2]].Position;
 
                 // Compute the normal of the triangle.
-                float3 N = cross(p1 - p0, p2 - p0);
+                var N = cross(p1 - p0, p2 - p0);
 
                 // Add the normal to the vertices involved
                 normals[mesh.Indices[i * 3 + 0]] += N;
@@ -198,7 +198,7 @@ namespace Rendering
             }
 
             // Update per-vertex normal using normal accumulation normalized.
-            for (int i = 0; i < mesh.Vertices.Length; i++)
+            for (var i = 0; i < mesh.Vertices.Length; i++)
                 mesh.Vertices[i].Normal = normalize(normals[i]);
         }
 
@@ -207,8 +207,8 @@ namespace Rendering
         /// </summary>
         public static AABB3D ComputeAABB<V>(this Mesh<V> mesh) where V:struct, IVertex<V>
         {
-            float3 minimum = float3(float.MaxValue, float.MaxValue, float.MaxValue);
-            float3 maximum = float3(float.MinValue, float.MinValue, float.MinValue);
+            var minimum = float3(float.MaxValue, float.MaxValue, float.MaxValue);
+            var maximum = float3(float.MinValue, float.MinValue, float.MinValue);
             foreach (var v in mesh.Vertices)
             {
                 minimum = min(minimum, v.Position);
@@ -226,38 +226,38 @@ namespace Rendering
     {
         public static Mesh<V> Surface(int slices, int stacks, Func<float, float, float3> generating)
         {
-            V[] vertices = new V[(slices + 1) * (stacks + 1)];
-            int[] indices = new int[slices * stacks * 6];
+            var vertices = new V[(slices + 1) * (stacks + 1)];
+            var indices = new int[slices * stacks * 6];
 
             // Filling vertices for the manifold.
             // A manifold with x,y,z mapped from (0,0)-(1,1)
-            for (int i = 0; i <= stacks; i++)
-                for (int j = 0; j <= slices; j++)
+            for (var i = 0; i <= stacks; i++)
+                for (var j = 0; j <= slices; j++)
                     vertices[i * (slices + 1) + j] = new V { Position = generating(j / (float)slices, i / (float)stacks), Coordinates = float2(j / (float)slices, i / (float)stacks) };
 
             // Filling the indices of the quad. Vertices are linked to adjacent.
-            int index = 0;
-            for (int i = 0; i < stacks; i++)
-                for (int j = 0; j < slices; j++)
+            var index = 0;
+            for (var i = 0; i < stacks; i++)
+                for (var j = 0; j < slices; j++)
                     if ((i + j) % 2 == 0)
                     {
                         indices[index++] = i * (slices + 1) + j;
                         indices[index++] = (i + 1) * (slices + 1) + j;
-                        indices[index++] = (i + 1) * (slices + 1) + (j + 1);
+                        indices[index++] = (i + 1) * (slices + 1) + j + 1;
 
                         indices[index++] = i * (slices + 1) + j;
-                        indices[index++] = (i + 1) * (slices + 1) + (j + 1);
-                        indices[index++] = i * (slices + 1) + (j + 1);
+                        indices[index++] = (i + 1) * (slices + 1) + j + 1;
+                        indices[index++] = i * (slices + 1) + j + 1;
                     }
                     else
                     {
                         indices[index++] = i * (slices + 1) + j;
                         indices[index++] = (i + 1) * (slices + 1) + j;
-                        indices[index++] = i * (slices + 1) + (j + 1);
+                        indices[index++] = i * (slices + 1) + j + 1;
 
-                        indices[index++] = i * (slices + 1) + (j + 1);
+                        indices[index++] = i * (slices + 1) + j + 1;
                         indices[index++] = (i + 1) * (slices + 1) + j;
-                        indices[index++] = (i + 1) * (slices + 1) + (j + 1);
+                        indices[index++] = (i + 1) * (slices + 1) + j + 1;
                     }
 
             return new Mesh<V>(vertices, indices);

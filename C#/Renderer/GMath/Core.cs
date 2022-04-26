@@ -23,7 +23,7 @@ namespace GMath
         /// <returns>Distance value if exists (always positive). NaN if there is no hit to the volume</returns>
         public static float ClosestHit(this IVolume volume, float3 x, float3 w)
         {
-            return ClosestHit(volume, x, w, out bool _);
+            return ClosestHit(volume, x, w, out var _);
         }
 
         /// <summary>

@@ -24,7 +24,7 @@ namespace Rendering
             if (renderTarget == null)
                 throw new ArgumentNullException("Expected to receive a render target to draw to.");
 
-            this.RenderTarget = renderTarget;
+            RenderTarget = renderTarget;
         }
 
         /// <summary>
@@ -39,8 +39,8 @@ namespace Rendering
         /// </summary>
         public void ClearRT(float4 color)
         {
-            for (int i = 0; i < RenderTarget.Height; i++)
-                for (int j = 0; j < RenderTarget.Width; j++)
+            for (var i = 0; i < RenderTarget.Height; i++)
+                for (var j = 0; j < RenderTarget.Width; j++)
                     RenderTarget.Write(j, i, color);
         }
 
@@ -65,11 +65,11 @@ namespace Rendering
             switch (topology)
             {
                 case Topology.Points:
-                    for (int i = 0; i < vertices.Length; i++)
+                    for (var i = 0; i < vertices.Length; i++)
                         DrawPoint(vertices[i]);
                     break;
                 case Topology.Lines:
-                    for (int i = 0; i < vertices.Length / 2; i++)
+                    for (var i = 0; i < vertices.Length / 2; i++)
                         DrawLine(vertices[i * 2 + 0], vertices[i * 2 + 1]);
                     break;
                 default:
@@ -86,11 +86,11 @@ namespace Rendering
             switch (topology)
             {
                 case Topology.Points:
-                    for (int i = 0; i < indices.Length; i++)
+                    for (var i = 0; i < indices.Length; i++)
                         DrawPoint(vertices[indices[i]]);
                     break;
                 case Topology.Lines:
-                    for (int i = 0; i < indices.Length / 2; i++)
+                    for (var i = 0; i < indices.Length / 2; i++)
                         DrawLine(vertices[indices[i * 2 + 0]], vertices[indices[i * 2 + 1]]);
                     break;
                 default:
@@ -110,7 +110,7 @@ namespace Rendering
 
         void FromNDCToScreen(float4 pPosition, out float px, out float py)
         {
-            float3 hPosition = pPosition.xyz / pPosition.w;
+            var hPosition = pPosition.xyz / pPosition.w;
             px = (hPosition.x * 0.5f + 0.5f) * RenderTarget.Width;
             py = (0.5f - 0.5f * hPosition.y) * RenderTarget.Height;
         }
@@ -124,9 +124,9 @@ namespace Rendering
 
         void DrawPoint(V vertex) 
         {
-            P pixelInput = PerformVertexShader(vertex);
+            var pixelInput = PerformVertexShader(vertex);
 
-            float4 pPosition = pixelInput.Homogeneous;
+            var pPosition = pixelInput.Homogeneous;
             if (pPosition.x < -pPosition.w || pPosition.x >= pPosition.w || pPosition.y < -pPosition.w || pPosition.y >= pPosition.w || pPosition.z < 0 || pPosition.z >= pPosition.w)
                 return;
 
@@ -139,13 +139,13 @@ namespace Rendering
         bool ClipSegmentHP(float4 P, float4 N, float4 pV1, float4 pV2, out float alpha1, out float alpha2) 
         {
             alpha1 = 0; alpha2 = 1;
-            float d1 = dot(pV1 - P, N);
-            float d2 = dot(pV2 - P, N);
+            var d1 = dot(pV1 - P, N);
+            var d2 = dot(pV2 - P, N);
             if (d1 < 0 && d2 < 0)
                 return false;
             if (d1 >= 0 && d2 >= 0)
                 return true;
-            float alpha = -d1 / (d2 - d1);
+            var alpha = -d1 / (d2 - d1);
             if (d1 < 0 && d2 >= 0)
                 alpha1 = alpha;
             else
@@ -212,7 +212,7 @@ namespace Rendering
         {
             if (VertexShader == null)
             {
-                P p = new P();
+                var p = new P();
                 p.Homogeneous = float4(v.Position, 1);
                 return p;
             }
@@ -229,11 +229,11 @@ namespace Rendering
 
         void DrawLine(V v1, V v2)
         {
-            P p1 = PerformVertexShader(v1);
-            P p2 = PerformVertexShader(v2);
+            var p1 = PerformVertexShader(v1);
+            var p2 = PerformVertexShader(v2);
 
-            float4 pV1 = p1.Homogeneous; // Projected into homogeneous coordinates
-            float4 pV2 = p2.Homogeneous; // Projected into homogeneous coordinates
+            var pV1 = p1.Homogeneous; // Projected into homogeneous coordinates
+            var pV2 = p2.Homogeneous; // Projected into homogeneous coordinates
 
             // Clip vertices against box in homogeneous coordinates!
             if (!ClipSegmentHP(ref p1, ref p2, ref pV1, ref pV2))
@@ -246,14 +246,14 @@ namespace Rendering
             FromNDCToScreen(pV1, out x1, out y1);
             FromNDCToScreen(pV2, out x2, out y2);
 
-            int steps = (int)max(abs(x1 - x2), abs(y1 - y2)) * 2 + 1; // Is not the best, just to grant there is at least one sample for each pixel.
+            var steps = (int)max(abs(x1 - x2), abs(y1 - y2)) * 2 + 1; // Is not the best, just to grant there is at least one sample for each pixel.
 
-            for (int i=0; i<=steps; i++)
+            for (var i=0; i<=steps; i++)
             {
-                float alpha = i / (float)steps; // Not using Perspective Correction! Careful!
-                P interpolatedValue = p1.Mul(1 - alpha).Add(p2.Mul(alpha));
-                float x = lerp(x1, x2, alpha);
-                float y = lerp(y1, y2, alpha);
+                var alpha = i / (float)steps; // Not using Perspective Correction! Careful!
+                var interpolatedValue = p1.Mul(1 - alpha).Add(p2.Mul(alpha));
+                var x = lerp(x1, x2, alpha);
+                var y = lerp(y1, y2, alpha);
                 UpdateBuffers(x, y, interpolatedValue);
             }
         }

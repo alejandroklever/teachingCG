@@ -9,9 +9,9 @@ namespace Rendering
 	static class Transforms
 	{
 		public static float4x4 Identity
-        {
-            get { return float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
-        }
+		{
+			get { return float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
+		}
 
 		/// matrices
 		/// <summary>
@@ -62,8 +62,8 @@ namespace Rendering
 		/// <param name="alpha">value in radian for rotation</param>
 		public static float4x4 RotateZ(float alpha)
 		{
-			float c = cos(alpha);
-			float s = sin(alpha);
+			var c = cos(alpha);
+			var s = sin(alpha);
 			return float4x4(
 				c, -s, 0, 0,
 				s, c, 0, 0,
@@ -71,6 +71,7 @@ namespace Rendering
 				0, 0, 0, 1
 			);
 		}
+
 		/// <summary>
 		/// Rotation mat around Z axis
 		/// </summary>
@@ -79,14 +80,15 @@ namespace Rendering
 		{
 			return RotateZ(alpha * pi / 180);
 		}
+
 		/// <summary>
 		/// Rotation mat around Z axis
 		/// </summary>
 		/// <param name="alpha">value in radian for rotation</param>
 		public static float4x4 RotateY(float alpha)
 		{
-			float c = cos(alpha);
-			float s = sin(alpha);
+			var c = cos(alpha);
+			var s = sin(alpha);
 			return float4x4(
 				c, 0, -s, 0,
 				0, 1, 0, 0,
@@ -94,6 +96,7 @@ namespace Rendering
 				0, 0, 0, 1
 			);
 		}
+
 		/// <summary>
 		/// Rotation mat around Z axis
 		/// </summary>
@@ -102,14 +105,15 @@ namespace Rendering
 		{
 			return RotateY(alpha * pi / 180);
 		}
+
 		/// <summary>
 		/// Rotation mat around Z axis
 		/// </summary>
 		/// <param name="alpha">value in radian for rotation</param>
 		public static float4x4 RotateX(float alpha)
 		{
-			float c = cos(alpha);
-			float s = sin(alpha);
+			var c = cos(alpha);
+			var s = sin(alpha);
 			return float4x4(
 				1, 0, 0, 0,
 				0, c, -s, 0,
@@ -117,6 +121,7 @@ namespace Rendering
 				0, 0, 0, 1
 			);
 		}
+
 		/// <summary>
 		/// Rotation mat around Z axis
 		/// </summary>
@@ -125,13 +130,14 @@ namespace Rendering
 		{
 			return RotateX(alpha * pi / 180);
 		}
+
 		public static float4x4 Rotate(float angle, float3 dir)
 		{
-			float x = dir.x;
-			float y = dir.y;
-			float z = dir.z;
-			float cos = Gfx.cos(angle);
-			float sin = Gfx.sin(angle);
+			var x = dir.x;
+			var y = dir.y;
+			var z = dir.z;
+			var cos = Gfx.cos(angle);
+			var sin = Gfx.sin(angle);
 
 			return float4x4(
 				x * x * (1 - cos) + cos, y * x * (1 - cos) + z * sin, z * x * (1 - cos) - y * sin, 0,
@@ -140,6 +146,7 @@ namespace Rendering
 				0, 0, 0, 1
 			);
 		}
+
 		public static float4x4 RotateRespectTo(float3 center, float3 direction, float angle)
 		{
 			return mul(Translate(center), mul(Rotate(angle, direction), Translate(center * -1.0f)));
@@ -162,6 +169,7 @@ namespace Rendering
 				0, 0, zscale, 0,
 				0, 0, 0, 1);
 		}
+
 		public static float4x4 Scale(float3 size)
 		{
 			return Scale(size.x, size.y, size.z);
@@ -171,6 +179,7 @@ namespace Rendering
 		{
 			return mul(mul(Translate(center), Scale(size)), Translate(center * -1));
 		}
+
 		public static float4x4 ScaleRespectTo(float3 center, float sx, float sy, float sz)
 		{
 			return ScaleRespectTo(center, float3(sx, sy, sz));
@@ -182,9 +191,9 @@ namespace Rendering
 
 		public static float4x4 LookAtLH(float3 camera, float3 target, float3 upVector)
 		{
-			float3 zaxis = normalize(target - camera);
-			float3 xaxis = normalize(cross(upVector, zaxis));
-			float3 yaxis = cross(zaxis, xaxis);
+			var zaxis = normalize(target - camera);
+			var xaxis = normalize(cross(upVector, zaxis));
+			var yaxis = cross(zaxis, xaxis);
 
 			return float4x4(
 				xaxis.x, yaxis.x, zaxis.x, 0,
@@ -195,9 +204,9 @@ namespace Rendering
 
 		public static float4x4 LookAtRH(float3 camera, float3 target, float3 upVector)
 		{
-			float3 zaxis = normalize(camera - target);
-			float3 xaxis = normalize(cross(upVector, zaxis));
-			float3 yaxis = cross(zaxis, xaxis);
+			var zaxis = normalize(camera - target);
+			var xaxis = normalize(cross(upVector, zaxis));
+			var yaxis = cross(zaxis, xaxis);
 
 			return float4x4(
 				xaxis.x, yaxis.x, zaxis.x, 0,
@@ -212,8 +221,8 @@ namespace Rendering
 
 		public static float4x4 PerspectiveFovLH(float fieldOfView, float aspectRatio, float znearPlane, float zfarPlane)
 		{
-			float h = 1.0f / tan(fieldOfView / 2);
-			float w = h * aspectRatio;
+			var h = 1.0f / tan(fieldOfView / 2);
+			var w = h * aspectRatio;
 
 			return float4x4(
 				w, 0, 0, 0,
@@ -224,8 +233,8 @@ namespace Rendering
 
 		public static float4x4 PerspectiveFovRH(float fieldOfView, float aspectRatio, float znearPlane, float zfarPlane)
 		{
-			float h = 1.0f / tan(fieldOfView / 2);
-			float w = h * aspectRatio;
+			var h = 1.0f / tan(fieldOfView / 2);
+			var w = h * aspectRatio;
 
 			return float4x4(
 				w, 0, 0, 0,
@@ -270,5 +279,68 @@ namespace Rendering
 				0, 0, znearPlane / (znearPlane - zfarPlane), 1);
 		}
 
+		public static float4x4 DesiredTransform(float4x4? transform = null, float3? translation = null, float3? scale = null,
+			float3? eulerRotation = null, float3? rotCenter = null, float3? rotDirection = null, float? angle = null,
+			bool useGrad = false)
+		{
+			/*
+			 * The order of the operations is important
+			 * First we need to Translate, then Rotate, then Scale
+			*/
+			var desiredTransform = transform ?? Identity;
+
+			if (translation != null)
+				desiredTransform = mul(Translate(translation.Value), desiredTransform);
+
+			Func<float3, float3, float, float4x4> rotateRespectTo = RotateRespectTo;
+			Func<float, float3, float4x4> rotate = Rotate;
+			Func<float, float4x4> rotateX = RotateX;
+			Func<float, float4x4> rotateY = RotateY;
+			Func<float, float4x4> rotateZ = RotateZ;
+
+			if (useGrad)
+			{
+				rotateRespectTo = RotateRespectTo;
+				rotate = RotateGrad;
+				rotateX = RotateXGrad;
+				rotateY = RotateYGrad;
+				rotateZ = RotateZGrad;
+			}
+
+			if (eulerRotation != null)
+			{
+				desiredTransform = mul(rotateX(eulerRotation.Value.x), desiredTransform);
+				desiredTransform = mul(rotateY(eulerRotation.Value.y), desiredTransform);
+				desiredTransform = mul(rotateZ(eulerRotation.Value.z), desiredTransform);
+			}
+
+			else if (rotCenter != null && rotDirection != null && angle != null)
+				desiredTransform = mul(rotateRespectTo(rotCenter.Value, rotDirection.Value, angle.Value),
+					desiredTransform);
+
+			else if (rotDirection != null && angle != null)
+				desiredTransform = mul(rotate(angle.Value, rotDirection.Value), desiredTransform);
+
+			if (scale != null)
+				desiredTransform = mul(Scale(scale.Value), desiredTransform);
+
+			return desiredTransform;
+		}
+
+		public static float3[] ApplyTransform(IReadOnlyList<float3> points, float4x4 matrix)
+		{
+			var result = new float3[points.Count];
+
+			// Transform points with a matrix
+			// Linear transform in homogeneous coordinates
+			for (var i = 0; i < points.Count; i++)
+			{
+				var h = float4(points[i], 1);
+				h = mul(h, matrix);
+				result[i] = h.xyz / h.w;
+			}
+
+			return result;
+		}
 	}
 }

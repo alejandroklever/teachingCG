@@ -18,7 +18,7 @@ namespace GMath
 
         public bool Intersect (Ray3D ray, out float t)
         {
-            float den = dot(ray.D, N);
+            var den = dot(ray.D, N);
 
             if (den == 0)
             {

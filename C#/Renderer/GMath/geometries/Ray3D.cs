@@ -32,12 +32,12 @@ namespace GMath
         /// </summary>
         public static Ray3D CreateFromTo(float3 a, float3 b)
         {
-            return new Ray3D(a, b - a);
+            return new(a, b - a);
         }
 
         public static explicit operator Line3D (Ray3D ray)
         {
-            return new Line3D(ray.X, ray.X + ray.D);
+            return new(ray.X, ray.X + ray.D);
         }
     }
 }

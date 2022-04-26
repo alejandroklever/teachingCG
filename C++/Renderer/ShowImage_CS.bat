@@ -1,1 +1,0 @@
-imageviewer.exe test.rbm
