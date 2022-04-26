@@ -132,10 +132,10 @@ namespace Rendering
             Scene<A, M>.Visual? closestVisual = null;
             A? closestAttribute = null;
             int? closestGeometryIndex = null;
-            float closestDistance = ray.MaxT;
-            bool stopped = false;
+            var closestDistance = ray.MaxT;
+            var stopped = false;
             
-            InternalRaycastingContext context = new InternalRaycastingContext();
+            var context = new InternalRaycastingContext();
 
             context.GlobalRay = ray;
             context.GeometryIndex = 0;
@@ -195,27 +195,27 @@ namespace Rendering
 
         public RayDescription(float3 origin, float3 direction, float minT = 0.0001f, float maxT = 1000000)
         {
-            this.Origin = origin;
-            this.Direction = direction;
-            this.MinT = minT;
-            this.MaxT = maxT;
+            Origin = origin;
+            Direction = direction;
+            MinT = minT;
+            MaxT = maxT;
         }
 
         public RayDescription Transform(float4x4 matrix)
         {
-            float4 o = float4(Origin, 1);
-            float4 t = float4(Origin + Direction, 1);
+            var o = float4(Origin, 1);
+            var t = float4(Origin + Direction, 1);
 
             o = mul(o, matrix);
             t = mul(t, matrix);
 
-            return new RayDescription(o.xyz / o.w, t.xyz / t.w - o.xyz / o.w, this.MinT, this.MaxT);
+            return new RayDescription(o.xyz / o.w, t.xyz / t.w - o.xyz / o.w, MinT, MaxT);
         }
 
         public static RayDescription FromScreen(float px, float py, int width, int height, float4x4 inverseView, float4x4 inverseProjection, float minT, float maxT)
         {
-            float4 origin = float4(2 * px / width - 1, 1 - 2 * py / height, 0, 1);
-            float4 target = float4(2 * px / width - 1, 1 - 2 * py / height, 1, 1);
+            var origin = float4(2 * px / width - 1, 1 - 2 * py / height, 0, 1);
+            var target = float4(2 * px / width - 1, 1 - 2 * py / height, 1, 1);
 
             origin = mul(mul(origin, inverseProjection), inverseView);
             target = mul(mul(target, inverseProjection), inverseView);
@@ -279,7 +279,7 @@ namespace Rendering
 
             public IEnumerable<HitInfo<T>> Raycast(RayDescription ray)
             {
-                return this.geometry.Raycast(ray).Select(h => new HitInfo<T> { T = h.T, Attribute = this.transform(h.Attribute) });
+                return geometry.Raycast(ray).Select(h => new HitInfo<T> { T = h.T, Attribute = transform(h.Attribute) });
             }
         }
 
@@ -298,7 +298,7 @@ namespace Rendering
         }
 
         static UnitarySphereGeometry __UnitarySphereInstance;
-        public static IRaycastGeometry<float3> UnitarySphere { get { return __UnitarySphereInstance ?? (__UnitarySphereInstance = new Raycasting.UnitarySphereGeometry()); } }
+        public static IRaycastGeometry<float3> UnitarySphere { get { return __UnitarySphereInstance ?? (__UnitarySphereInstance = new UnitarySphereGeometry()); } }
 
         #endregion
 
@@ -310,12 +310,12 @@ namespace Rendering
 
             public QuadricGeometry(float3x3 Q, float3 P, float R)
             {
-                this.quadric = new Quadric(Q, P, R);
+                quadric = new Quadric(Q, P, R);
             }
             public IEnumerable<HitInfo<float3>> Raycast(RayDescription ray)
             {
                 float minT, maxT;
-                if (!this.quadric.Intersect(new Ray3D(ray.Origin, ray.Direction), out minT, out maxT))
+                if (!quadric.Intersect(new Ray3D(ray.Origin, ray.Direction), out minT, out maxT))
                     yield break;
 
                 if (minT >= ray.MinT && minT < ray.MaxT)
@@ -348,7 +348,7 @@ namespace Rendering
             Plane3D plane;
             public PlaneGeometry(float3 P, float3 N)
             {
-                this.plane = new Plane3D(P, N);
+                plane = new Plane3D(P, N);
             }
 
             public IEnumerable<HitInfo<float3>> Raycast(RayDescription ray)
@@ -388,19 +388,19 @@ namespace Rendering
 
             public IEnumerable<HitInfo<V>> Raycast(RayDescription ray)
             {
-                List<HitInfo<V>> hits = new List<HitInfo<V>>();
+                var hits = new List<HitInfo<V>>();
 
                 if (mesh.Topology != Topology.Triangles)
                     return hits;
 
-                Ray3D r = new Ray3D(ray.Origin, ray.Direction);
+                var r = new Ray3D(ray.Origin, ray.Direction);
 
-                for (int i = 0; i < mesh.Indices.Length / 3; i++)
+                for (var i = 0; i < mesh.Indices.Length / 3; i++)
                 {
-                    V v1 = mesh.Vertices[mesh.Indices[i * 3 + 0]];
-                    V v2 = mesh.Vertices[mesh.Indices[i * 3 + 1]];
-                    V v3 = mesh.Vertices[mesh.Indices[i * 3 + 2]];
-                    Triangle3D tri = new Triangle3D(v1.Position, v2.Position, v3.Position);
+                    var v1 = mesh.Vertices[mesh.Indices[i * 3 + 0]];
+                    var v2 = mesh.Vertices[mesh.Indices[i * 3 + 1]];
+                    var v3 = mesh.Vertices[mesh.Indices[i * 3 + 2]];
+                    var tri = new Triangle3D(v1.Position, v2.Position, v3.Position);
                     float t;
                     float3 baricenter;
                     if (tri.Intersect(r, out t, out baricenter))
@@ -449,27 +449,27 @@ namespace Rendering
 
                 box = mesh.ComputeAABB();
 
-                float3 dim = box.Maximum - box.Minimum;
-                float maxDim = max(dim.x, max(dim.y, dim.z));
+                var dim = box.Maximum - box.Minimum;
+                var maxDim = max(dim.x, max(dim.y, dim.z));
 
                 box = new AABB3D { Minimum = box.Minimum - 0.1f, Maximum = box.Minimum + maxDim + 0.1f }; // extend to grant all mesh-intersections are inside the box.
 
-                for (int i = 0; i < mesh.Indices.Length / 3; i++)
+                for (var i = 0; i < mesh.Indices.Length / 3; i++)
                 {
-                    V v1 = mesh.Vertices[mesh.Indices[i * 3 + 0]];
-                    V v2 = mesh.Vertices[mesh.Indices[i * 3 + 1]];
-                    V v3 = mesh.Vertices[mesh.Indices[i * 3 + 2]];
-                    Triangle3D tri = new Triangle3D(v1.Position, v2.Position, v3.Position);
+                    var v1 = mesh.Vertices[mesh.Indices[i * 3 + 0]];
+                    var v2 = mesh.Vertices[mesh.Indices[i * 3 + 1]];
+                    var v3 = mesh.Vertices[mesh.Indices[i * 3 + 2]];
+                    var tri = new Triangle3D(v1.Position, v2.Position, v3.Position);
 
-                    float3 minimum = min(v1.Position, min(v2.Position, v3.Position));
-                    float3 maximum = max(v1.Position, max(v2.Position, v3.Position));
+                    var minimum = min(v1.Position, min(v2.Position, v3.Position));
+                    var maximum = max(v1.Position, max(v2.Position, v3.Position));
 
-                    int3 corner1 = (int3)((minimum - box.Minimum) * resolution / (box.Maximum - box.Minimum));
-                    int3 corner2 = (int3)((maximum - box.Minimum) * resolution / (box.Maximum - box.Minimum));
+                    var corner1 = (int3)((minimum - box.Minimum) * resolution / (box.Maximum - box.Minimum));
+                    var corner2 = (int3)((maximum - box.Minimum) * resolution / (box.Maximum - box.Minimum));
 
-                    for (int z = corner1.z; z <= corner2.z; z++)
-                        for (int y = corner1.y; y <= corner2.y; y++)
-                            for (int x = corner1.x; x <= corner2.x; x++)
+                    for (var z = corner1.z; z <= corner2.z; z++)
+                        for (var y = corner1.y; y <= corner2.y; y++)
+                            for (var x = corner1.x; x <= corner2.x; x++)
                             {
                                 if (triangleHash[z, y, x] == null)
                                     triangleHash[z, y, x] = new List<int>();
@@ -483,7 +483,7 @@ namespace Rendering
                 if (mesh.Topology != Topology.Triangles)
                     yield break;
 
-                Ray3D r = new Ray3D(ray.Origin, ray.Direction + 0.000000001f); // epsilon deviation of the direction to avoid indefinitions
+                var r = new Ray3D(ray.Origin, ray.Direction + 0.000000001f); // epsilon deviation of the direction to avoid indefinitions
 
                 float minT, maxT;
                 if (!box.Intersect(r, out minT, out maxT))
@@ -491,25 +491,25 @@ namespace Rendering
 
                 maxT = min(maxT, ray.MaxT);
 
-                float t = max(ray.MinT, minT);
+                var t = max(ray.MinT, minT);
 
-                float3 P = r.X + r.D * t;
+                var P = r.X + r.D * t;
 
-                int3 cell = (int3)min(((P - box.Minimum) * resolution / (box.Maximum - box.Minimum)), resolution - 1);
+                var cell = (int3)min((P - box.Minimum) * resolution / (box.Maximum - box.Minimum), resolution - 1);
 
 
                 float3 side = r.D > 0;
 
-                int3 cellInc = (r.D > 0) * 2 - 1;
+                var cellInc = (r.D > 0) * 2 - 1;
 
-                float3 corner = box.Minimum + (cell + side) * (box.Maximum - box.Minimum) / resolution;
+                var corner = box.Minimum + (cell + side) * (box.Maximum - box.Minimum) / resolution;
 
-                float3 alphas = (corner - r.X) / r.D;
-                float3 alphaInc = (box.Maximum - box.Minimum) / abs(resolution * r.D);
+                var alphas = (corner - r.X) / r.D;
+                var alphaInc = (box.Maximum - box.Minimum) / abs(resolution * r.D);
 
                 while (t < maxT)
                 {
-                    float nextT = min(alphas.x, min(alphas.y, alphas.z));
+                    var nextT = min(alphas.x, min(alphas.y, alphas.z));
 
                     if (any(cell < 0) || any(cell >= resolution))
                         yield break; // just for numerical problems, traversal could go outside grid.
@@ -517,14 +517,14 @@ namespace Rendering
                     // check current cell
                     if (triangleHash[cell.z, cell.y, cell.x] != null)
                     {
-                        List<HitInfo<V>> hits = new List<HitInfo<V>>();
+                        var hits = new List<HitInfo<V>>();
 
                         foreach (var i in triangleHash[cell.z, cell.y, cell.x])
                         {
-                            V v1 = mesh.Vertices[mesh.Indices[i * 3 + 0]];
-                            V v2 = mesh.Vertices[mesh.Indices[i * 3 + 1]];
-                            V v3 = mesh.Vertices[mesh.Indices[i * 3 + 2]];
-                            Triangle3D tri = new Triangle3D(v1.Position, v2.Position, v3.Position);
+                            var v1 = mesh.Vertices[mesh.Indices[i * 3 + 0]];
+                            var v2 = mesh.Vertices[mesh.Indices[i * 3 + 1]];
+                            var v3 = mesh.Vertices[mesh.Indices[i * 3 + 2]];
+                            var tri = new Triangle3D(v1.Position, v2.Position, v3.Position);
                             float triT;
                             float3 baricenter;
                             if (tri.Intersect(r, out triT, out baricenter))
@@ -543,7 +543,7 @@ namespace Rendering
                     }
 
                     // advance ray to next cell
-                    int3 movement = new int3(alphas.x <= alphas.y && alphas.x <= alphas.z, alphas.y < alphas.x && alphas.y <= alphas.z, alphas.z < alphas.x && alphas.z < alphas.y);
+                    var movement = new int3(alphas.x <= alphas.y && alphas.x <= alphas.z, alphas.y < alphas.x && alphas.y <= alphas.z, alphas.z < alphas.x && alphas.z < alphas.y);
                     cell += movement * cellInc;
                     alphas += movement * alphaInc;
                     t = nextT;
@@ -554,15 +554,12 @@ namespace Rendering
         public static IRaycastGeometry<V> AsRaycast<V>(this Mesh<V> mesh, RaycastingMeshMode mode = RaycastingMeshMode.Grid) where V : struct, IVertex<V>
         {
             // TODO: Implement another strategy using Acceleration Data-Structures.
-            switch (mode)
+            return mode switch
             {
-                case RaycastingMeshMode.Naive:
-                    return new NaiveIntersectableMesh<V>(mesh);
-                case RaycastingMeshMode.Grid:
-                    return new GridIntersectableMesh<V>(mesh);
-                default:
-                    throw new NotSupportedException();
-            }
+                RaycastingMeshMode.Naive => new NaiveIntersectableMesh<V>(mesh),
+                RaycastingMeshMode.Grid => new GridIntersectableMesh<V>(mesh),
+                _ => throw new NotSupportedException()
+            };
         }
 
         #endregion

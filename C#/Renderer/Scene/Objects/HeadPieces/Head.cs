@@ -15,7 +15,7 @@ namespace Renderer.Scene
             var scale = float3(width, height, depth);
 
              var  headMesh =   GenerateHeadMesh(scale);
-             Add(headMesh, Materials.GuitarRedMaterial);
+             AddMesh(headMesh, Materials.GlossyBlack);
             
             if (setBackTuners)
                 GenerateBackTuners();
@@ -175,7 +175,7 @@ namespace Renderer.Scene
         {
             var (x, y, _) = scale;
 
-            const float xScale = 1.5f;
+            const float xScale = 1.25f;
             var headTopDecoration = new BezierCurve(
                 float3(xScale * x * -1f, 0f, 0f),
                 float3(xScale * x * -0.25f, .1f, 0f),
@@ -189,42 +189,42 @@ namespace Renderer.Scene
             var c1 = new BezierCurve(headTopDecoration.GetPointsInSegment(1));
 
             // Head Front Left
-            return MyManifold<V>.Lofted(topSlices, 1,
+            return MyManifold<V>.Lofted(topSlices, topSlices,
                     v => lerp(float3(-x, 0, -lateralWidth), float3(0, 0, -lateralWidth), v),
                     u => c0.GetPoint(u) + y * float3.up + lateralWidth * back)
                 .Concat(
                     // Head Front Right
-                    MyManifold<V>.Lofted(topSlices, 1,
+                    MyManifold<V>.Lofted(topSlices, topSlices,
                         v => lerp(float3(0, 0, -lateralWidth), float3(x, 0, -lateralWidth), v),
                         u => c1.GetPoint(u) + y * float3.up+ lateralWidth * back))
                 .Concat(
                     // Head Back Left
-                    MyManifold<V>.Lofted(topSlices, 1,
+                    MyManifold<V>.Lofted(topSlices, topSlices,
                         u => c0.GetPoint(u) + y * float3.up,
                         v => lerp(float3(-x, 0, 0), float3(0, 0, 0), v)))
                 .Concat(
                     // Head Back Right
-                    MyManifold<V>.Lofted(topSlices, 1,
+                    MyManifold<V>.Lofted(topSlices, topSlices,
                         u => c1.GetPoint(u) + y * float3.up,
                         v => lerp(float3(0, 0, 0), float3(x, 0, 0), v)))
                 .Concat(
                     // Head Right
-                    MyManifold<V>.Lofted(1, 1,
+                    MyManifold<V>.Lofted(topSlices, topSlices,
                         u => lerp(float3(x, 0, -lateralWidth), float3(x, 0, 0f), u),
                         v => lerp(float3(xScale * x, y, -lateralWidth), float3(xScale * x, y, 0), v)))
                 .Concat(
                     // Head Left
-                    MyManifold<V>.Lofted(1, 1,
+                    MyManifold<V>.Lofted(topSlices, topSlices,
                         v => lerp(float3(-xScale * x, y, -lateralWidth), float3(-xScale * x, y, 0), v),
                         u => lerp(float3(-x, 0, -lateralWidth), float3(-x, 0, 0f), u)))
                 .Concat(
                     // Head Top Left
-                    MyManifold<V>.Lofted(topSlices, 1,
+                    MyManifold<V>.Lofted(topSlices, topSlices,
                         u => c0.GetPoint(u) + y * float3.up + lateralWidth * back,
                         v => c0.GetPoint(v) + y * float3.up))
                 .Concat(
                     // Head Top Right
-                    MyManifold<V>.Lofted(topSlices, 1,
+                    MyManifold<V>.Lofted(topSlices, topSlices,
                         u => c1.GetPoint(u) + y * float3.up + lateralWidth * back,
                         v => c1.GetPoint(v) + y * float3.up ))
                 .Weld();

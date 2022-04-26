@@ -57,9 +57,9 @@ namespace Renderer.Scene
                     eulerRotation: float3(0, 0, -pi / 2),
                     scale: float3(.4f, .3f, 1)));
 
-            Add(cube, Materials.Default);
-            Add(cylinder, Materials.Default);
-            Add(crank, Materials.Default);
+            AddMesh(cube, Materials.Metallic);
+            AddMesh(cylinder, Materials.Metallic);
+            AddMesh(crank, Materials.Metallic);
             // Mesh = MeshTools.Join(cube, cylinder, crank);
             UpdateTranslation(zero);
         }

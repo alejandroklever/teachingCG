@@ -15,9 +15,9 @@ namespace Renderer.Scene
         {
             return new()
             {
-                Position = this.Position + other.Position,
-                Normal = this.Normal + other.Normal,
-                Coordinates = this.Coordinates + other.Coordinates
+                Position = Position + other.Position,
+                Normal = Normal + other.Normal,
+                Coordinates = Coordinates + other.Coordinates
             };
         }
 
@@ -25,18 +25,18 @@ namespace Renderer.Scene
         {
             return new()
             {
-                Position = this.Position * s,
-                Normal = this.Normal * s,
-                Coordinates = this.Coordinates * s
+                Position = Position * s,
+                Normal = Normal * s,
+                Coordinates = Coordinates * s
             };
         }
 
         public PositionNormalCoordinate Transform(float4x4 matrix)
         {
-            float4 p = float4(Position, 1);
+            var p = float4(Position, 1);
             p = mul(p, matrix);
                 
-            float4 n = float4(Normal, 0);
+            var n = float4(Normal, 0);
             n = mul(n, matrix);
 
             return new PositionNormalCoordinate

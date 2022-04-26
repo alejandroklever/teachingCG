@@ -276,5 +276,119 @@ namespace Renderer.Scene
             for (var i = 0; i < up.Count - 1; i++)
                 AddFace(vertices, indices, up[i], up[i + 1], down[i], down[i + 1], ref tris, inverse);
         }
+
+        public static Mesh<V> CutBellowY<V>(this Mesh<V> mesh, float y) where V : struct, IVertex<V>
+        {
+            var tris = 0;
+            var v = new List<float3>();
+            var i = new List<int>();
+            for (var j = 0; j < mesh.Indices.Length / 3; j++)
+            {
+                var p0 = mesh.Vertices[mesh.Indices[3 * j + 0]].Position;
+                var p1 = mesh.Vertices[mesh.Indices[3 * j + 1]].Position;
+                var p2 = mesh.Vertices[mesh.Indices[3 * j + 2]].Position;
+
+                if (p0.y < y || p1.y < y || p2.y < y)
+                    continue;
+                AddTriangle(v, i, p0, p1, p2, ref tris);
+            }
+
+            return new Mesh<V>(v.Select(p => new V {Position = p}).ToArray(), i.ToArray());
+        }
+        
+        public static Mesh<V> CutBellowX<V>(this Mesh<V> mesh, float x) where V : struct, IVertex<V>
+        {
+            var tris = 0;
+            var v = new List<float3>();
+            var i = new List<int>();
+            for (var j = 0; j < mesh.Indices.Length / 3; j++)
+            {
+                var p0 = mesh.Vertices[mesh.Indices[3 * j + 0]].Position;
+                var p1 = mesh.Vertices[mesh.Indices[3 * j + 1]].Position;
+                var p2 = mesh.Vertices[mesh.Indices[3 * j + 2]].Position;
+
+                if (p0.x < x || p1.x < x || p2.x < x)
+                    continue;
+                AddTriangle(v, i, p0, p1, p2, ref tris);
+            }
+
+            return new Mesh<V>(v.Select(p => new V {Position = p}).ToArray(), i.ToArray());
+        }
+        
+        public static Mesh<V> CutBellowZ<V>(this Mesh<V> mesh, float z) where V : struct, IVertex<V>
+        {
+            var tris = 0;
+            var v = new List<float3>();
+            var i = new List<int>();
+            for (var j = 0; j < mesh.Indices.Length / 3; j++)
+            {
+                var p0 = mesh.Vertices[mesh.Indices[3 * j + 0]].Position;
+                var p1 = mesh.Vertices[mesh.Indices[3 * j + 1]].Position;
+                var p2 = mesh.Vertices[mesh.Indices[3 * j + 2]].Position;
+
+                if (p0.z < z || p1.z < z || p2.z < z)
+                    continue;
+                AddTriangle(v, i, p0, p1, p2, ref tris);
+            }
+
+            return new Mesh<V>(v.Select(p => new V {Position = p}).ToArray(), i.ToArray());
+        }
+        
+           public static Mesh<V> CutAboveY<V>(this Mesh<V> mesh, float y) where V : struct, IVertex<V>
+        {
+            var tris = 0;
+            var v = new List<float3>();
+            var i = new List<int>();
+            for (var j = 0; j < mesh.Indices.Length / 3; j++)
+            {
+                var p0 = mesh.Vertices[mesh.Indices[3 * j + 0]].Position;
+                var p1 = mesh.Vertices[mesh.Indices[3 * j + 1]].Position;
+                var p2 = mesh.Vertices[mesh.Indices[3 * j + 2]].Position;
+
+                if (p0.y > y || p1.y > y || p2.y > y)
+                    continue;
+                AddTriangle(v, i, p0, p1, p2, ref tris);
+            }
+
+            return new Mesh<V>(v.Select(p => new V {Position = p}).ToArray(), i.ToArray());
+        }
+        
+        public static Mesh<V> CutAboveX<V>(this Mesh<V> mesh, float x) where V : struct, IVertex<V>
+        {
+            var tris = 0;
+            var v = new List<float3>();
+            var i = new List<int>();
+            for (var j = 0; j < mesh.Indices.Length / 3; j++)
+            {
+                var p0 = mesh.Vertices[mesh.Indices[3 * j + 0]].Position;
+                var p1 = mesh.Vertices[mesh.Indices[3 * j + 1]].Position;
+                var p2 = mesh.Vertices[mesh.Indices[3 * j + 2]].Position;
+
+                if (p0.x > x || p1.x > x || p2.x > x)
+                    continue;
+                AddTriangle(v, i, p0, p1, p2, ref tris);
+            }
+
+            return new Mesh<V>(v.Select(p => new V {Position = p}).ToArray(), i.ToArray());
+        }
+        
+        public static Mesh<V> CutAboveZ<V>(this Mesh<V> mesh, float z) where V : struct, IVertex<V>
+        {
+            var tris = 0;
+            var v = new List<float3>();
+            var i = new List<int>();
+            for (var j = 0; j < mesh.Indices.Length / 3; j++)
+            {
+                var p0 = mesh.Vertices[mesh.Indices[3 * j + 0]].Position;
+                var p1 = mesh.Vertices[mesh.Indices[3 * j + 1]].Position;
+                var p2 = mesh.Vertices[mesh.Indices[3 * j + 2]].Position;
+
+                if (p0.z > z || p1.z > z || p2.z > z)
+                    continue;
+                AddTriangle(v, i, p0, p1, p2, ref tris);
+            }
+
+            return new Mesh<V>(v.Select(p => new V {Position = p}).ToArray(), i.ToArray());
+        }
     }
 }

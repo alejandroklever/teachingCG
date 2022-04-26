@@ -32,12 +32,12 @@ public struct float1x4{
 	public static float1x4 operator -(float1x4 a, float1x4 b) { return new(a._m00 - b._m00,a._m01 - b._m01,a._m02 - b._m02,a._m03 - b._m03); }
 	public static float1x4 operator /(float1x4 a, float1x4 b) { return new(a._m00 / b._m00,a._m01 / b._m01,a._m02 / b._m02,a._m03 / b._m03); }
 	public static float1x4 operator %(float1x4 a, float1x4 b) { return new(a._m00 % b._m00,a._m01 % b._m01,a._m02 % b._m02,a._m03 % b._m03); }
-	public static int1x4 operator ==(float1x4 a, float1x4 b) { return new((a._m00 == b._m00)?1:0, (a._m01 == b._m01)?1:0, (a._m02 == b._m02)?1:0, (a._m03 == b._m03)?1:0); }
-	public static int1x4 operator !=(float1x4 a, float1x4 b) { return new((a._m00 != b._m00)?1:0, (a._m01 != b._m01)?1:0, (a._m02 != b._m02)?1:0, (a._m03 != b._m03)?1:0); }
-	public static int1x4 operator <(float1x4 a, float1x4 b) { return new((a._m00 < b._m00)?1:0, (a._m01 < b._m01)?1:0, (a._m02 < b._m02)?1:0, (a._m03 < b._m03)?1:0); }
-	public static int1x4 operator <=(float1x4 a, float1x4 b) { return new((a._m00 <= b._m00)?1:0, (a._m01 <= b._m01)?1:0, (a._m02 <= b._m02)?1:0, (a._m03 <= b._m03)?1:0); }
-	public static int1x4 operator >=(float1x4 a, float1x4 b) { return new((a._m00 >= b._m00)?1:0, (a._m01 >= b._m01)?1:0, (a._m02 >= b._m02)?1:0, (a._m03 >= b._m03)?1:0); }
-	public static int1x4 operator >(float1x4 a, float1x4 b) { return new((a._m00 > b._m00)?1:0, (a._m01 > b._m01)?1:0, (a._m02 > b._m02)?1:0, (a._m03 > b._m03)?1:0); }
-	public override string ToString() { return $"(({this._m00}, {this._m01}, {this._m02}, {this._m03}))"; }
+	public static int1x4 operator ==(float1x4 a, float1x4 b) { return new(a._m00 == b._m00?1:0, a._m01 == b._m01?1:0, a._m02 == b._m02?1:0, a._m03 == b._m03?1:0); }
+	public static int1x4 operator !=(float1x4 a, float1x4 b) { return new(a._m00 != b._m00?1:0, a._m01 != b._m01?1:0, a._m02 != b._m02?1:0, a._m03 != b._m03?1:0); }
+	public static int1x4 operator <(float1x4 a, float1x4 b) { return new(a._m00 < b._m00?1:0, a._m01 < b._m01?1:0, a._m02 < b._m02?1:0, a._m03 < b._m03?1:0); }
+	public static int1x4 operator <=(float1x4 a, float1x4 b) { return new(a._m00 <= b._m00?1:0, a._m01 <= b._m01?1:0, a._m02 <= b._m02?1:0, a._m03 <= b._m03?1:0); }
+	public static int1x4 operator >=(float1x4 a, float1x4 b) { return new(a._m00 >= b._m00?1:0, a._m01 >= b._m01?1:0, a._m02 >= b._m02?1:0, a._m03 >= b._m03?1:0); }
+	public static int1x4 operator >(float1x4 a, float1x4 b) { return new(a._m00 > b._m00?1:0, a._m01 > b._m01?1:0, a._m02 > b._m02?1:0, a._m03 > b._m03?1:0); }
+	public override string ToString() { return $"(({_m00}, {_m01}, {_m02}, {_m03}))"; }
 }
 }

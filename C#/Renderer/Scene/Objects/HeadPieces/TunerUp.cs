@@ -7,7 +7,7 @@ namespace Renderer.Scene
 {
     public class TunerUp<V> : SceneObject<V> where V : struct, INormalVertex<V>, ICoordinatesVertex<V>
     {
-        private const int roundness = 6;
+        private const int roundness = 8;
 
         public TunerUp(Transform transform) : base(transform)
         {
@@ -17,8 +17,8 @@ namespace Renderer.Scene
             var cone1 = MyManifold<V>.Cone(roundness, 1, .85f * float3.up, .2f, .4f, .4f, createDiscs: false);
             var cone2 = MyManifold<V>.Cone(roundness, 1, 1.25f * float3.up, .4f, 0, .1f, createDiscs: false).Weld();
 
-            Add(Join(washer, washerTop).Weld(), Materials.Default);
-            Add(Join(cone0, cone1, cone2).Weld(), Materials.Default);
+            AddMesh(Join(washer, washerTop).Weld(), Materials.Metallic);
+            AddMesh(Join(cone0, cone1, cone2).Weld(), Materials.Metallic);
 
             // Mesh =  MeshTools.Join(washer, washerTop, cone0, cone1, cone2);
             UpdateTranslation(zero);

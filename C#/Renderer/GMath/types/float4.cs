@@ -4,21 +4,21 @@ public struct float4{
 	public float y;
 	public float z;
 	public float w;
-	public float2 xy { get { return new(this.x, this.y); } }
-	public float3 xyz { get { return new(this.x, this.y, this.z); } }
+	public float2 xy { get { return new(x, y); } }
+	public float3 xyz { get { return new(x, y, z); } }
 	public float this[int idx] {
 		get{
-			if(idx == 0) return this.x;
-			if(idx == 1) return this.y;
-			if(idx == 2) return this.z;
-			if(idx == 3) return this.w;
+			if(idx == 0) return x;
+			if(idx == 1) return y;
+			if(idx == 2) return z;
+			if(idx == 3) return w;
 			return 0; // Silent return ... valid for HLSL
 		}
 		set{
-			if(idx == 0) this.x = value;
-			if(idx == 1) this.y = value;
-			if(idx == 2) this.z = value;
-			if(idx == 3) this.w = value;
+			if(idx == 0) x = value;
+			if(idx == 1) y = value;
+			if(idx == 2) z = value;
+			if(idx == 3) w = value;
 		}
 	}
 	public float4(float x,float y,float z,float w){
@@ -30,9 +30,9 @@ public struct float4{
 
 	public float4(float3 xyz, float w)
 	{
-		this.x = xyz.x;
-		this.y = xyz.y;
-		this.z = xyz.z;
+		x = xyz.x;
+		y = xyz.y;
+		z = xyz.z;
 		this.w = w;
 	}
 		public float4(float v):this(v,v,v,v){}
@@ -49,12 +49,12 @@ public struct float4{
 	public static float4 operator -(float4 a, float4 b) { return new(a.x - b.x,a.y - b.y,a.z - b.z,a.w - b.w); }
 	public static float4 operator /(float4 a, float4 b) { return new(a.x / b.x,a.y / b.y,a.z / b.z,a.w / b.w); }
 	public static float4 operator %(float4 a, float4 b) { return new(a.x % b.x,a.y % b.y,a.z % b.z,a.w % b.w); }
-	public static int4 operator ==(float4 a, float4 b) { return new((a.x == b.x)?1:0, (a.y == b.y)?1:0, (a.z == b.z)?1:0, (a.w == b.w)?1:0); }
-	public static int4 operator !=(float4 a, float4 b) { return new((a.x != b.x)?1:0, (a.y != b.y)?1:0, (a.z != b.z)?1:0, (a.w != b.w)?1:0); }
-	public static int4 operator <(float4 a, float4 b) { return new((a.x < b.x)?1:0, (a.y < b.y)?1:0, (a.z < b.z)?1:0, (a.w < b.w)?1:0); }
-	public static int4 operator <=(float4 a, float4 b) { return new((a.x <= b.x)?1:0, (a.y <= b.y)?1:0, (a.z <= b.z)?1:0, (a.w <= b.w)?1:0); }
-	public static int4 operator >=(float4 a, float4 b) { return new((a.x >= b.x)?1:0, (a.y >= b.y)?1:0, (a.z >= b.z)?1:0, (a.w >= b.w)?1:0); }
-	public static int4 operator >(float4 a, float4 b) { return new((a.x > b.x)?1:0, (a.y > b.y)?1:0, (a.z > b.z)?1:0, (a.w > b.w)?1:0); }
-	public override string ToString() { return $"({this.x}, {this.y}, {this.z}, {this.w})"; }
+	public static int4 operator ==(float4 a, float4 b) { return new(a.x == b.x?1:0, a.y == b.y?1:0, a.z == b.z?1:0, a.w == b.w?1:0); }
+	public static int4 operator !=(float4 a, float4 b) { return new(a.x != b.x?1:0, a.y != b.y?1:0, a.z != b.z?1:0, a.w != b.w?1:0); }
+	public static int4 operator <(float4 a, float4 b) { return new(a.x < b.x?1:0, a.y < b.y?1:0, a.z < b.z?1:0, a.w < b.w?1:0); }
+	public static int4 operator <=(float4 a, float4 b) { return new(a.x <= b.x?1:0, a.y <= b.y?1:0, a.z <= b.z?1:0, a.w <= b.w?1:0); }
+	public static int4 operator >=(float4 a, float4 b) { return new(a.x >= b.x?1:0, a.y >= b.y?1:0, a.z >= b.z?1:0, a.w >= b.w?1:0); }
+	public static int4 operator >(float4 a, float4 b) { return new(a.x > b.x?1:0, a.y > b.y?1:0, a.z > b.z?1:0, a.w > b.w?1:0); }
+	public override string ToString() { return $"({x}, {y}, {z}, {w})"; }
 }
 }

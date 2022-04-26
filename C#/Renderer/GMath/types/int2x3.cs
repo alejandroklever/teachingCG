@@ -41,13 +41,13 @@ public struct int2x3{
 	public static int2x3 operator &(int2x3 a, int2x3 b) { return new(a._m00 & b._m00,a._m01 & b._m01,a._m02 & b._m02,a._m10 & b._m10,a._m11 & b._m11,a._m12 & b._m12); }
 	public static int2x3 operator |(int2x3 a, int2x3 b) { return new(a._m00 | b._m00,a._m01 | b._m01,a._m02 | b._m02,a._m10 | b._m10,a._m11 | b._m11,a._m12 | b._m12); }
 	public static int2x3 operator ^(int2x3 a, int2x3 b) { return new(a._m00 ^ b._m00,a._m01 ^ b._m01,a._m02 ^ b._m02,a._m10 ^ b._m10,a._m11 ^ b._m11,a._m12 ^ b._m12); }
-	public static int2x3 operator ==(int2x3 a, int2x3 b) { return new((a._m00 == b._m00)?1:0, (a._m01 == b._m01)?1:0, (a._m02 == b._m02)?1:0, (a._m10 == b._m10)?1:0, (a._m11 == b._m11)?1:0, (a._m12 == b._m12)?1:0); }
-	public static int2x3 operator !=(int2x3 a, int2x3 b) { return new((a._m00 != b._m00)?1:0, (a._m01 != b._m01)?1:0, (a._m02 != b._m02)?1:0, (a._m10 != b._m10)?1:0, (a._m11 != b._m11)?1:0, (a._m12 != b._m12)?1:0); }
-	public static int2x3 operator <(int2x3 a, int2x3 b) { return new((a._m00 < b._m00)?1:0, (a._m01 < b._m01)?1:0, (a._m02 < b._m02)?1:0, (a._m10 < b._m10)?1:0, (a._m11 < b._m11)?1:0, (a._m12 < b._m12)?1:0); }
-	public static int2x3 operator <=(int2x3 a, int2x3 b) { return new((a._m00 <= b._m00)?1:0, (a._m01 <= b._m01)?1:0, (a._m02 <= b._m02)?1:0, (a._m10 <= b._m10)?1:0, (a._m11 <= b._m11)?1:0, (a._m12 <= b._m12)?1:0); }
-	public static int2x3 operator >=(int2x3 a, int2x3 b) { return new((a._m00 >= b._m00)?1:0, (a._m01 >= b._m01)?1:0, (a._m02 >= b._m02)?1:0, (a._m10 >= b._m10)?1:0, (a._m11 >= b._m11)?1:0, (a._m12 >= b._m12)?1:0); }
-	public static int2x3 operator >(int2x3 a, int2x3 b) { return new((a._m00 > b._m00)?1:0, (a._m01 > b._m01)?1:0, (a._m02 > b._m02)?1:0, (a._m10 > b._m10)?1:0, (a._m11 > b._m11)?1:0, (a._m12 > b._m12)?1:0); }
+	public static int2x3 operator ==(int2x3 a, int2x3 b) { return new(a._m00 == b._m00?1:0, a._m01 == b._m01?1:0, a._m02 == b._m02?1:0, a._m10 == b._m10?1:0, a._m11 == b._m11?1:0, a._m12 == b._m12?1:0); }
+	public static int2x3 operator !=(int2x3 a, int2x3 b) { return new(a._m00 != b._m00?1:0, a._m01 != b._m01?1:0, a._m02 != b._m02?1:0, a._m10 != b._m10?1:0, a._m11 != b._m11?1:0, a._m12 != b._m12?1:0); }
+	public static int2x3 operator <(int2x3 a, int2x3 b) { return new(a._m00 < b._m00?1:0, a._m01 < b._m01?1:0, a._m02 < b._m02?1:0, a._m10 < b._m10?1:0, a._m11 < b._m11?1:0, a._m12 < b._m12?1:0); }
+	public static int2x3 operator <=(int2x3 a, int2x3 b) { return new(a._m00 <= b._m00?1:0, a._m01 <= b._m01?1:0, a._m02 <= b._m02?1:0, a._m10 <= b._m10?1:0, a._m11 <= b._m11?1:0, a._m12 <= b._m12?1:0); }
+	public static int2x3 operator >=(int2x3 a, int2x3 b) { return new(a._m00 >= b._m00?1:0, a._m01 >= b._m01?1:0, a._m02 >= b._m02?1:0, a._m10 >= b._m10?1:0, a._m11 >= b._m11?1:0, a._m12 >= b._m12?1:0); }
+	public static int2x3 operator >(int2x3 a, int2x3 b) { return new(a._m00 > b._m00?1:0, a._m01 > b._m01?1:0, a._m02 > b._m02?1:0, a._m10 > b._m10?1:0, a._m11 > b._m11?1:0, a._m12 > b._m12?1:0); }
 	public override string ToString() { return
-		$"(({this._m00}, {this._m01}, {this._m02}), ({this._m10}, {this._m11}, {this._m12}))"; }
+		$"(({_m00}, {_m01}, {_m02}), ({_m10}, {_m11}, {_m12}))"; }
 }
 }

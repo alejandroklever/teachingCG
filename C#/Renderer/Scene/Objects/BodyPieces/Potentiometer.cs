@@ -12,9 +12,9 @@ namespace Renderer.Scene
             var disc = MyManifold<V>.Disc(roundness, 1, .75f * up, .8f);
 
             // Mesh = Join(bottomMesh, topMesh, disc).Weld();
-            
+
             var mesh = Join(bottomMesh, topMesh, disc).Weld();
-            Add(mesh, Materials.Glass);
+            AddMesh(mesh, Materials.Default);
             
             UpdateTranslation(zero);
         }

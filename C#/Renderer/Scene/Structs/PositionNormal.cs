@@ -29,10 +29,10 @@ namespace Renderer.Scene
 
         public PositionNormal Transform(float4x4 matrix)
         {
-            float4 p = float4(Position, 1);
+            var p = float4(Position, 1);
             p = mul(p, matrix);
                 
-            float4 n = float4(Normal, 0);
+            var n = float4(Normal, 0);
             n = mul(n, matrix);
 
             return new PositionNormal

@@ -13,11 +13,11 @@ namespace Renderer.Scene
         private readonly float3 leftScrewPoint = 2.5f * left;
         private readonly float3 rightScrewPoint = 2.5f * right;
         
-        private int baseCylinderRoundness = 20;
+        private int baseCylinderRoundness = 12;
         private const float baseCylinderHeight = .5f;
         private const float baseCylinderRadio = 1f;
 
-        private int lateralRoundness = 20;
+        private int lateralRoundness = 12;
         private const float lateralRadio = .75f;
         private const float railsContainerHeight = .5f;
         private const float railsContainerBottomY = baseCylinderHeight;
@@ -57,23 +57,14 @@ namespace Renderer.Scene
             var lateral = Join(leftLateral, rightLateral, lateralCenter, lateralInside).Weld();
             
             
-            Add(cylinderLeft, Materials.Default);
-            Add(cylinderRight,Materials.Default);
-            Add(lateral, Materials.Default);
+            AddMesh(cylinderLeft, Materials.Metallic);
+            AddMesh(cylinderRight,Materials.Metallic);
+            AddMesh(lateral, Materials.Metallic);
 
             var octavers = GenerateOctavers();
             foreach (var mesh in octavers)
-                Add(mesh, Materials.Default);
-
-            // Mesh = Join(
-            //     cylinderLeft,
-            //     cylinderRight,
-            //     leftLateral,
-            //     rightLateral,
-            //     lateralCenter,
-            //     Join(meshes.ToArray()),
-            //     InsideMesh()
-            // ).Weld();
+                AddMesh(mesh, Materials.Metallic);
+            
             UpdateTranslation(zero);
         }
 

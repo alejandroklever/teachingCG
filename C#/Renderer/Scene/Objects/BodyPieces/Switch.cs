@@ -1,6 +1,5 @@
 ﻿using Rendering;
 using static GMath.Gfx;
-using static Renderer.Scene.MeshTools;
 
 namespace Renderer.Scene
 {
@@ -21,12 +20,11 @@ namespace Renderer.Scene
             );
             var head = MyManifold<V>.Revolution(4, roundness, t => bezier.GetPoint(t), up).Weld();
 
-            Add(washer, Materials.Default);
-            Add(input, Materials.Default);
-            Add(stick, Materials.Default);
-            Add(head, Materials.Default);
+            AddMesh(washer, Materials.Metallic);
+            AddMesh(input, Materials.Metallic);
+            AddMesh(stick, Materials.Metallic);
+            AddMesh(head, Materials.SandyMaterial);
             
-            // Mesh = Join(washer, input, stick, head);
             UpdateTranslation(zero);
         }
     }

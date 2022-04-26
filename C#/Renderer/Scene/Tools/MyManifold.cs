@@ -6,7 +6,7 @@ using float3 = GMath.float3;
 
 namespace Renderer.Scene
 {
-    public class MyManifold<V>: Manifold<V> where V : struct, INormalVertex<V>, ICoordinatesVertex<V>
+    public class MyManifold<V> : Manifold<V> where V : struct, INormalVertex<V>, ICoordinatesVertex<V>
     {
         public static Mesh<V> SurfaceDiscrete(int slices, int stacks, Func<int, int, float3> generating)
         {
@@ -26,11 +26,11 @@ namespace Renderer.Scene
             {
                 indices[index++] = i * (slices + 1) + j;
                 indices[index++] = (i + 1) * (slices + 1) + j;
-                indices[index++] = (i + 1) * (slices + 1) + (j + 1);
+                indices[index++] = (i + 1) * (slices + 1) + j + 1;
 
                 indices[index++] = i * (slices + 1) + j;
-                indices[index++] = (i + 1) * (slices + 1) + (j + 1);
-                indices[index++] = i * (slices + 1) + (j + 1);
+                indices[index++] = (i + 1) * (slices + 1) + j + 1;
+                indices[index++] = i * (slices + 1) + j + 1;
             }
 
             return new Mesh<V>(vertices, indices);
@@ -57,7 +57,7 @@ namespace Renderer.Scene
         public static Mesh<V> ImprovedLofted(int slices, int stacks, Func<float, float3> g1, Func<float, float3> g2,
             Func<float3, float3, float, float3> h)
         {
-           return Surface(slices, stacks, (u, v) => h(g1(u), g2(u), v));
+            return Surface(slices, stacks, (u, v) => h(g1(u), g2(u), v));
         }
 
         public static Mesh<V> HoledCylinder(int slices, int stacks, float3 pos, float innerRadio, float outerRadio,
@@ -84,11 +84,11 @@ namespace Renderer.Scene
 
             if (!createDiscs)
                 return MeshTools.Join(m1, m2);
-            
+
             var m3 = Lofted(slices, stacks,
                 u => g(u, outerRadio) + height * float3.up,
                 v => g(v, innerRadio) + height * float3.up);
-            
+
             if (createTopDiscOnly) return MeshTools.Join(m1, m2, m3);
 
             var m4 = Lofted(slices, stacks,
@@ -97,7 +97,7 @@ namespace Renderer.Scene
 
             return MeshTools.Join(m1, m2, m3, m4);
         }
-        
+
         public static Mesh<V> Cylinder(int slices, int stacks, float3 pos, float radio, float height,
             (float a, float b)? interval = null, bool createDiscs = true, bool createTopDiscOnly = false)
         {
@@ -120,14 +120,14 @@ namespace Renderer.Scene
 
             if (createTopDiscOnly)
                 return mesh.Concat(Disc(slices, stacks, pos + height * float3.up, radio, interval));
-            
+
             return mesh.Concat(
                 Disc(slices, stacks, pos + height * float3.up, radio, interval)).Concat(
                 Disc(slices, stacks, pos, radio, (b, a))
             );
         }
 
-        public static Mesh<V> Cone(int slices, int stacks, float3 pos, float bottomRadio, float topRadio,float height,
+        public static Mesh<V> Cone(int slices, int stacks, float3 pos, float bottomRadio, float topRadio, float height,
             (float a, float b)? interval = null, bool createDiscs = true)
         {
             interval ??= (0, two_pi);
@@ -157,7 +157,7 @@ namespace Renderer.Scene
                     )
             );
         }
-        
+
         public static Mesh<V> Disc(int slices, int stacks, float3 pos, float radio, (float a, float b)? interval = null)
         {
             interval ??= (0, two_pi);
@@ -178,7 +178,7 @@ namespace Renderer.Scene
                     .Mesh.Transform(Transforms.Scale(1f / (4 * roundness) * float3.one));
             return new Cube<V>(Transform.Default, 1, 1, 1).Mesh;
         }
-        
+
         public static Mesh<V> UnitaryCube(float3 pos, int roundness)
         {
             Mesh<V> mesh;
@@ -189,9 +189,10 @@ namespace Renderer.Scene
             return mesh.Transform(Transforms.Translate(pos - mesh.Center()));
         }
 
-        public static Mesh<V> Cube(float3 position, int width, int height, int depth, int roundness)
+        public static Mesh<V> Cube(float3 position, int width, int height, int depth, int roundness,
+            bool reduceTriangles = true)
         {
-            var mesh =  new Cube<V>(Transform.Default, width, height, depth, roundness)
+            var mesh = new Cube<V>(Transform.Default, width, height, depth, roundness, reduceTriangles)
                 .Mesh;
 
             return mesh.Transform(mul(Transforms.Translate(position - mesh.Center()), Transforms.Scale(float3.one)));

@@ -15,16 +15,16 @@ namespace Renderer.Scene
         
         private const float baseHeight = .5f;
         
-        private const int topRoundness = 3;
+        private const int topRoundness = 6;
         
-        private const int lateralRoundness = 3;
+        private const int lateralRoundness = 10;
         private const float lateralRadio = 1f;
         
-        private const int screwRoundness = 6;
+        private const int screwRoundness = 8;
         private const float screwHeight = .75f;
         private const float screwRadio = .75f;
 
-        private bool renderBottom;
+        private readonly bool renderBottom;
 
         public Bridge(Transform transform, bool renderBottom = true) : base(transform)
         {
@@ -51,9 +51,9 @@ namespace Renderer.Scene
 
             var body = Join(leftMesh, rightMesh, lateralMesh, topMesh).Weld();
 
-            Add(leftScrew, Materials.Default);
-            Add(rightScrew, Materials.Default);
-            Add(body, Materials.Default);
+            AddMesh(leftScrew, Materials.Metallic);
+            AddMesh(rightScrew, Materials.Metallic);
+            AddMesh(body, Materials.Metallic);
 
             // Mesh = Join(leftMesh, rightMesh, lateralMesh, topMesh, leftScrew, rightScrew).Weld();
 

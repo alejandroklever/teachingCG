@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using GMath;
@@ -30,13 +31,13 @@ namespace Renderer.Scene
 
         public void AddMeshesToScene(Scene<V, Material> scene)
         {
-            foreach (var (mesh, material) in (meshes).Zip(materials))
+            foreach (var (mesh, material) in meshes.Zip(materials))
             {
                 scene.Add(mesh.AsRaycast(), material, Transforms.Identity);
             }
         }
 
-        public void Add(Mesh<V> mesh, Material material)
+        public void AddMesh(Mesh<V> mesh, Material material)
         {
             meshes.Add(mesh);
             materials.Add(material);
@@ -74,7 +75,10 @@ namespace Renderer.Scene
         public void Log(string id = "")
         {
             return;
-            // Mesh.Log(id);
+            id = string.IsNullOrEmpty(id) ? $"mesh {GetHashCode()}" : id;
+            Console.WriteLine($"{id} data:");
+            Console.WriteLine($"  - {meshes.Sum(m => m.Vertices.Length)} points");
+            Console.WriteLine($"  - {meshes.Sum(m => m.Indices.Length / 3)} polygons");
         }
 
         public void UpdateTranslation()

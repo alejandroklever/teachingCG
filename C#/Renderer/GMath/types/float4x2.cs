@@ -45,13 +45,13 @@ public struct float4x2{
 	public static float4x2 operator -(float4x2 a, float4x2 b) { return new(a._m00 - b._m00,a._m01 - b._m01,a._m10 - b._m10,a._m11 - b._m11,a._m20 - b._m20,a._m21 - b._m21,a._m30 - b._m30,a._m31 - b._m31); }
 	public static float4x2 operator /(float4x2 a, float4x2 b) { return new(a._m00 / b._m00,a._m01 / b._m01,a._m10 / b._m10,a._m11 / b._m11,a._m20 / b._m20,a._m21 / b._m21,a._m30 / b._m30,a._m31 / b._m31); }
 	public static float4x2 operator %(float4x2 a, float4x2 b) { return new(a._m00 % b._m00,a._m01 % b._m01,a._m10 % b._m10,a._m11 % b._m11,a._m20 % b._m20,a._m21 % b._m21,a._m30 % b._m30,a._m31 % b._m31); }
-	public static int4x2 operator ==(float4x2 a, float4x2 b) { return new((a._m00 == b._m00)?1:0, (a._m01 == b._m01)?1:0, (a._m10 == b._m10)?1:0, (a._m11 == b._m11)?1:0, (a._m20 == b._m20)?1:0, (a._m21 == b._m21)?1:0, (a._m30 == b._m30)?1:0, (a._m31 == b._m31)?1:0); }
-	public static int4x2 operator !=(float4x2 a, float4x2 b) { return new((a._m00 != b._m00)?1:0, (a._m01 != b._m01)?1:0, (a._m10 != b._m10)?1:0, (a._m11 != b._m11)?1:0, (a._m20 != b._m20)?1:0, (a._m21 != b._m21)?1:0, (a._m30 != b._m30)?1:0, (a._m31 != b._m31)?1:0); }
-	public static int4x2 operator <(float4x2 a, float4x2 b) { return new((a._m00 < b._m00)?1:0, (a._m01 < b._m01)?1:0, (a._m10 < b._m10)?1:0, (a._m11 < b._m11)?1:0, (a._m20 < b._m20)?1:0, (a._m21 < b._m21)?1:0, (a._m30 < b._m30)?1:0, (a._m31 < b._m31)?1:0); }
-	public static int4x2 operator <=(float4x2 a, float4x2 b) { return new((a._m00 <= b._m00)?1:0, (a._m01 <= b._m01)?1:0, (a._m10 <= b._m10)?1:0, (a._m11 <= b._m11)?1:0, (a._m20 <= b._m20)?1:0, (a._m21 <= b._m21)?1:0, (a._m30 <= b._m30)?1:0, (a._m31 <= b._m31)?1:0); }
-	public static int4x2 operator >=(float4x2 a, float4x2 b) { return new((a._m00 >= b._m00)?1:0, (a._m01 >= b._m01)?1:0, (a._m10 >= b._m10)?1:0, (a._m11 >= b._m11)?1:0, (a._m20 >= b._m20)?1:0, (a._m21 >= b._m21)?1:0, (a._m30 >= b._m30)?1:0, (a._m31 >= b._m31)?1:0); }
-	public static int4x2 operator >(float4x2 a, float4x2 b) { return new((a._m00 > b._m00)?1:0, (a._m01 > b._m01)?1:0, (a._m10 > b._m10)?1:0, (a._m11 > b._m11)?1:0, (a._m20 > b._m20)?1:0, (a._m21 > b._m21)?1:0, (a._m30 > b._m30)?1:0, (a._m31 > b._m31)?1:0); }
+	public static int4x2 operator ==(float4x2 a, float4x2 b) { return new(a._m00 == b._m00?1:0, a._m01 == b._m01?1:0, a._m10 == b._m10?1:0, a._m11 == b._m11?1:0, a._m20 == b._m20?1:0, a._m21 == b._m21?1:0, a._m30 == b._m30?1:0, a._m31 == b._m31?1:0); }
+	public static int4x2 operator !=(float4x2 a, float4x2 b) { return new(a._m00 != b._m00?1:0, a._m01 != b._m01?1:0, a._m10 != b._m10?1:0, a._m11 != b._m11?1:0, a._m20 != b._m20?1:0, a._m21 != b._m21?1:0, a._m30 != b._m30?1:0, a._m31 != b._m31?1:0); }
+	public static int4x2 operator <(float4x2 a, float4x2 b) { return new(a._m00 < b._m00?1:0, a._m01 < b._m01?1:0, a._m10 < b._m10?1:0, a._m11 < b._m11?1:0, a._m20 < b._m20?1:0, a._m21 < b._m21?1:0, a._m30 < b._m30?1:0, a._m31 < b._m31?1:0); }
+	public static int4x2 operator <=(float4x2 a, float4x2 b) { return new(a._m00 <= b._m00?1:0, a._m01 <= b._m01?1:0, a._m10 <= b._m10?1:0, a._m11 <= b._m11?1:0, a._m20 <= b._m20?1:0, a._m21 <= b._m21?1:0, a._m30 <= b._m30?1:0, a._m31 <= b._m31?1:0); }
+	public static int4x2 operator >=(float4x2 a, float4x2 b) { return new(a._m00 >= b._m00?1:0, a._m01 >= b._m01?1:0, a._m10 >= b._m10?1:0, a._m11 >= b._m11?1:0, a._m20 >= b._m20?1:0, a._m21 >= b._m21?1:0, a._m30 >= b._m30?1:0, a._m31 >= b._m31?1:0); }
+	public static int4x2 operator >(float4x2 a, float4x2 b) { return new(a._m00 > b._m00?1:0, a._m01 > b._m01?1:0, a._m10 > b._m10?1:0, a._m11 > b._m11?1:0, a._m20 > b._m20?1:0, a._m21 > b._m21?1:0, a._m30 > b._m30?1:0, a._m31 > b._m31?1:0); }
 	public override string ToString() { return
-		$"(({this._m00}, {this._m01}), ({this._m10}, {this._m11}), ({this._m20}, {this._m21}), ({this._m30}, {this._m31}))"; }
+		$"(({_m00}, {_m01}), ({_m10}, {_m11}), ({_m20}, {_m21}), ({_m30}, {_m31}))"; }
 }
 }

@@ -1,33 +1,41 @@
-﻿using GMath;
-using Rendering;
+﻿using Rendering;
 using System;
 using System.Diagnostics;
 using static GMath.Gfx;
 using System.IO;
 using Renderer.Scene;
+using float3 = GMath.float3;
 
 namespace Renderer
 {
     internal static class Program
     {
-        // Scene Setup
-        private static readonly int N = pow(2, 7);
-        private static readonly float3 Target = float3(5, 5f, -5);
-        private static readonly float3 CameraPosition = float3(15, 10f, -15f);
-        private static readonly float3 LightPosition = float3(7f, 12f, -7f);
-        private static readonly float3 LightIntensity = float3(1f, 1f, 1f) * 750;
+        private static readonly int N = pow(2, 8);
+        private static readonly float3 Target = float3(5, 7, -5);
+        private static readonly float3 CameraPosition = float3(15, 6, -25);
 
+        private static readonly float3[] LightsPositions =
+        {
+            float3(15, 20, -13),
+        };
+        private static readonly float3[] LightsIntensities =
+        {
+            float3(1f, 1f, 1f) * 3000,
+        };
+        
         public static void Main(string[] args)
         {
             // Texture to output the image.
-            Texture2D texture = new Texture2D(N, N);
+            var texture = new Texture2D(N, N);
 
-            bool UseRT = args.Length == 0 || args[0] == "0";
-            if (UseRT)
+            Algorithms.CreateScene = Scenes.CreateMeshScene;
+
+            var useRT = args.Length == 0 || args[0] == "0";
+            if (useRT)
             {
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
-                Algorithms.Raytracing(texture, CameraPosition, Target, LightPosition, LightIntensity);
+                Algorithms.Raytracing(texture, CameraPosition, Target, LightsPositions, LightsIntensities);
                 stopwatch.Stop();
                 texture.Save("test0.rbm");
                 Console.WriteLine("Done.\nRendered in " + stopwatch.ElapsedMilliseconds / 1000f + " seconds");
@@ -35,13 +43,13 @@ namespace Renderer
             }
             else
             {
-                int pass = 0;
-                Stopwatch sw = new Stopwatch();
+                var pass = 0;
+                var sw = new Stopwatch();
                 while (true)
                 {
                     Console.WriteLine("Pass: " + pass + $" in {sw.ElapsedMilliseconds / 1000f} seconds");
                     sw.Restart();
-                    Algorithms.Pathtracing(texture, pass, CameraPosition, Target, LightPosition, LightIntensity);
+                    Algorithms.Pathtracing(texture, pass, CameraPosition, Target, LightsPositions, LightsIntensities);
                     sw.Stop();
                     texture.Save("test1.rbm");
                     pass++;

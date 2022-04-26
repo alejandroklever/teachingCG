@@ -20,11 +20,11 @@ namespace GMath
 
         public bool Intersect(Ray3D ray, out float minT, out float maxT)
         {
-            float a = dot(mul(ray.D, Q), ray.D);
-            float b = 2 * dot(mul(ray.X, Q), ray.D) + dot(ray.D, P);
-            float c = dot(mul(ray.X, Q), ray.X) + dot(ray.X, P) + R;
+            var a = dot(mul(ray.D, Q), ray.D);
+            var b = 2 * dot(mul(ray.X, Q), ray.D) + dot(ray.D, P);
+            var c = dot(mul(ray.X, Q), ray.X) + dot(ray.X, P) + R;
 
-            float D = b * b - 4 * a * c;
+            var D = b * b - 4 * a * c;
             if (D < 0)
             {
                 minT = maxT = float.NaN;

@@ -62,8 +62,8 @@ namespace Rendering
 		/// <param name="alpha">value in radian for rotation</param>
 		public static float4x4 RotateZ(float alpha)
 		{
-			float c = cos(alpha);
-			float s = sin(alpha);
+			var c = cos(alpha);
+			var s = sin(alpha);
 			return float4x4(
 				c, -s, 0, 0,
 				s, c, 0, 0,
@@ -87,8 +87,8 @@ namespace Rendering
 		/// <param name="alpha">value in radian for rotation</param>
 		public static float4x4 RotateY(float alpha)
 		{
-			float c = cos(alpha);
-			float s = sin(alpha);
+			var c = cos(alpha);
+			var s = sin(alpha);
 			return float4x4(
 				c, 0, -s, 0,
 				0, 1, 0, 0,
@@ -112,8 +112,8 @@ namespace Rendering
 		/// <param name="alpha">value in radian for rotation</param>
 		public static float4x4 RotateX(float alpha)
 		{
-			float c = cos(alpha);
-			float s = sin(alpha);
+			var c = cos(alpha);
+			var s = sin(alpha);
 			return float4x4(
 				1, 0, 0, 0,
 				0, c, -s, 0,
@@ -133,11 +133,11 @@ namespace Rendering
 
 		public static float4x4 Rotate(float angle, float3 dir)
 		{
-			float x = dir.x;
-			float y = dir.y;
-			float z = dir.z;
-			float cos = Gfx.cos(angle);
-			float sin = Gfx.sin(angle);
+			var x = dir.x;
+			var y = dir.y;
+			var z = dir.z;
+			var cos = Gfx.cos(angle);
+			var sin = Gfx.sin(angle);
 
 			return float4x4(
 				x * x * (1 - cos) + cos, y * x * (1 - cos) + z * sin, z * x * (1 - cos) - y * sin, 0,
@@ -191,9 +191,9 @@ namespace Rendering
 
 		public static float4x4 LookAtLH(float3 camera, float3 target, float3 upVector)
 		{
-			float3 zaxis = normalize(target - camera);
-			float3 xaxis = normalize(cross(upVector, zaxis));
-			float3 yaxis = cross(zaxis, xaxis);
+			var zaxis = normalize(target - camera);
+			var xaxis = normalize(cross(upVector, zaxis));
+			var yaxis = cross(zaxis, xaxis);
 
 			return float4x4(
 				xaxis.x, yaxis.x, zaxis.x, 0,
@@ -204,9 +204,9 @@ namespace Rendering
 
 		public static float4x4 LookAtRH(float3 camera, float3 target, float3 upVector)
 		{
-			float3 zaxis = normalize(camera - target);
-			float3 xaxis = normalize(cross(upVector, zaxis));
-			float3 yaxis = cross(zaxis, xaxis);
+			var zaxis = normalize(camera - target);
+			var xaxis = normalize(cross(upVector, zaxis));
+			var yaxis = cross(zaxis, xaxis);
 
 			return float4x4(
 				xaxis.x, yaxis.x, zaxis.x, 0,
@@ -221,8 +221,8 @@ namespace Rendering
 
 		public static float4x4 PerspectiveFovLH(float fieldOfView, float aspectRatio, float znearPlane, float zfarPlane)
 		{
-			float h = 1.0f / tan(fieldOfView / 2);
-			float w = h * aspectRatio;
+			var h = 1.0f / tan(fieldOfView / 2);
+			var w = h * aspectRatio;
 
 			return float4x4(
 				w, 0, 0, 0,
@@ -233,8 +233,8 @@ namespace Rendering
 
 		public static float4x4 PerspectiveFovRH(float fieldOfView, float aspectRatio, float znearPlane, float zfarPlane)
 		{
-			float h = 1.0f / tan(fieldOfView / 2);
-			float w = h * aspectRatio;
+			var h = 1.0f / tan(fieldOfView / 2);
+			var w = h * aspectRatio;
 
 			return float4x4(
 				w, 0, 0, 0,

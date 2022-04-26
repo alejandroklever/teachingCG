@@ -3,18 +3,18 @@ public struct int3{
 	public int x;
 	public int y;
 	public int z;
-	public int2 xy { get { return new(this.x, this.y); } }
+	public int2 xy { get { return new(x, y); } }
 	public int this[int idx] {
 		get{
-			if(idx == 0) return this.x;
-			if(idx == 1) return this.y;
-			if(idx == 2) return this.z;
+			if(idx == 0) return x;
+			if(idx == 1) return y;
+			if(idx == 2) return z;
 			return 0; // Silent return ... valid for HLSL
 		}
 		set{
-			if(idx == 0) this.x = value;
-			if(idx == 1) this.y = value;
-			if(idx == 2) this.z = value;
+			if(idx == 0) x = value;
+			if(idx == 1) y = value;
+			if(idx == 2) z = value;
 		}
 	}
 		public int3(int x, int y, int z)
@@ -46,12 +46,12 @@ public struct int3{
 	public static int3 operator &(int3 a, int3 b) { return new(a.x & b.x,a.y & b.y,a.z & b.z); }
 	public static int3 operator |(int3 a, int3 b) { return new(a.x | b.x,a.y | b.y,a.z | b.z); }
 	public static int3 operator ^(int3 a, int3 b) { return new(a.x ^ b.x,a.y ^ b.y,a.z ^ b.z); }
-	public static int3 operator ==(int3 a, int3 b) { return new((a.x == b.x)?1:0, (a.y == b.y)?1:0, (a.z == b.z)?1:0); }
-	public static int3 operator !=(int3 a, int3 b) { return new((a.x != b.x)?1:0, (a.y != b.y)?1:0, (a.z != b.z)?1:0); }
-	public static int3 operator <(int3 a, int3 b) { return new((a.x < b.x)?1:0, (a.y < b.y)?1:0, (a.z < b.z)?1:0); }
-	public static int3 operator <=(int3 a, int3 b) { return new((a.x <= b.x)?1:0, (a.y <= b.y)?1:0, (a.z <= b.z)?1:0); }
-	public static int3 operator >=(int3 a, int3 b) { return new((a.x >= b.x)?1:0, (a.y >= b.y)?1:0, (a.z >= b.z)?1:0); }
-	public static int3 operator >(int3 a, int3 b) { return new((a.x > b.x)?1:0, (a.y > b.y)?1:0, (a.z > b.z)?1:0); }
-	public override string ToString() { return $"({this.x}, {this.y}, {this.z})"; }
+	public static int3 operator ==(int3 a, int3 b) { return new(a.x == b.x?1:0, a.y == b.y?1:0, a.z == b.z?1:0); }
+	public static int3 operator !=(int3 a, int3 b) { return new(a.x != b.x?1:0, a.y != b.y?1:0, a.z != b.z?1:0); }
+	public static int3 operator <(int3 a, int3 b) { return new(a.x < b.x?1:0, a.y < b.y?1:0, a.z < b.z?1:0); }
+	public static int3 operator <=(int3 a, int3 b) { return new(a.x <= b.x?1:0, a.y <= b.y?1:0, a.z <= b.z?1:0); }
+	public static int3 operator >=(int3 a, int3 b) { return new(a.x >= b.x?1:0, a.y >= b.y?1:0, a.z >= b.z?1:0); }
+	public static int3 operator >(int3 a, int3 b) { return new(a.x > b.x?1:0, a.y > b.y?1:0, a.z > b.z?1:0); }
+	public override string ToString() { return $"({x}, {y}, {z})"; }
 }
 }

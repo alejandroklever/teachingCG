@@ -25,12 +25,12 @@ public struct float2x1{
 	public static float2x1 operator -(float2x1 a, float2x1 b) { return new(a._m00 - b._m00,a._m10 - b._m10); }
 	public static float2x1 operator /(float2x1 a, float2x1 b) { return new(a._m00 / b._m00,a._m10 / b._m10); }
 	public static float2x1 operator %(float2x1 a, float2x1 b) { return new(a._m00 % b._m00,a._m10 % b._m10); }
-	public static int2x1 operator ==(float2x1 a, float2x1 b) { return new((a._m00 == b._m00)?1:0, (a._m10 == b._m10)?1:0); }
-	public static int2x1 operator !=(float2x1 a, float2x1 b) { return new((a._m00 != b._m00)?1:0, (a._m10 != b._m10)?1:0); }
-	public static int2x1 operator <(float2x1 a, float2x1 b) { return new((a._m00 < b._m00)?1:0, (a._m10 < b._m10)?1:0); }
-	public static int2x1 operator <=(float2x1 a, float2x1 b) { return new((a._m00 <= b._m00)?1:0, (a._m10 <= b._m10)?1:0); }
-	public static int2x1 operator >=(float2x1 a, float2x1 b) { return new((a._m00 >= b._m00)?1:0, (a._m10 >= b._m10)?1:0); }
-	public static int2x1 operator >(float2x1 a, float2x1 b) { return new((a._m00 > b._m00)?1:0, (a._m10 > b._m10)?1:0); }
-	public override string ToString() { return $"(({this._m00}), ({this._m10}))"; }
+	public static int2x1 operator ==(float2x1 a, float2x1 b) { return new(a._m00 == b._m00?1:0, a._m10 == b._m10?1:0); }
+	public static int2x1 operator !=(float2x1 a, float2x1 b) { return new(a._m00 != b._m00?1:0, a._m10 != b._m10?1:0); }
+	public static int2x1 operator <(float2x1 a, float2x1 b) { return new(a._m00 < b._m00?1:0, a._m10 < b._m10?1:0); }
+	public static int2x1 operator <=(float2x1 a, float2x1 b) { return new(a._m00 <= b._m00?1:0, a._m10 <= b._m10?1:0); }
+	public static int2x1 operator >=(float2x1 a, float2x1 b) { return new(a._m00 >= b._m00?1:0, a._m10 >= b._m10?1:0); }
+	public static int2x1 operator >(float2x1 a, float2x1 b) { return new(a._m00 > b._m00?1:0, a._m10 > b._m10?1:0); }
+	public override string ToString() { return $"(({_m00}), ({_m10}))"; }
 }
 }

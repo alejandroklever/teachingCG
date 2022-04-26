@@ -71,8 +71,8 @@ namespace GMath
         {
             while (true)
             {
-                float3 x = random3(-1, 1);
-                float lsqr = dot(x, x);
+                var x = random3(-1, 1);
+                var lsqr = dot(x, x);
                 if (lsqr > 0.01 && lsqr < 1)
                     return normalize(x);// randomHSDirection(x / sqrt(lsqr), s);
             }
@@ -84,14 +84,14 @@ namespace GMath
         /// </summary>
         public float3 randomDirection(float3 D)
         {
-            float r1 = random();
-            float r2 = random() * 2 - 1;
-            float sqrR2 = r2 * r2;
-            float two_pi_by_r1 = two_pi * r1;
-            float sqrt_of_one_minus_sqrR2 = sqrt(1.0f - sqrR2);
-            float x = cos(two_pi_by_r1) * sqrt_of_one_minus_sqrR2;
-            float y = sin(two_pi_by_r1) * sqrt_of_one_minus_sqrR2;
-            float z = r2;
+            var r1 = random();
+            var r2 = random() * 2 - 1;
+            var sqrR2 = r2 * r2;
+            var two_pi_by_r1 = two_pi * r1;
+            var sqrt_of_one_minus_sqrR2 = sqrt(1.0f - sqrR2);
+            var x = cos(two_pi_by_r1) * sqrt_of_one_minus_sqrR2;
+            var y = sin(two_pi_by_r1) * sqrt_of_one_minus_sqrR2;
+            var z = r2;
 
             float3 t0, t1;
             createOrthoBasis(D, out t0, out t1);
@@ -104,17 +104,17 @@ namespace GMath
         /// </summary>
         public float3 randomHSDirection(float3 N, out float NdotD)
         {
-            float r1 = random();
-            float r2 = random() * 2 - 1;
-            float sqrR2 = r2 * r2;
-            float two_pi_by_r1 = two_pi * r1;
-            float sqrt_of_one_minus_sqrR2 = sqrt(1.0f - sqrR2);
-            float x = cos(two_pi_by_r1) * sqrt_of_one_minus_sqrR2;
-            float y = sin(two_pi_by_r1) * sqrt_of_one_minus_sqrR2;
-            float z = r2;
-            float3 d = float3(x, y, z);
+            var r1 = random();
+            var r2 = random() * 2 - 1;
+            var sqrR2 = r2 * r2;
+            var two_pi_by_r1 = two_pi * r1;
+            var sqrt_of_one_minus_sqrR2 = sqrt(1.0f - sqrR2);
+            var x = cos(two_pi_by_r1) * sqrt_of_one_minus_sqrR2;
+            var y = sin(two_pi_by_r1) * sqrt_of_one_minus_sqrR2;
+            var z = r2;
+            var d = float3(x, y, z);
             NdotD = dot(N, d);
-            d *= (NdotD < 0 ? -1 : 1);
+            d *= NdotD < 0 ? -1 : 1;
             NdotD *= NdotD < 0 ? -1 : 1;
             return d;
         }
@@ -136,19 +136,19 @@ namespace GMath
         #region Box-Muller
         float2 BM_2()
         {
-            float u1 = 1.0f - random(); //uniform(0,1] random doubles
-            float u2 = 1.0f - random();
-            float r = sqrt(-2.0f * log(max(0.0000000001f, u1)));
-            float t = 2.0f * pi * u2;
+            var u1 = 1.0f - random(); //uniform(0,1] random doubles
+            var u2 = 1.0f - random();
+            var r = sqrt(-2.0f * log(max(0.0000000001f, u1)));
+            var t = 2.0f * pi * u2;
             return r * float2(cos(t), sin(t));
         }
         float4 BM_4()
         {
-            float2 u1 = 1.0f - random2(); //uniform(0,1] random doubles
-            float2 u2 = 1.0f - random2();
+            var u1 = 1.0f - random2(); //uniform(0,1] random doubles
+            var u2 = 1.0f - random2();
 
-            float2 r = sqrt(-2.0f * log(max(0.0000000001f, u1)));
-            float2 t = 2.0f * pi * u2;
+            var r = sqrt(-2.0f * log(max(0.0000000001f, u1)));
+            var t = 2.0f * pi * u2;
             return float4(r.x * cos(t.x), r.x * sin(t.x), r.y * cos(t.y), r.y * sin(t.y));
         }
         #endregion

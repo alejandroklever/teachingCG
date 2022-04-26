@@ -7,12 +7,21 @@
 
   <ItemGroup>
     <None Remove="bumpSample.jpg" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="bumpSample.jpg">
+    <None Update="Assets\Textures\wood.jpeg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
+    <None Update="Assets\Textures\dark_leather.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\Textures\wall.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\Textures\brown_leather.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\Textures\amp_mesh.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -20,15 +29,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="bumpSample.jpg">
+    <Resource Include="Assets\Textures\bumpSample.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="wood.jpeg">
+    <Content Include="Assets\Textures\bumpSample.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
 
 </Project>

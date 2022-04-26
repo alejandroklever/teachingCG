@@ -15,7 +15,7 @@ namespace Renderer.Scene
         
         public Microphone(Transform transform, bool renderBottom = true) : base(transform)
         {
-            var centerCube = new Cube<V>(transform, xSize, ySize, zSize, 1, true, renderBottom);
+            var centerCube = new Cube<V>(transform, xSize, ySize, zSize, 2, false, renderBottom);
             var center = centerCube.Mesh;
 
             var x = centerCube.xSize;
@@ -32,12 +32,7 @@ namespace Renderer.Scene
 
             var ring = Join(ringMeshes)
                 .Weld()
-                .Transform(
-                    Transforms.Translate(.5f * y * float3.up
-                        // Transforms.Scale(float3(1.1f, 1f, 1.1f))
-                    )
-                )
-                ;
+                .Transform(Transforms.Translate(.5f * y * float3.up));
             
             var (tx, _, tz) = ring.Center() - center.Center();
             center = center.Transform(Transforms.Translate(float3(tx, 0, tz)));
@@ -48,7 +43,7 @@ namespace Renderer.Scene
                 var tris = 0;
                 var v = new List<float3>();
                 var i = new List<int>();
-                for (int j = 0; j < center.Indices.Length / 3; j++)
+                for (var j = 0; j < center.Indices.Length / 3; j++)
                 {
                     var p0 = center.Vertices[center.Indices[3 * j + 0]].Position;
                     var p1 = center.Vertices[center.Indices[3 * j + 1]].Position;
@@ -62,14 +57,11 @@ namespace Renderer.Scene
                 center = new Mesh<V>(v.Select(p => new V {Position = p}).ToArray(), i.ToArray());
             }
             
-            // Mesh = ring.Concat(center);
-            // Mesh = Mesh.Transform(Transforms.Translate(-Mesh.Center()));
-
             ring = ring.Transform(Transforms.Translate(-ring.Center()));
             center = center.Transform(Transforms.Translate(-center.Center()));
             
-            Add(ring, Materials.Black);
-            Add(center, Materials.Default);
+            AddMesh(ring, Materials.GlossyBlack);
+            AddMesh(center, Materials.Metallic);
             
             UpdateTranslation(zero);
         }

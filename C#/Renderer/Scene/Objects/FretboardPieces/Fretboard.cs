@@ -8,7 +8,7 @@ namespace Renderer.Scene
 {
     public class Fretboard<V> : SceneObject<V> where V : struct, INormalVertex<V>, ICoordinatesVertex<V>
     {
-        private const float lateralWidth = .1f;
+        private const float lateralWidth = .15f;
         private const int fretRoundness = 3;
 
         public Fretboard(Transform transform, float width, float height, float depth, int fretsCount, int roundness, bool addFrets = true, bool deleteBack = false) :
@@ -17,25 +17,22 @@ namespace Renderer.Scene
             var scale = float3(width, height, depth);
 
             var nut = GenerateNut(scale);
-            var backMesh = GenerateBackMesh(roundness, scale);
-            var generateFrontMesh = GenerateFrontMesh(scale);
+            var frontMesh = GenerateFrontMesh(scale);
             var lateralMesh = GenerateLateralMesh(scale);
             var frets = GenerateFrets(width, height, fretsCount);
 
-            Mesh = MeshTools.Join(generateFrontMesh, lateralMesh,nut);
-
+            AddMesh(frontMesh, Materials.Black);
+            AddMesh(lateralMesh, Materials.White);
+            AddMesh(nut, Materials.White);
+            
             if (addFrets)
-                Mesh = Mesh.Concat(frets);
-            
-            if (!deleteBack)
-                Mesh = Mesh.Concat(backMesh);
-            
+                AddMesh(frets, Materials.FretsColor);
             UpdateTranslation(zero);
         }
 
         private Mesh<V> GenerateNut(float3 scale)
         {
-            var nut = MyManifold<V>.UnitaryCube( back+ 20 * scale.y * up, 1).Transform(Transforms.Scale(.6f, 0.05f, 0.11f));
+            var nut = MyManifold<V>.UnitaryCube(back+ 20 * scale.y * up, 1).Transform(Transforms.Scale(.8f, 0.05f, 0.11f));
             return nut;
         }
 
@@ -105,57 +102,6 @@ namespace Renderer.Scene
                         lerp(-lateralWidth, 0, u)));
 
             return MeshTools.Join(right, left, bottom).Weld();
-        }
-
-        private Mesh<V> GenerateBackMesh(int roundness, float3 scale)
-        {
-            var (x, y, z) = scale;
-            var bTop = new BezierCurve(
-                x * float3.right + y * float3.up,
-                x * float3.right + (y - .25f) * float3.up + .5f * z * float3.forward,
-                x * float3.left + (y - .25f) * float3.up + .5f * z * float3.forward,
-                x * float3.left + y * float3.up);
-
-            var bBottom = new BezierCurve(
-                x * float3.right,
-                2f *  float3.up + (z + .05f) * float3.forward,
-                2f * float3.up + (z + .05f) * float3.forward,
-                x * float3.left);
-
-            var zScale = 1.4f;
-            var bTaco = new BezierCurve(
-                .66f * x * float3.right + zScale * z * float3.forward,
-                .33f * x * float3.right + 1.3f * float3.up + zScale * z * float3.forward,
-                .33f * x * float3.left + 1.3f * float3.up + zScale * z * float3.forward,
-                .66f * x * float3.left + zScale * z * float3.forward);
-
-            return MyManifold<V>.Lofted(roundness, 1,
-                    u => bBottom.GetPoint(u),
-                    v => bTop.GetPoint(v))
-                .Concat(
-                    MyManifold<V>.ImprovedLofted(roundness, 5,
-                        u => bTaco.GetPoint(u),
-                        v => bBottom.GetPoint(v),
-                        (u, v, t) =>
-                        {
-                            var d = distance(u, v);
-                            var b = new BezierCurve(
-                                u,
-                                u + .25f * d * float3.back,
-                                u + .25f * d * float3.back,
-                                v);
-                            return b.GetPoint(t);
-                        }
-                    )
-                )
-                .Concat(
-                    MyManifold<V>.Centred(roundness, 1,  zScale * z * float3.forward,
-                        t => bTaco.GetPoint(t)))
-                .Concat(
-                    MyManifold<V>.Lofted(roundness, 1,
-                        u => bTop.GetPoint(u),
-                        v => x * lerp(float3.right, float3.left, v) + y * float3.up))
-               .Weld();
         }
     }
 }

@@ -39,12 +39,12 @@ namespace Renderer.Scene
 
         public float3 EvalBRDF(PositionNormalCoordinate surfel, float3 wout, float3 win)
         {
-            float3 diffuse = Diffuse * (DiffuseMap == null
+            var diffuse = Diffuse * (DiffuseMap == null
                 ? float3(1, 1, 1)
                 : DiffuseMap.Sample(TextureSampler, surfel.Coordinates).xyz) / pi;
-            float3 H = normalize(win + wout);
-            float3 specular = Specular * pow(max(0, dot(H, surfel.Normal)), SpecularPower) * (SpecularPower + 2) /
-                              two_pi;
+            var H = normalize(win + wout);
+            var specular = Specular * pow(max(0, dot(H, surfel.Normal)), SpecularPower) * (SpecularPower + 2) /
+                           two_pi;
             return diffuse * WeightDiffuse / WeightNormalization + specular * WeightGlossy / WeightNormalization;
         }
 
@@ -53,8 +53,8 @@ namespace Renderer.Scene
         // Uses the Schlick's approximation
         float ComputeFresnel(float NdotL, float ratio)
         {
-            float f = pow((1 - ratio) / (1 + ratio), 2);
-            return (f + (1.0f - f) * pow((1.0f - NdotL), 5));
+            var f = pow((1 - ratio) / (1 + ratio), 2);
+            return f + (1.0f - f) * pow(1.0f - NdotL, 5);
         }
 
         public IEnumerable<Impulse> GetBRDFImpulses(PositionNormalCoordinate surfel, float3 wout)
@@ -62,26 +62,26 @@ namespace Renderer.Scene
             if (!any(Specular))
                 yield break; // No specular => Ratio == 0
 
-            float NdotL = dot(surfel.Normal, wout);
+            var NdotL = dot(surfel.Normal, wout);
             // Check if ray is entering the medium or leaving
-            bool entering = NdotL > 0;
+            var entering = NdotL > 0;
 
             // Invert all data if leaving
             NdotL = entering ? NdotL : -NdotL;
             surfel.Normal = entering ? surfel.Normal : -surfel.Normal;
-            float ratio =
+            var ratio =
                 entering
-                    ? 1.0f / this.RefractionIndex
-                    : this.RefractionIndex / 1.0f; // 1.0f air refraction index approx
+                    ? 1.0f / RefractionIndex
+                    : RefractionIndex / 1.0f; // 1.0f air refraction index approx
 
             // Reflection vector
-            float3 R = reflect(wout, surfel.Normal);
+            var R = reflect(wout, surfel.Normal);
 
             // Refraction vector
-            float3 T = refract(wout, surfel.Normal, ratio);
+            var T = refract(wout, surfel.Normal, ratio);
 
             // Reflection quantity, (1 - F) will be the refracted quantity.
-            float F = ComputeFresnel(NdotL, ratio);
+            var F = ComputeFresnel(NdotL, ratio);
 
             if (!any(T))
                 F = 1; // total internal reflection (produced with critical angles)
@@ -106,12 +106,12 @@ namespace Renderer.Scene
         /// </summary>
         public ScatteredRay Scatter(PositionNormalCoordinate surfel, float3 w)
         {
-            float selection = random();
+            var selection = random();
             float impulseProb = 0;
 
             foreach (var impulse in GetBRDFImpulses(surfel, w))
             {
-                float pdf = (impulse.Ratio.x + impulse.Ratio.y + impulse.Ratio.z) / 3;
+                var pdf = (impulse.Ratio.x + impulse.Ratio.y + impulse.Ratio.z) / 3;
                 if (selection < pdf) // this impulse is choosen
                     return new ScatteredRay
                     {
@@ -123,7 +123,7 @@ namespace Renderer.Scene
                 impulseProb += pdf;
             }
 
-            float3 wout = randomHSDirection(surfel.Normal);
+            var wout = randomHSDirection(surfel.Normal);
             /// BRDF uniform sampling
             return new ScatteredRay
             {

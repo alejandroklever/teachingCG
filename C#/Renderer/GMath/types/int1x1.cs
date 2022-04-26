@@ -26,12 +26,12 @@ public struct int1x1{
 	public static int1x1 operator &(int1x1 a, int1x1 b) { return new(a._m00 & b._m00); }
 	public static int1x1 operator |(int1x1 a, int1x1 b) { return new(a._m00 | b._m00); }
 	public static int1x1 operator ^(int1x1 a, int1x1 b) { return new(a._m00 ^ b._m00); }
-	public static int1x1 operator ==(int1x1 a, int1x1 b) { return new((a._m00 == b._m00)?1:0); }
-	public static int1x1 operator !=(int1x1 a, int1x1 b) { return new((a._m00 != b._m00)?1:0); }
-	public static int1x1 operator <(int1x1 a, int1x1 b) { return new((a._m00 < b._m00)?1:0); }
-	public static int1x1 operator <=(int1x1 a, int1x1 b) { return new((a._m00 <= b._m00)?1:0); }
-	public static int1x1 operator >=(int1x1 a, int1x1 b) { return new((a._m00 >= b._m00)?1:0); }
-	public static int1x1 operator >(int1x1 a, int1x1 b) { return new((a._m00 > b._m00)?1:0); }
-	public override string ToString() { return $"(({this._m00}))"; }
+	public static int1x1 operator ==(int1x1 a, int1x1 b) { return new(a._m00 == b._m00?1:0); }
+	public static int1x1 operator !=(int1x1 a, int1x1 b) { return new(a._m00 != b._m00?1:0); }
+	public static int1x1 operator <(int1x1 a, int1x1 b) { return new(a._m00 < b._m00?1:0); }
+	public static int1x1 operator <=(int1x1 a, int1x1 b) { return new(a._m00 <= b._m00?1:0); }
+	public static int1x1 operator >=(int1x1 a, int1x1 b) { return new(a._m00 >= b._m00?1:0); }
+	public static int1x1 operator >(int1x1 a, int1x1 b) { return new(a._m00 > b._m00?1:0); }
+	public override string ToString() { return $"(({_m00}))"; }
 }
 }

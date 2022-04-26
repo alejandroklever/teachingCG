@@ -20,8 +20,8 @@ namespace GMath
         /// </summary>
         public static float distanceP2L(float3 p, float3 a, float3 b, out float3 closest)
         {
-            float3 b_a = a - b;
-            float alpha = dot(p - b, b_a) / dot(b_a, b_a);
+            var b_a = a - b;
+            var alpha = dot(p - b, b_a) / dot(b_a, b_a);
             closest = lerp(b, a, alpha);
             return distanceP2P(p, closest);
         }
@@ -31,7 +31,7 @@ namespace GMath
         /// </summary>
         public static float distanceP2L(float3 p, float3 a, float3 b)
         {
-            return distanceP2L(p, a, b, out float3 _);
+            return distanceP2L(p, a, b, out var _);
         }
 
         /// <summary>
@@ -39,8 +39,8 @@ namespace GMath
         /// </summary>
         public static float distanceP2R(float3 p, float3 pos, float3 dir, out float3 closest)
         {
-            float3 b_a = dir;
-            float alpha = dot(p - pos, b_a) / dot(b_a, b_a);
+            var b_a = dir;
+            var alpha = dot(p - pos, b_a) / dot(b_a, b_a);
             closest = pos + dir * max(0, alpha);
             return distanceP2P(p, closest);
         }
@@ -50,7 +50,7 @@ namespace GMath
         /// </summary>
         public static float distanceP2R(float3 p, float3 pos, float3 dir)
         {
-            return distanceP2R(p, pos, dir, out float3 _);
+            return distanceP2R(p, pos, dir, out var _);
         }
 
         /// <summary>
@@ -58,8 +58,8 @@ namespace GMath
         /// </summary>
         public static float distanceP2S(float3 p, float3 a, float3 b, out float3 closest)
         {
-            float3 b_a = a - b;
-            float alpha = dot(p - b, b_a) / dot(b_a, b_a);
+            var b_a = a - b;
+            var alpha = dot(p - b, b_a) / dot(b_a, b_a);
             closest = lerp(b, a, saturate(alpha));
             return distanceP2P(p, closest);
         }
@@ -69,7 +69,7 @@ namespace GMath
         /// </summary>
         public static float distanceP2S(float3 p, float3 a, float3 b)
         {
-            return distanceP2S(p, a, b, out float3 _);
+            return distanceP2S(p, a, b, out var _);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace GMath
         /// </summary>
         public static float distanceP2X(float3 p, float3 P, float3 N)
         {
-            return distanceP2X(p, P, N, out float3 _);
+            return distanceP2X(p, P, N, out var _);
         }
 
         /// <summary>
@@ -94,19 +94,19 @@ namespace GMath
         /// </summary>
         public static float distanceP2T(float3 p, float3 a, float3 b, float3 c, out float3 closest)
         {
-            float3 N = normalize(cross(c - a, b - a));
-            float3 P = a;
+            var N = normalize(cross(c - a, b - a));
+            var P = a;
 
-            float distance = distanceP2X(p, P, N, out closest);
+            var distance = distanceP2X(p, P, N, out closest);
 
-            float3x3 M = float3x3(
+            var M = float3x3(
                 cross(b - c, closest - c),
                 cross(c - a, closest - a),
                 cross(a - b, closest - b)
                 );
 
-            float3 bary = mul(N, transpose(M));
-            bary /= (bary.x + bary.y + bary.z);
+            var bary = mul(N, transpose(M));
+            bary /= bary.x + bary.y + bary.z;
 
             if (all(bary >= 0))
                 return distance;
@@ -123,7 +123,7 @@ namespace GMath
         /// </summary>
         public static float distanceP2T(float3 p, float3 a, float3 b, float3 c)
         {
-            return distanceP2T(p, a, b, c, out float3 _);
+            return distanceP2T(p, a, b, c, out var _);
         }
 
         /// <summary>
@@ -131,15 +131,15 @@ namespace GMath
         /// </summary>
         public static float distanceS2S(float3 a1, float3 b1, float3 a2, float3 b2, out float3 closest1, out float3 closest2)
         {
-            float3 u = b1 - a1;
-            float3 v = b2 - a2;
-            float3 w = a1 - a2;
-            float a = dot(u, u);         // always >= 0
-            float b = dot(u, v);
-            float c = dot(v, v);         // always >= 0
-            float d = dot(u, w);
-            float e = dot(v, w);
-            float D = a * c - b * b;        // always >= 0
+            var u = b1 - a1;
+            var v = b2 - a2;
+            var w = a1 - a2;
+            var a = dot(u, u);         // always >= 0
+            var b = dot(u, v);
+            var c = dot(v, v);         // always >= 0
+            var d = dot(u, w);
+            var e = dot(v, w);
+            var D = a * c - b * b;        // always >= 0
             float sc, sN, sD = D;       // sc = sN / sD, default sD = D >= 0
             float tc, tN, tD = D;       // tc = tN / tD, default tD = D >= 0
 
@@ -153,8 +153,8 @@ namespace GMath
             }
             else
             {                 // get the closest points on the infinite lines
-                sN = (b * e - c * d);
-                tN = (a * e - b * d);
+                sN = b * e - c * d;
+                tN = a * e - b * d;
                 if (sN < 0.0)
                 {        // sc < 0 => the s=0 edge is visible
                     sN = 0.0f;
@@ -187,23 +187,23 @@ namespace GMath
             {      // tc > 1  => the t=1 edge is visible
                 tN = tD;
                 // recompute sc for this edge
-                if ((-d + b) < 0.0)
+                if (-d + b < 0.0)
                     sN = 0;
-                else if ((-d + b) > a)
+                else if (-d + b > a)
                     sN = sD;
                 else
                 {
-                    sN = (-d + b);
+                    sN = -d + b;
                     sD = a;
                 }
             }
             // finally do the division to get sc and tc
-            sc = (abs(sN) < 0.00001 ? 0.0f : sN / sD);
-            tc = (abs(tN) < 0.00001 ? 0.0f : tN / tD);
+            sc = abs(sN) < 0.00001 ? 0.0f : sN / sD;
+            tc = abs(tN) < 0.00001 ? 0.0f : tN / tD;
 
             // get the two closest points
-            closest1 = a1 + (sc * u);
-            closest2 = a2 + (tc * v);
+            closest1 = a1 + sc * u;
+            closest2 = a2 + tc * v;
 
             return distanceP2P(closest1, closest2);   // return the closest distance
         }
@@ -213,7 +213,7 @@ namespace GMath
         /// </summary>
         public static float distanceS2S(float3 a1, float3 b1, float3 a2, float3 b2)
         {
-            return distanceS2S(a1, b1, a2, b2, out float3 _, out float3 _);
+            return distanceS2S(a1, b1, a2, b2, out var _, out var _);
         }
 
         // TODO: Implement line to line, segment to line
@@ -224,7 +224,7 @@ namespace GMath
         public static float distanceS2T(float3 a, float3 b, float3 t1, float3 t2, float3 t3, out float3 closest1, out float3 closest2)
         {
             // Assume is in an edge of the triangle
-            float distance = distanceP2P(a, t1);
+            var distance = distanceP2P(a, t1);
             closest1 = a; closest2 = t1;
 
             float3 cl1, cl2;
@@ -280,7 +280,7 @@ namespace GMath
         /// </summary>
         public static float distanceS2T(float3 a, float3 b, float3 t1, float3 t2, float3 t3)
         {
-            return distanceS2T(a, b, t1, t2, t3, out float3 _, out float3 _);
+            return distanceS2T(a, b, t1, t2, t3, out var _, out var _);
         }
 
 
@@ -289,25 +289,25 @@ namespace GMath
         /// </summary>
         public static float distanceQ2T(float3 C, float3 U, float3 R, float3 N, float3 t1, float3 t2, float3 t3)
         {
-            float3 p00 = C;
-            float3 p01 = C + R;
-            float3 p10 = C + U;
-            float3 p11 = C + U + R;
+            var p00 = C;
+            var p01 = C + R;
+            var p10 = C + U;
+            var p11 = C + U + R;
 
-            float3[] ed = new float3[] { p00, p01, p11, p10 };
+            var ed = new float3[] { p00, p01, p11, p10 };
 
             float dist = 1000000;
-            for (int i = 0; i < 4; i++) // Assume, the closest point is in an edge.
+            for (var i = 0; i < 4; i++) // Assume, the closest point is in an edge.
                 dist = min(dist, distanceS2T(ed[i], ed[(i + 1) % 4], t1, t2, t3));
 
-            float3[] t = new float3[] { t1, t2, t3 };
-            for (int i = 0; i < 3; i++) // Assume the closest point is inside, i.e. a vertex of the triangle
+            var t = new float3[] { t1, t2, t3 };
+            for (var i = 0; i < 3; i++) // Assume the closest point is inside, i.e. a vertex of the triangle
             {
                 // Project t[i] on plane C, N
                 float3 tp;
                 distanceP2X(t[i], C, N, out tp);
-                float cx = dot(tp - C, R);
-                float cy = dot(tp - C, U);
+                var cx = dot(tp - C, R);
+                var cy = dot(tp - C, U);
                 if (cx >= 0 && cy >= 0 && cx <= 1 && cy <= 1) // inside side
                     dist = min(dist, distanceP2T(tp, t1, t2, t3));
             }
